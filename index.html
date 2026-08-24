@@ -164,6 +164,8 @@ input::placeholder{color:var(--mute)}
 .cat-remain.over{color:var(--dang)}
 .cat-lim{display:block; font-size:11.5px; color:var(--mute)}
 .tag{font-size:11px; font-weight:600; padding:1px 7px; border-radius:99px; background:color-mix(in srgb, var(--dang) 14%, transparent); color:var(--dang)}
+.tag.fixed{background:var(--gold-soft); color:var(--gold)}
+.tag.auto{background:color-mix(in srgb, var(--pos) 15%, transparent); color:var(--pos)}
 
 /* ---------- log ---------- */
 .log-item{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; padding:11px 14px; border-bottom:1px solid var(--line)}
@@ -190,6 +192,8 @@ input::placeholder{color:var(--mute)}
 /* ---------- settings ---------- */
 .set{padding:14px; display:flex; flex-direction:column; gap:10px}
 .note{font-size:12.5px; color:var(--mute); line-height:1.65}
+.check{display:flex; align-items:flex-start; gap:9px; font-size:13px; color:var(--ink-2); cursor:pointer; line-height:1.5}
+.check input{width:auto; flex:none; margin:3px 0 0; padding:0; accent-color:var(--gold)}
 .warnbar{background:color-mix(in srgb, var(--warn) 13%, transparent); border:1px solid color-mix(in srgb, var(--warn) 40%, transparent); color:var(--ink); border-radius:12px; padding:11px 13px; font-size:13px}
 
 /* ---------- modal ---------- */
@@ -319,6 +323,7 @@ input::placeholder{color:var(--mute)}
           <button class="btn" type="button" id="btn-income">&#1581;&#1601;&#1592; &#1575;&#1604;&#1583;&#1582;&#1604;</button>
         </div>
         <p class="note" id="alloc-detail"></p>
+        <p class="note" id="fixed-detail"></p>
       </div>
     </div>
 
@@ -371,6 +376,8 @@ input::placeholder{color:var(--mute)}
       <option value="1">&#1585;&#1605;&#1604;&#1610;</option><option value="2">&#1571;&#1586;&#1585;&#1602;</option><option value="3">&#1576;&#1606;&#1601;&#1587;&#1580;&#1610;</option>
       <option value="4">&#1571;&#1582;&#1590;&#1585;</option><option value="5">&#1578;&#1585;&#1575;&#1576;&#1610;</option><option value="6">&#1585;&#1605;&#1575;&#1583;&#1610;</option>
     </select></div>
+    <label class="check"><input type="checkbox" id="m-fixed">
+      <span>&#1576;&#1606;&#1583; &#1579;&#1575;&#1576;&#1578; &#8212; &#1610;&#1615;&#1582;&#1589;&#1605; &#1578;&#1604;&#1602;&#1575;&#1574;&#1610;&#1575;&#1611; &#1603;&#1604; &#1583;&#1608;&#1585;&#1577;&#1548; &#1608;&#1610;&#1615;&#1587;&#1578;&#1576;&#1593;&#1583; &#1605;&#1606; &#1605;&#1593;&#1583;&#1617;&#1604; &#1575;&#1604;&#1589;&#1585;&#1601; &#1575;&#1604;&#1610;&#1608;&#1605;&#1610;</span></label>
     <p class="note" id="m-info"></p>
     <div class="row2">
       <button class="btn gold" type="button" id="m-save">&#1581;&#1601;&#1592;</button>
@@ -390,10 +397,10 @@ input::placeholder{color:var(--mute)}
 var SCHEMA = 3;
 var DEFAULT_INCOME = 11731;
 var DEFAULT_CATS = [
-  ["agri","\u0627\u0644\u0642\u0631\u0636 \u0627\u0644\u0632\u0631\u0627\u0639\u064a",3167,"\ud83c\udf3e",1],
+  ["agri","\u0627\u0644\u0642\u0631\u0636 \u0627\u0644\u0632\u0631\u0627\u0639\u064a",3167,"\ud83c\udf3e",1,true],
   ["groceries","\u0645\u0642\u0627\u0636\u064a \u0627\u0644\u0628\u064a\u062a",2250,"\ud83d\uded2",2],
-  ["rent","\u0625\u064a\u062c\u0627\u0631 \u0627\u0644\u0634\u0642\u0629",1800,"\ud83c\udfe0",3],
-  ["work","\u0627\u0633\u062a\u0642\u0637\u0627\u0639 \u0627\u0644\u0639\u0645\u0644",1000,"\ud83d\udcbc",4],
+  ["rent","\u0625\u064a\u062c\u0627\u0631 \u0627\u0644\u0634\u0642\u0629",1800,"\ud83c\udfe0",3,true],
+  ["work","\u0627\u0633\u062a\u0642\u0637\u0627\u0639 \u0627\u0644\u0639\u0645\u0644",1000,"\ud83d\udcbc",4,true],
   ["me","\u0645\u0635\u0631\u0648\u0641\u064a (\u0623\u0628\u0648 \u064a\u0627\u0631\u0627)",500,"\ud83d\udc68",5],
   ["wife","\u0645\u0635\u0631\u0648\u0641 \u0627\u0644\u0632\u0648\u062c\u0629",500,"\ud83d\udc69",1],
   ["gas","\u0628\u0646\u0632\u064a\u0646 \u0627\u0644\u0633\u064a\u0627\u0631\u0629",500,"\u26fd",2],
@@ -406,7 +413,8 @@ var DEFAULT_CATS = [
   ["charity","\u0635\u062f\u0642\u0629",50,"\ud83e\udd32",4]
 ];
 var DEF_ICON = {};
-DEFAULT_CATS.forEach(function(c){ DEF_ICON[c[0]] = c[3]; });
+var DEF_FIXED = {};
+DEFAULT_CATS.forEach(function(c){ DEF_ICON[c[0]] = c[3]; DEF_FIXED[c[0]] = !!c[5]; });
 // \u0631\u0645\u0632 \u062a\u0639\u0637\u0651\u0628 \u0641\u064a \u0646\u0633\u062e\u0629 \u0633\u0627\u0628\u0642\u0629 \u064a\u0638\u0647\u0631 \u0643\u062d\u0631\u0641 \u064a\u0648\u0646\u0627\u0646\u064a (\u0627\u0644\u0646\u0637\u0627\u0642 U+1F00-U+1FFF)
 var BROKEN_ICON = /[\u1f00-\u1fff]/;
 var PAYDAY_DEFAULT = 27;   // \u064a\u0648\u0645 \u0646\u0632\u0648\u0644 \u0627\u0644\u0631\u0627\u062a\u0628\u061b 0 \u064a\u0639\u0646\u064a \u0622\u062e\u0631 \u064a\u0648\u0645 \u0641\u064a \u0627\u0644\u0634\u0647\u0631
@@ -426,7 +434,7 @@ function freshState(){
            log:[], archives:[], startedAt:Date.now()};
   s.cycleStart = cycleStartOf(new Date(), s.payday);
   DEFAULT_CATS.forEach(function(c){
-    s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4]};
+    s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4], fixed:!!c[5]};
     s.order.push(c[0]);
   });
   return s;
@@ -482,7 +490,7 @@ function migrate(s){
   s.order = Array.isArray(s.order) ? s.order.filter(function(k){ return s.cats[k]; }) : [];
   // \u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u0623\u0635\u0644\u064a\u0629 \u0627\u0644\u0646\u0627\u0642\u0635\u0629 \u062a\u064f\u0636\u0627\u0641 (\u0648\u0647\u0630\u0647 \u0643\u0627\u0646\u062a \u0644\u0627 \u062a\u0635\u0644 \u0644\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u0641\u064a \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0642\u062f\u064a\u0645\u0629)
   DEFAULT_CATS.forEach(function(c){
-    if(!s.cats[c[0]]){ s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4]}; s.order.push(c[0]); }
+    if(!s.cats[c[0]]){ s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4], fixed:!!c[5]}; s.order.push(c[0]); }
   });
   Object.keys(s.cats).forEach(function(k){
     if(s.order.indexOf(k) < 0) s.order.push(k);
@@ -492,6 +500,7 @@ function migrate(s){
     c.icon = c.icon || "\ud83d\udcdd";
     if(BROKEN_ICON.test(c.icon)) c.icon = DEF_ICON[k] || "\ud83d\udcdd";
     c.name = c.name || k;
+    if(typeof c.fixed !== "boolean") c.fixed = !!DEF_FIXED[k];
     delete c.spent;              // \u0627\u0644\u0645\u0635\u0631\u0648\u0641 \u0635\u0627\u0631 \u064a\u064f\u062d\u0633\u0628 \u0645\u0646 \u0627\u0644\u0633\u062c\u0644 \u0645\u0628\u0627\u0634\u0631\u0629
   });
   s.log = s.log.filter(function(e){ return e && s.cats[e.cat] && num(e.amount) > 0; })
@@ -503,6 +512,7 @@ function migrate(s){
   else if(s.cycleStart < curStart){
     if(s.log.length) archiveCycle(s, s.cycleStart);
     s.cycleStart = curStart;
+    s.autoPosted = [];        // \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u062f\u064a\u062f\u0629 \u062a\u0633\u062a\u062d\u0642 \u062e\u0635\u0648\u0645\u0627\u062a\u0647\u0627 \u0627\u0644\u062b\u0627\u0628\u062a\u0629
     rolledOver = true;
   }
   return s;
@@ -573,6 +583,32 @@ function sumFor(s, key){
 }
 function totalFor(s){ var t=0; for(var i=0;i<s.log.length;i++) t += s.log[i].amount; return t; }
 function spentOf(key){ return sumFor(state, key); }
+// \u062a\u0633\u062c\u0651\u0644 \u062e\u0635\u0645 \u0643\u0644 \u0628\u0646\u062f \u062b\u0627\u0628\u062a \u0645\u0631\u0629 \u0648\u0627\u062d\u062f\u0629 \u0641\u064a \u0627\u0644\u062f\u0648\u0631\u0629. \u062a\u0639\u064a\u062f \u0639\u062f\u062f \u0645\u0627 \u0633\u064f\u062c\u0651\u0644.
+function ensureAutoPosts(){
+  if(!Array.isArray(state.autoPosted)) state.autoPosted = [];
+  var added = 0;
+  state.order.forEach(function(k){
+    var c = state.cats[k];
+    if(!c.fixed || c.limit <= 0) return;
+    if(state.autoPosted.indexOf(k) >= 0) return;   // \u062e\u064f\u0635\u0645 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629
+    state.autoPosted.push(k);
+    if(sumFor(state, k) > 0) return;               // \u0633\u064f\u062c\u0651\u0644 \u064a\u062f\u0648\u064a\u0627\u064b\u060c \u0641\u0644\u0627 \u064a\u064f\u0643\u0631\u064e\u0651\u0631
+    state.log.push({id:uid(), ts:state.cycleStart, cat:k, amount:c.limit,
+                    note:"\u062e\u0635\u0645 \u062a\u0644\u0642\u0627\u0626\u064a", auto:true});
+    added++;
+  });
+  return added;
+}
+
+// \u0645\u0627 \u0644\u0645 \u064a\u064f\u0635\u0631\u0641 \u0628\u0639\u062f \u0645\u0646 \u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u062b\u0627\u0628\u062a\u0629 \u2014 \u0645\u0628\u0644\u063a \u0645\u062d\u062c\u0648\u0632 \u0644\u0627 \u064a\u064f\u0639\u062f\u0651 \u0645\u062a\u0627\u062d\u0627\u064b
+function committedLeft(){
+  var t = 0;
+  state.order.forEach(function(k){
+    var c = state.cats[k];
+    if(c.fixed) t += Math.max(0, c.limit - spentOf(k));
+  });
+  return t;
+}
 function totalSpent(){ return totalFor(state); }
 
 // \u062a\u064f\u0646\u0642\u0644 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629 \u0625\u0644\u0649 \u0627\u0644\u0623\u0631\u0634\u064a\u0641 \u0648\u064a\u064f\u0641\u0631\u064e\u0651\u063a \u0627\u0644\u0633\u062c\u0644
@@ -623,9 +659,12 @@ function renderBand(){
   el("alloc-left").style.width = (100 - pct) + "%";
   el("alloc-txt").textContent = "\u0635\u064f\u0631\u0641 " + Math.round(pct) + "\u066a \u0645\u0646 \u0627\u0644\u062f\u062e\u0644";
 
+  var committed = committedLeft(), freeLeft = left - committed;
   el("alloc-day").textContent = left < 0
     ? "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u062f\u062e\u0644 \u0628\u0640 " + money(-left) + " \u0631.\u0633"
-    : money(left / Math.max(1, dLeft)) + " \u0631.\u0633/\u064a\u0648\u0645 \u062d\u062a\u0649 \u0627\u0644\u0631\u0627\u062a\u0628";
+    : (freeLeft <= 0
+        ? "\u0644\u0627 \u0645\u062a\u0627\u062d \u0644\u0644\u0635\u0631\u0641 \u0627\u0644\u062d\u0631 \u2014 \u0645\u062d\u062c\u0648\u0632 " + money(committed) + " \u0631.\u0633 \u0644\u0644\u062b\u0627\u0628\u062a\u0629"
+        : money(freeLeft / Math.max(1, dLeft)) + " \u0631.\u0633/\u064a\u0648\u0645 \u0645\u062a\u0627\u062d \u062d\u062a\u0649 \u0627\u0644\u0631\u0627\u062a\u0628");
 
   var today = new Date(); today.setHours(0,0,0,0);
   var t0 = today.getTime(), sum = 0, n = 0;
@@ -670,7 +709,9 @@ function renderCats(){
     html += '<div class="cat" data-key="'+k+'" role="button" tabindex="0">'
       + '<span class="ico" style="background:var(--t'+c.tint+')">'+esc(c.icon)+'</span>'
       + '<span class="cat-main">'
-        + '<span class="cat-name">'+esc(c.name)+ (r>1 ? ' <span class="tag">\u062a\u062c\u0627\u0648\u0632</span>' : '') +'</span>'
+        + '<span class="cat-name">'+esc(c.name)
+          + (c.fixed ? ' <span class="tag fixed">\u062b\u0627\u0628\u062a</span>' : '')
+          + (r>1 ? ' <span class="tag">\u062a\u062c\u0627\u0648\u0632</span>' : '') +'</span>'
         + '<span class="cat-rail"><i class="'+cls+'" style="width:'+pct+'%"></i></span>'
         + '<span class="cat-sub"><span>\u0635\u064f\u0631\u0641 <b class="num">'+money(s)+'</b></span><span>'+(c.limit>0 ? Math.round(s/c.limit*100)+"\u066a" : "\u0628\u0644\u0627 \u0645\u064a\u0632\u0627\u0646\u064a\u0629")+'</span></span>'
       + '</span>'
@@ -692,7 +733,8 @@ function renderLog(){
     var c = state.cats[e.cat];
     html += '<div class="log-item">'
       + '<span><span class="log-name">'+esc(c ? c.icon+" "+c.name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641")+'</span>'
-      + '<br><span class="log-meta">'+esc(stamp(e))+(e.note ? " \u2014 "+esc(e.note) : "")+'</span></span>'
+      + '<br><span class="log-meta">'+(e.auto ? '<span class="tag auto">\u062a\u0644\u0642\u0627\u0626\u064a</span> ' : '')
+        +esc(stamp(e))+(e.note && !e.auto ? " \u2014 "+esc(e.note) : "")+'</span></span>'
       + '<span class="log-amt num">'+money(e.amount)+'</span>'
       + '<button class="icon-btn" type="button" data-del="'+e.id+'" aria-label="\u062d\u0630\u0641">\u2715</button>'
       + '</div>';
@@ -758,6 +800,16 @@ function renderSet(){
     + (Math.abs(diff) < 1 ? "\u0645\u0637\u0627\u0628\u0642 \u062a\u0645\u0627\u0645\u0627\u064b."
        : diff > 0 ? "\u064a\u062a\u0628\u0642\u0649 <b class='num'>"+money(diff)+"</b> \u0631.\u0633 \u063a\u064a\u0631 \u0645\u0648\u0632\u0651\u0639\u0629."
        : "\u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u062a\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u062f\u062e\u0644 \u0628\u0640 <b class='num'>"+money(-diff)+"</b> \u0631.\u0633.");
+
+  var fixedCats = state.order.filter(function(k){ return state.cats[k].fixed; });
+  var committed = committedLeft(), freeLeft = state.income - totalSpent() - committed;
+  el("fixed-detail").innerHTML = fixedCats.length
+    ? "\u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u062b\u0627\u0628\u062a\u0629 (" + fixedCats.map(function(k){ return esc(state.cats[k].name); }).join("\u060c ") + ") "
+      + "\u0645\u062c\u0645\u0648\u0639\u0647\u0627 <b class='num'>" + money(fixedCats.reduce(function(a,k){ return a + state.cats[k].limit; }, 0)) + "</b> \u0631.\u0633 "
+      + "\u0648\u062a\u064f\u062e\u0635\u0645 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b \u0645\u0639 \u0628\u062f\u0627\u064a\u0629 \u0643\u0644 \u062f\u0648\u0631\u0629. \u0627\u0644\u0645\u062a\u0627\u062d \u0644\u0644\u0635\u0631\u0641 \u0627\u0644\u062d\u0631: <b class='num'>" + money(Math.max(0, freeLeft)) + "</b> \u0631.\u0633."
+      + (committed > 0 ? " (\u0644\u0645 \u064a\u064f\u062e\u0635\u0645 \u0645\u0646\u0647\u0627 \u0628\u0639\u062f <b class='num'>" + money(committed) + "</b> \u0631.\u0633.)" : "")
+      + " \u0644\u0648 \u0644\u0645 \u064a\u064f\u062f\u0641\u0639 \u0623\u062d\u062f\u0647\u0627\u060c \u0627\u062d\u0630\u0641 \u0642\u064a\u062f\u0647 \u0645\u0646 \u0627\u0644\u0633\u062c\u0644."
+    : "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u0646\u0648\u062f \u062b\u0627\u0628\u062a\u0629. \u0623\u0634\u0651\u0631 \u0639\u0644\u0649 \u00ab\u0628\u0646\u062f \u062b\u0627\u0628\u062a\u00bb \u0641\u064a \u0623\u064a \u0628\u0646\u062f \u0627\u0644\u062a\u0632\u0627\u0645 (\u0642\u0631\u0636\u060c \u0625\u064a\u062c\u0627\u0631\u060c \u0627\u0633\u062a\u0642\u0637\u0627\u0639) \u0644\u064a\u064f\u062e\u0635\u0645 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b \u0643\u0644 \u062f\u0648\u0631\u0629 \u0648\u064a\u064f\u0633\u062a\u0628\u0639\u062f \u0645\u0646 \u0645\u0639\u062f\u0651\u0644 \u0627\u0644\u0635\u0631\u0641 \u0627\u0644\u064a\u0648\u0645\u064a.";
 }
 
 /* ============ \u0627\u0644\u0639\u0645\u0644\u064a\u0627\u062a ============ */
@@ -822,10 +874,11 @@ el("btn-add-cat").addEventListener("click", function(){ openEditor(null); });
 
 function openEditor(k){
   editKey = k;
-  var c = k ? state.cats[k] : {name:"", limit:"", icon:"\ud83d\udcdd", tint:2};
+  var c = k ? state.cats[k] : {name:"", limit:"", icon:"\ud83d\udcdd", tint:2, fixed:false};
   el("m-title").textContent = k ? "\u062a\u0639\u062f\u064a\u0644 \u0627\u0644\u0628\u0646\u062f" : "\u0628\u0646\u062f \u062c\u062f\u064a\u062f";
   el("m-name").value = c.name; el("m-limit").value = c.limit;
   el("m-icon").value = c.icon; el("m-tint").value = c.tint;
+  el("m-fixed").checked = !!c.fixed;
   var n = k ? state.log.filter(function(e){ return e.cat === k; }).length : 0;
   el("m-info").textContent = k ? (n ? "\u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f " + ops(n) + " \u0641\u064a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629." : "\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f \u0641\u064a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629.") : "";
   el("m-del").hidden = !k;
@@ -841,14 +894,16 @@ el("m-save").addEventListener("click", function(){
   var name = el("m-name").value.trim(), limit = num(el("m-limit").value);
   if(!name) return toast("\u0627\u0643\u062a\u0628 \u0627\u0633\u0645 \u0627\u0644\u0628\u0646\u062f");
   if(limit < 0) return toast("\u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0644\u0627 \u062a\u0643\u0648\u0646 \u0628\u0627\u0644\u0633\u0627\u0644\u0628");
-  var data = {name:name, limit:limit, icon:el("m-icon").value.trim() || "\ud83d\udcdd", tint:num(el("m-tint").value) || 2};
+  var data = {name:name, limit:limit, icon:el("m-icon").value.trim() || "\ud83d\udcdd",
+              tint:num(el("m-tint").value) || 2, fixed:el("m-fixed").checked};
   if(editKey){ state.cats[editKey] = data; }
   else {
     var k = "c" + uid();
     state.cats[k] = data; state.order.push(k);
   }
+  var n = ensureAutoPosts();
   save(); render(); closeEditor();
-  toast(editKey ? "\u062d\u064f\u0641\u0638 \u0627\u0644\u0628\u0646\u062f" : "\u0623\u064f\u0636\u064a\u0641 \u0627\u0644\u0628\u0646\u062f");
+  toast(n ? "\u062d\u064f\u0641\u0638 \u0627\u0644\u0628\u0646\u062f \u0648\u0633\u064f\u062c\u0651\u0644 \u062e\u0635\u0645\u0647 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b" : (editKey ? "\u062d\u064f\u0641\u0638 \u0627\u0644\u0628\u0646\u062f" : "\u0623\u064f\u0636\u064a\u0641 \u0627\u0644\u0628\u0646\u062f"));
 });
 
 el("m-del").addEventListener("click", function(){
@@ -946,8 +1001,11 @@ el("f-file").addEventListener("change", function(){
 state = load();
 if(!canStore) showStorageWarn("\u062a\u0646\u0628\u064a\u0647: \u0647\u0630\u0627 \u0627\u0644\u0645\u062a\u0635\u0641\u062d \u064a\u0645\u0646\u0639 \u0627\u0644\u062d\u0641\u0638 \u0627\u0644\u0645\u062d\u0644\u064a\u060c \u0641\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0633\u062a\u0636\u064a\u0639 \u0639\u0646\u062f \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u0635\u0641\u062d\u0629. \u0627\u0633\u062a\u062e\u062f\u0645 \u00ab\u062a\u0646\u0632\u064a\u0644 \u0646\u0633\u062e\u0629\u00bb \u0641\u064a \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0644\u0644\u0627\u062d\u062a\u0641\u0627\u0638 \u0628\u0647\u0627.");
 else save();
+var autoAdded = ensureAutoPosts();
+if(autoAdded) save();
 render();
-if(rolledOver) toast("\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u2014 \u0623\u064f\u0631\u0634\u0641\u062a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629 \u0648\u0628\u062f\u0623\u062a \u062f\u0648\u0631\u0629 \u062c\u062f\u064a\u062f\u0629");
+if(rolledOver) toast("\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u2014 \u0623\u064f\u0631\u0634\u0641\u062a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629" + (autoAdded ? " \u0648\u0633\u064f\u062c\u0651\u0644\u062a \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0627\u0644\u062b\u0627\u0628\u062a\u0629" : ""));
+else if(autoAdded) toast("\u0633\u064f\u062c\u0651\u0644\u062a \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0627\u0644\u062b\u0627\u0628\u062a\u0629 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b");
 })();
 </script>
 <script>
