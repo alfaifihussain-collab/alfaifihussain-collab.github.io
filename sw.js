@@ -1,5 +1,5 @@
 // \u064a\u062e\u0632\u0651\u0646 \u0627\u0644\u062a\u0637\u0628\u064a\u0642 \u0639\u0644\u0649 \u0627\u0644\u062c\u0647\u0627\u0632 \u0644\u064a\u0639\u0645\u0644 \u0628\u062f\u0648\u0646 \u0625\u0646\u062a\u0631\u0646\u062a.
-var CACHE = 'abu-yara-budget-42e4b3157d';
+var CACHE = 'abu-yara-budget-8055191843';
 var ASSETS = ['./', './index.html', './manifest.webmanifest',
               './icon-180.png', './icon-192.png', './icon-512.png'];
 

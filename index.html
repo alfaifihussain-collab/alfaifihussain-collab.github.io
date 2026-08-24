@@ -67,7 +67,11 @@ button,input,select,textarea{font:inherit; color:inherit}
 .band{background:var(--navy); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--line)}
 .band-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:14px 16px 10px}
 .band-top h1{color:#fff; font-size:19px; letter-spacing:.2px}
-.band-top .month{color:var(--on-navy-mute); font-size:12.5px; letter-spacing:.06em}
+.countdown{background:var(--gold-lit); color:#16243D; font-weight:600; font-size:12.5px;
+  padding:4px 11px; border-radius:99px; white-space:nowrap}
+.countdown.today{background:#6FDCA9}
+.cycle-line{display:flex; gap:5px 10px; flex-wrap:wrap; padding:0 16px 12px; font-size:12px; color:var(--on-navy-mute)}
+.cycle-line span:first-child{color:#fff; font-weight:600}
 .stats{display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(212,175,55,.22)}
 .stat{padding:12px 16px 14px; text-align:center; border-inline-start:1px solid rgba(255,255,255,.08)}
 .stat:first-child{border-inline-start:0}
@@ -203,8 +207,9 @@ input::placeholder{color:var(--mute)}
   <header class="band">
     <div class="band-top">
       <h1>&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577; &#1571;&#1576;&#1608; &#1610;&#1575;&#1585;&#1575;</h1>
-      <span class="month" id="month-label"></span>
+      <span class="countdown" id="countdown"></span>
     </div>
+    <div class="cycle-line"><span id="cycle-label"></span><span id="cycle-range"></span></div>
     <div class="stats">
       <div class="stat"><span class="k">&#1575;&#1604;&#1583;&#1582;&#1604;</span><span class="v num" id="s-income">0</span></div>
       <div class="stat"><span class="k">&#1575;&#1604;&#1605;&#1589;&#1585;&#1608;&#1601;</span><span class="v num" id="s-spent">0</span></div>
@@ -274,7 +279,7 @@ input::placeholder{color:var(--mute)}
   <section class="panel" id="p-log" hidden>
     <div class="list">
       <div class="list-head">
-        <h2>&#1587;&#1580;&#1604; &#1575;&#1604;&#1588;&#1607;&#1585; <span class="eyebrow" id="log-count"></span></h2>
+        <h2>&#1587;&#1580;&#1604; &#1575;&#1604;&#1583;&#1608;&#1585;&#1577; <span class="eyebrow" id="log-count"></span></h2>
         <select id="log-filter" style="width:auto; padding:6px 10px; font-size:13px"></select>
       </div>
       <div id="log-body"></div>
@@ -284,11 +289,11 @@ input::placeholder{color:var(--mute)}
   <!-- ---- &#1575;&#1604;&#1571;&#1585;&#1588;&#1610;&#1601; ---- -->
   <section class="panel" id="p-arch" hidden>
     <div class="list" id="trend-card" hidden>
-      <div class="list-head"><h2>&#1573;&#1580;&#1605;&#1575;&#1604;&#1610; &#1575;&#1604;&#1589;&#1585;&#1601; &#1588;&#1607;&#1585;&#1610;&#1575;&#1611;</h2></div>
+      <div class="list-head"><h2>&#1573;&#1580;&#1605;&#1575;&#1604;&#1610; &#1575;&#1604;&#1589;&#1585;&#1601; &#1604;&#1603;&#1604; &#1583;&#1608;&#1585;&#1577;</h2></div>
       <div class="trend" id="trend"></div>
     </div>
     <div class="list">
-      <div class="list-head"><h2>&#1575;&#1604;&#1588;&#1607;&#1608;&#1585; &#1575;&#1604;&#1605;&#1572;&#1585;&#1588;&#1601;&#1577;</h2></div>
+      <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1608;&#1585;&#1575;&#1578; &#1575;&#1604;&#1605;&#1572;&#1585;&#1588;&#1601;&#1577;</h2></div>
       <div id="arch-body"></div>
     </div>
   </section>
@@ -296,13 +301,24 @@ input::placeholder{color:var(--mute)}
   <!-- ---- &#1575;&#1604;&#1573;&#1593;&#1583;&#1575;&#1583;&#1575;&#1578; ---- -->
   <section class="panel" id="p-set" hidden>
     <div class="list">
-      <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1582;&#1604; &#1575;&#1604;&#1588;&#1607;&#1585;&#1610;</h2></div>
+      <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1582;&#1604; &#1604;&#1603;&#1604; &#1583;&#1608;&#1585;&#1577;</h2></div>
       <div class="set">
         <div class="row2">
           <input type="number" id="f-income" inputmode="decimal" min="0" placeholder="&#1575;&#1604;&#1583;&#1582;&#1604; &#1576;&#1575;&#1604;&#1585;&#1610;&#1575;&#1604;">
           <button class="btn" type="button" id="btn-income">&#1581;&#1601;&#1592; &#1575;&#1604;&#1583;&#1582;&#1604;</button>
         </div>
         <p class="note" id="alloc-detail"></p>
+      </div>
+    </div>
+
+    <div class="list">
+      <div class="list-head"><h2>&#1610;&#1608;&#1605; &#1606;&#1586;&#1608;&#1604; &#1575;&#1604;&#1585;&#1575;&#1578;&#1576;</h2></div>
+      <div class="set">
+        <div class="row2">
+          <select id="f-payday"></select>
+          <button class="btn" type="button" id="btn-payday">&#1581;&#1601;&#1592; &#1575;&#1604;&#1610;&#1608;&#1605;</button>
+        </div>
+        <p class="note" id="payday-note"></p>
       </div>
     </div>
 
@@ -320,10 +336,10 @@ input::placeholder{color:var(--mute)}
     </div>
 
     <div class="list">
-      <div class="list-head"><h2>&#1576;&#1583;&#1575;&#1610;&#1577; &#1588;&#1607;&#1585; &#1580;&#1583;&#1610;&#1583;</h2></div>
+      <div class="list-head"><h2>&#1576;&#1583;&#1575;&#1610;&#1577; &#1583;&#1608;&#1585;&#1577; &#1580;&#1583;&#1610;&#1583;&#1577;</h2></div>
       <div class="set">
-        <p class="note">&#1575;&#1604;&#1578;&#1589;&#1601;&#1610;&#1585; &#1610;&#1581;&#1601;&#1592; &#1575;&#1604;&#1588;&#1607;&#1585; &#1575;&#1604;&#1581;&#1575;&#1604;&#1610; &#1601;&#1610; &#1575;&#1604;&#1571;&#1585;&#1588;&#1610;&#1601; (&#1576;&#1603;&#1604; &#1576;&#1606;&#1608;&#1583;&#1607; &#1608;&#1573;&#1580;&#1605;&#1575;&#1604;&#1610;&#1575;&#1578;&#1607;) &#1579;&#1605; &#1610;&#1576;&#1583;&#1571; &#1587;&#1580;&#1604;&#1575;&#1611; &#1580;&#1583;&#1610;&#1583;&#1575;&#1611;. &#1575;&#1604;&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1575;&#1578; &#1608;&#1575;&#1604;&#1576;&#1606;&#1608;&#1583; &#1578;&#1576;&#1602;&#1609; &#1603;&#1605;&#1575; &#1607;&#1610;.</p>
-        <button class="btn danger block" type="button" id="btn-reset">&#1571;&#1585;&#1588;&#1601;&#1577; &#1575;&#1604;&#1588;&#1607;&#1585; &#1608;&#1575;&#1604;&#1576;&#1583;&#1569; &#1605;&#1606; &#1580;&#1583;&#1610;&#1583;</button>
+        <p class="note">&#1578;&#1615;&#1572;&#1585;&#1588;&#1601; &#1575;&#1604;&#1583;&#1608;&#1585;&#1577; &#1578;&#1604;&#1602;&#1575;&#1574;&#1610;&#1575;&#1611; &#1593;&#1606;&#1583; &#1606;&#1586;&#1608;&#1604; &#1575;&#1604;&#1585;&#1575;&#1578;&#1576;. &#1607;&#1584;&#1575; &#1575;&#1604;&#1586;&#1585; &#1604;&#1571;&#1585;&#1588;&#1601;&#1578;&#1607;&#1575; &#1605;&#1576;&#1603;&#1585;&#1575;&#1611;: &#1578;&#1615;&#1581;&#1601;&#1592; &#1601;&#1610; &#1575;&#1604;&#1571;&#1585;&#1588;&#1610;&#1601; &#1576;&#1603;&#1604; &#1576;&#1606;&#1608;&#1583;&#1607;&#1575; &#1579;&#1605; &#1610;&#1576;&#1583;&#1571; &#1587;&#1580;&#1604; &#1580;&#1583;&#1610;&#1583;&#1548; &#1608;&#1575;&#1604;&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1575;&#1578; &#1608;&#1575;&#1604;&#1576;&#1606;&#1608;&#1583; &#1578;&#1576;&#1602;&#1609; &#1603;&#1605;&#1575; &#1607;&#1610;.</p>
+        <button class="btn danger block" type="button" id="btn-reset">&#1571;&#1585;&#1588;&#1601;&#1577; &#1575;&#1604;&#1583;&#1608;&#1585;&#1577; &#1575;&#1604;&#1581;&#1575;&#1604;&#1610;&#1577; &#1605;&#1576;&#1603;&#1585;&#1575;&#1611;</button>
         <button class="btn danger block sm" type="button" id="btn-wipe">&#1581;&#1584;&#1601; &#1603;&#1604; &#1588;&#1610;&#1569; &#1608;&#1575;&#1604;&#1593;&#1608;&#1583;&#1577; &#1604;&#1604;&#1573;&#1593;&#1583;&#1575;&#1583;&#1575;&#1578; &#1575;&#1604;&#1571;&#1589;&#1604;&#1610;&#1577;</button>
       </div>
     </div>
@@ -382,6 +398,8 @@ var DEF_ICON = {};
 DEFAULT_CATS.forEach(function(c){ DEF_ICON[c[0]] = c[3]; });
 // \u0631\u0645\u0632 \u062a\u0639\u0637\u0651\u0628 \u0641\u064a \u0646\u0633\u062e\u0629 \u0633\u0627\u0628\u0642\u0629 \u064a\u0638\u0647\u0631 \u0643\u062d\u0631\u0641 \u064a\u0648\u0646\u0627\u0646\u064a (\u0627\u0644\u0646\u0637\u0627\u0642 U+1F00-U+1FFF)
 var BROKEN_ICON = /[\u1f00-\u1fff]/;
+var PAYDAY_DEFAULT = 27;   // \u064a\u0648\u0645 \u0646\u0632\u0648\u0644 \u0627\u0644\u0631\u0627\u062a\u0628\u061b 0 \u064a\u0639\u0646\u064a \u0622\u062e\u0631 \u064a\u0648\u0645 \u0641\u064a \u0627\u0644\u0634\u0647\u0631
+var DAY_MS = 86400000;
 var KEY = "abuYara.budget.v3";
 var OLD = {b:"abuYaraAppBudget", h:"abuYaraAppHistory", i:"abuYaraAppIncome"};
 
@@ -390,10 +408,12 @@ var canStore = true;
 try { localStorage.setItem("__t","1"); localStorage.removeItem("__t"); }
 catch(e){ canStore = false; }
 
-var state = null, sortMode = "limit", editKey = null;
+var state = null, sortMode = "limit", editKey = null, rolledOver = false;
 
 function freshState(){
-  var s = {schema:SCHEMA, income:DEFAULT_INCOME, cats:{}, order:[], log:[], archives:[], startedAt:Date.now()};
+  var s = {schema:SCHEMA, income:DEFAULT_INCOME, payday:PAYDAY_DEFAULT, cats:{}, order:[],
+           log:[], archives:[], startedAt:Date.now()};
+  s.cycleStart = cycleStartOf(new Date(), s.payday);
   DEFAULT_CATS.forEach(function(c){
     s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4]};
     s.order.push(c[0]);
@@ -444,6 +464,7 @@ function migrate(s){
   if(!s || typeof s !== "object") return freshState();
   s.schema = SCHEMA;
   s.income = num(s.income) || DEFAULT_INCOME;
+  if(s.payday !== 0 && !(num(s.payday) >= 1 && num(s.payday) <= 28)) s.payday = PAYDAY_DEFAULT;
   s.cats = s.cats || {};
   s.log = Array.isArray(s.log) ? s.log : [];
   s.archives = Array.isArray(s.archives) ? s.archives : [];
@@ -464,6 +485,15 @@ function migrate(s){
   });
   s.log = s.log.filter(function(e){ return e && s.cats[e.cat] && num(e.amount) > 0; })
                .map(function(e){ if(!e.id) e.id = uid(); e.amount = num(e.amount); return e; });
+
+  // \u0628\u062f\u0627\u064a\u0629 \u062f\u0648\u0631\u0629 \u062c\u062f\u064a\u062f\u0629: \u062a\u064f\u0624\u0631\u0634\u0641 \u0627\u0644\u0633\u0627\u0628\u0642\u0629 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b \u0648\u0644\u0627 \u064a\u0636\u064a\u0639 \u0645\u0646\u0647\u0627 \u0634\u064a\u0621
+  var curStart = cycleStartOf(new Date(), s.payday);
+  if(typeof s.cycleStart !== "number"){ s.cycleStart = curStart; }
+  else if(s.cycleStart < curStart){
+    if(s.log.length) archiveCycle(s, s.cycleStart);
+    s.cycleStart = curStart;
+    rolledOver = true;
+  }
   return s;
 }
 
@@ -474,6 +504,32 @@ function save(){
 }
 
 /* ============ \u0623\u062f\u0648\u0627\u062a ============ */
+/* ---- \u062f\u0648\u0631\u0629 \u0627\u0644\u0631\u0627\u062a\u0628: \u0645\u0646 \u064a\u0648\u0645 \u0627\u0644\u0646\u0632\u0648\u0644 \u0625\u0644\u0649 \u0627\u0644\u064a\u0648\u0645 \u0627\u0644\u0633\u0627\u0628\u0642 \u0644\u0644\u0646\u0632\u0648\u0644 \u0627\u0644\u062a\u0627\u0644\u064a ---- */
+function lastDayOf(y, m){ return new Date(y, m + 1, 0).getDate(); }
+function paydayOf(y, m, p){ var last = lastDayOf(y, m); return p === 0 ? last : Math.min(p, last); }
+
+function cycleStartOf(d, p){
+  var y = d.getFullYear(), m = d.getMonth();
+  if(d.getDate() >= paydayOf(y, m, p)) return new Date(y, m, paydayOf(y, m, p)).getTime();
+  var pm = m - 1, py = y;
+  if(pm < 0){ pm = 11; py--; }
+  return new Date(py, pm, paydayOf(py, pm, p)).getTime();
+}
+function cycleEndOf(d, p){          // \u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062a\u0627\u0644\u064a\u0629
+  var st = new Date(cycleStartOf(d, p)), y = st.getFullYear(), m = st.getMonth() + 1;
+  if(m > 11){ m = 0; y++; }
+  return new Date(y, m, paydayOf(y, m, p)).getTime();
+}
+function cycleLabel(ts){ return "\u0631\u0627\u062a\u0628 " + dtMonth.format(new Date(ts)); }
+function cycleRange(startTs, endTs){
+  return dtDay.format(new Date(startTs)) + " \u2190 " + dtDay.format(new Date(endTs - DAY_MS));
+}
+function midnight(){ var d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function daysToPayday(){
+  return Math.round((cycleEndOf(new Date(), state.payday) - midnight()) / DAY_MS);
+}
+function isPayday(){ return cycleStartOf(new Date(), state.payday) === midnight(); }
+
 function num(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
@@ -487,7 +543,7 @@ function plural(n, one, two, few, many){
   if(a >= 3 && a <= 10) return n + " " + few;
   return n + " " + many;
 }
-function ops(n){ return plural(n, "\u0639\u0645\u0644\u064a\u0629 \u0648\u0627\u062d\u062f\u0629", "\u0639\u0645\u0644\u064a\u062a\u0627\u0646", "\u0639\u0645\u0644\u064a\u0627\u062a", "\u0639\u0645\u0644\u064a\u0629"); }
+function ops(n){ return plural(n, "\u0639\u0645\u0644\u064a\u0629 \u0648\u0627\u062d\u062f\u0629", "\u0639\u0645\u0644\u064a\u062a\u064a\u0646", "\u0639\u0645\u0644\u064a\u0627\u062a", "\u0639\u0645\u0644\u064a\u0629"); }
 function el(id){ return document.getElementById(id); }
 
 var dtDay = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long"});
@@ -499,12 +555,29 @@ function stamp(e){
   return dtDay.format(d) + " \u2022 " + dtTime.format(d);
 }
 
-function spentOf(key){
+function sumFor(s, key){
   var t = 0;
-  for(var i=0;i<state.log.length;i++) if(state.log[i].cat === key) t += state.log[i].amount;
+  for(var i=0;i<s.log.length;i++) if(s.log[i].cat === key) t += s.log[i].amount;
   return t;
 }
-function totalSpent(){ var t=0; for(var i=0;i<state.log.length;i++) t += state.log[i].amount; return t; }
+function totalFor(s){ var t=0; for(var i=0;i<s.log.length;i++) t += s.log[i].amount; return t; }
+function spentOf(key){ return sumFor(state, key); }
+function totalSpent(){ return totalFor(state); }
+
+// \u062a\u064f\u0646\u0642\u0644 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629 \u0625\u0644\u0649 \u0627\u0644\u0623\u0631\u0634\u064a\u0641 \u0648\u064a\u064f\u0641\u0631\u064e\u0651\u063a \u0627\u0644\u0633\u062c\u0644
+function archiveCycle(s, startTs){
+  s.archives.push({
+    id:uid(), endedAt:Date.now(), startedAt:startTs,
+    label:cycleLabel(startTs),
+    short:new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{month:"short"}).format(new Date(startTs)),
+    income:s.income, spent:totalFor(s), count:s.log.length,
+    cats:s.order.map(function(k){
+      var c = s.cats[k];
+      return {key:k, name:c.name, icon:c.icon, limit:c.limit, spent:sumFor(s, k)};
+    })
+  });
+  s.log = [];
+}
 
 var toastTimer = null;
 function toast(msg){
@@ -520,7 +593,13 @@ function render(){ renderBand(); renderCatOptions(); renderCats(); renderLog(); 
 
 function renderBand(){
   var spent = totalSpent(), left = state.income - spent;
-  el("month-label").textContent = dtMonth.format(new Date());
+  var cEnd = cycleEndOf(new Date(), state.payday), dLeft = daysToPayday();
+  el("cycle-label").textContent = cycleLabel(state.cycleStart);
+  el("cycle-range").textContent = cycleRange(state.cycleStart, cEnd);
+  var cd = el("countdown");
+  cd.textContent = isPayday() ? "\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u064a\u0648\u0645"
+    : "\u0628\u0627\u0642\u064a " + plural(dLeft, "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f", "\u064a\u0648\u0645\u064a\u0646", "\u0623\u064a\u0627\u0645", "\u064a\u0648\u0645\u0627\u064b") + " \u0639\u0644\u0649 \u0627\u0644\u0631\u0627\u062a\u0628";
+  cd.classList.toggle("today", isPayday());
   el("s-income").textContent = money(state.income);
   el("s-spent").textContent = money(spent);
   el("s-left").textContent = (left < 0 ? "\u2212" : "") + money(Math.abs(left));
@@ -533,11 +612,9 @@ function renderBand(){
   el("alloc-left").style.width = (100 - pct) + "%";
   el("alloc-txt").textContent = "\u0635\u064f\u0631\u0641 " + Math.round(pct) + "\u066a \u0645\u0646 \u0627\u0644\u062f\u062e\u0644";
 
-  var now = new Date();
-  var daysLeft = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate() - now.getDate();
-  el("alloc-day").textContent = left >= 0 && daysLeft > 0
-    ? money(left / (daysLeft + 1)) + " \u0631.\u0633/\u064a\u0648\u0645 \u0644\u0628\u0627\u0642\u064a \u0627\u0644\u0634\u0647\u0631 (" + plural(daysLeft+1, "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f", "\u064a\u0648\u0645\u0627\u0646", "\u0623\u064a\u0627\u0645", "\u064a\u0648\u0645\u0627\u064b") + ")"
-    : (left < 0 ? "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u062f\u062e\u0644 \u0628\u0640 " + money(-left) + " \u0631.\u0633" : "\u0622\u062e\u0631 \u064a\u0648\u0645 \u0641\u064a \u0627\u0644\u0634\u0647\u0631");
+  el("alloc-day").textContent = left < 0
+    ? "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u062f\u062e\u0644 \u0628\u0640 " + money(-left) + " \u0631.\u0633"
+    : money(left / Math.max(1, dLeft)) + " \u0631.\u0633/\u064a\u0648\u0645 \u062d\u062a\u0649 \u0627\u0644\u0631\u0627\u062a\u0628";
 
   var today = new Date(); today.setHours(0,0,0,0);
   var t0 = today.getTime(), sum = 0, n = 0;
@@ -617,7 +694,7 @@ function renderLog(){
 function renderArch(){
   var body = el("arch-body");
   if(!state.archives.length){
-    body.innerHTML = '<p class="empty">\u0644\u0627 \u062a\u0648\u062c\u062f \u0634\u0647\u0648\u0631 \u0645\u0624\u0631\u0634\u0641\u0629 \u0628\u0639\u062f. \u0639\u0646\u062f \u0628\u062f\u0627\u064a\u0629 \u0634\u0647\u0631 \u062c\u062f\u064a\u062f \u0633\u064a\u064f\u062d\u0641\u0638 \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062d\u0627\u0644\u064a \u0647\u0646\u0627.</p>';
+    body.innerHTML = '<p class="empty">\u0644\u0627 \u062a\u0648\u062c\u062f \u062f\u0648\u0631\u0627\u062a \u0645\u0624\u0631\u0634\u0641\u0629 \u0628\u0639\u062f. \u0639\u0646\u062f \u0646\u0632\u0648\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u0642\u0627\u062f\u0645 \u0633\u062a\u064f\u062d\u0641\u0638 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629 \u0647\u0646\u0627.</p>';
     el("trend-card").hidden = true;
     return;
   }
@@ -636,7 +713,7 @@ function renderArch(){
         + '<span class="arch-name">'+esc(a.label)+'</span>'
         + '<span class="num" style="color:var(--mute)">'+money(a.spent)+' / '+money(a.income)+' \u0631.\u0633</span>'
       + '</div>'
-      + '<div class="arch-body" hidden>'+(lines || '<span class="note">\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631.</span>')
+      + '<div class="arch-body" hidden>'+(lines || '<span class="note">\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.</span>')
       + '<span class="note">'+ops(a.count)+' \u2022 \u0627\u0644\u0645\u062a\u0628\u0642\u064a '+money(a.income - a.spent)+' \u0631.\u0633</span></div>'
       + '</div>';
   });
@@ -653,6 +730,17 @@ function renderArch(){
 }
 
 function renderSet(){
+  var sel = el("f-payday");
+  if(!sel.options.length){
+    var h = "";
+    for(var d = 1; d <= 28; d++) h += '<option value="'+d+'">'+d+' \u0645\u0646 \u0627\u0644\u0634\u0647\u0631</option>';
+    h += '<option value="0">\u0622\u062e\u0631 \u064a\u0648\u0645 \u0641\u064a \u0627\u0644\u0634\u0647\u0631</option>';
+    sel.innerHTML = h;
+  }
+  sel.value = String(state.payday);
+  el("payday-note").textContent = "\u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629: " + cycleRange(state.cycleStart, cycleEndOf(new Date(), state.payday))
+    + " \u2014 " + (isPayday() ? "\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u064a\u0648\u0645"
+      : "\u0628\u0627\u0642\u064a " + plural(daysToPayday(), "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f", "\u064a\u0648\u0645\u064a\u0646", "\u0623\u064a\u0627\u0645", "\u064a\u0648\u0645\u0627\u064b"));
   var alloc = state.order.reduce(function(a,k){ return a + state.cats[k].limit; }, 0);
   var diff = state.income - alloc;
   el("alloc-detail").innerHTML = "\u0645\u062c\u0645\u0648\u0639 \u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u0627\u0644\u0628\u0646\u0648\u062f <b class='num'>"+money(alloc)+"</b> \u0631.\u0633 \u0645\u0646 \u062f\u062e\u0644 <b class='num'>"+money(state.income)+"</b> \u0631.\u0633 \u2014 "
@@ -728,7 +816,7 @@ function openEditor(k){
   el("m-name").value = c.name; el("m-limit").value = c.limit;
   el("m-icon").value = c.icon; el("m-tint").value = c.tint;
   var n = k ? state.log.filter(function(e){ return e.cat === k; }).length : 0;
-  el("m-info").textContent = k ? (n ? "\u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f " + ops(n) + " \u0645\u0633\u062c\u0644\u0629 \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631." : "\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631.") : "";
+  el("m-info").textContent = k ? (n ? "\u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f " + ops(n) + " \u0641\u064a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629." : "\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f \u0641\u064a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629.") : "";
   el("m-del").hidden = !k;
   el("modal").hidden = false;
   el("m-name").focus();
@@ -755,7 +843,7 @@ el("m-save").addEventListener("click", function(){
 el("m-del").addEventListener("click", function(){
   if(!editKey) return;
   var k = editKey, n = state.log.filter(function(e){ return e.cat === k; }).length;
-  var msg = n ? "\u062d\u0630\u0641 \"" + state.cats[k].name + "\" \u0645\u0639 " + ops(n) + " \u0645\u0633\u062c\u0644\u0629 \u0641\u064a\u0647\u061f \u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0631\u0627\u062c\u0639."
+  var msg = n ? "\u062d\u0630\u0641 \"" + state.cats[k].name + "\" \u0645\u0639 " + ops(n) + " \u0641\u064a\u0647\u061f \u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0631\u0627\u062c\u0639."
               : "\u062d\u0630\u0641 \"" + state.cats[k].name + "\"\u061f";
   if(!confirm(msg)) return;
   state.log = state.log.filter(function(e){ return e.cat !== k; });
@@ -772,24 +860,24 @@ el("btn-income").addEventListener("click", function(){
   save(); render(); toast("\u062d\u064f\u062f\u0651\u062b \u0627\u0644\u062f\u062e\u0644");
 });
 
+el("btn-payday").addEventListener("click", function(){
+  var v = parseInt(el("f-payday").value, 10);
+  if(isNaN(v) || v < 0 || v > 28) return toast("\u0627\u062e\u062a\u0631 \u064a\u0648\u0645\u0627\u064b \u0635\u062d\u064a\u062d\u0627\u064b");
+  state.payday = v;
+  state.cycleStart = cycleStartOf(new Date(), v);
+  save(); render();
+  toast("\u064a\u0648\u0645 \u0627\u0644\u0631\u0627\u062a\u0628: " + (v === 0 ? "\u0622\u062e\u0631 \u064a\u0648\u0645 \u0641\u064a \u0627\u0644\u0634\u0647\u0631" : v + " \u0645\u0646 \u0627\u0644\u0634\u0647\u0631"));
+});
+
 /* --- \u0627\u0644\u0623\u0631\u0634\u0641\u0629 \u0648\u0627\u0644\u062a\u0635\u0641\u064a\u0631 --- */
 el("btn-reset").addEventListener("click", function(){
   var spent = totalSpent();
-  if(!state.log.length && !confirm("\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631. \u0623\u0631\u0634\u0641\u0629 \u0639\u0644\u0649 \u0623\u064a \u062d\u0627\u0644\u061f")) return;
-  if(state.log.length && !confirm("\u0623\u0631\u0634\u0641\u0629 " + dtMonth.format(new Date()) + " (" + money(spent) + " \u0631.\u0633 \u0641\u064a " + ops(state.log.length) + ") \u0648\u0627\u0644\u0628\u062f\u0621 \u0628\u0634\u0647\u0631 \u062c\u062f\u064a\u062f\u061f")) return;
-  var now = new Date();
-  state.archives.push({
-    id:uid(), endedAt:Date.now(),
-    label:dtMonth.format(now),
-    short:new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{month:"short"}).format(now),
-    income:state.income, spent:spent, count:state.log.length,
-    cats:state.order.map(function(k){
-      var c = state.cats[k];
-      return {key:k, name:c.name, icon:c.icon, limit:c.limit, spent:spentOf(k)};
-    })
-  });
-  state.log = []; state.startedAt = Date.now();
-  save(); render(); toast("\u0623\u064f\u0631\u0634\u0641 \u0627\u0644\u0634\u0647\u0631 \u2014 \u0628\u062f\u0627\u064a\u0629 \u062c\u062f\u064a\u062f\u0629");
+  if(!state.log.length && !confirm("\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629. \u0623\u0631\u0634\u0641\u0629 \u0639\u0644\u0649 \u0623\u064a \u062d\u0627\u0644\u061f")) return;
+  if(state.log.length && !confirm("\u0623\u0631\u0634\u0641\u0629 " + cycleLabel(state.cycleStart) + " (" + money(spent) + " \u0631.\u0633 \u0641\u064a " + ops(state.log.length) + ") \u0648\u0627\u0644\u0628\u062f\u0621 \u0628\u062f\u0648\u0631\u0629 \u062c\u062f\u064a\u062f\u0629\u061f")) return;
+  archiveCycle(state, state.cycleStart);
+  state.cycleStart = cycleStartOf(new Date(), state.payday);
+  state.startedAt = Date.now();
+  save(); render(); toast("\u0623\u064f\u0631\u0634\u0641\u062a \u0627\u0644\u062f\u0648\u0631\u0629 \u2014 \u0628\u062f\u0627\u064a\u0629 \u062c\u062f\u064a\u062f\u0629");
 });
 
 el("btn-wipe").addEventListener("click", function(){
@@ -848,6 +936,7 @@ state = load();
 if(!canStore) showStorageWarn("\u062a\u0646\u0628\u064a\u0647: \u0647\u0630\u0627 \u0627\u0644\u0645\u062a\u0635\u0641\u062d \u064a\u0645\u0646\u0639 \u0627\u0644\u062d\u0641\u0638 \u0627\u0644\u0645\u062d\u0644\u064a\u060c \u0641\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0633\u062a\u0636\u064a\u0639 \u0639\u0646\u062f \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u0635\u0641\u062d\u0629. \u0627\u0633\u062a\u062e\u062f\u0645 \u00ab\u062a\u0646\u0632\u064a\u0644 \u0646\u0633\u062e\u0629\u00bb \u0641\u064a \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0644\u0644\u0627\u062d\u062a\u0641\u0627\u0638 \u0628\u0647\u0627.");
 else save();
 render();
+if(rolledOver) toast("\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u2014 \u0623\u064f\u0631\u0634\u0641\u062a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629 \u0648\u0628\u062f\u0623\u062a \u062f\u0648\u0631\u0629 \u062c\u062f\u064a\u062f\u0629");
 })();
 </script>
 <script>
