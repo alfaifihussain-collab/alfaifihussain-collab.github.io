@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577; &#1571;&#1576;&#1608; &#1610;&#1575;&#1585;&#1575;">
+<meta name="theme-color" content="#16243D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577; &#1571;&#1576;&#1608; &#1610;&#1575;&#1585;&#1575;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&display=swap">
+
+<style>
+:root{
+  --bg:#EDEFF3; --panel:#FFFFFF; --panel-2:#F5F7FA; --line:#DCE1EA; --rail:#E2E6EE;
+  --ink:#16243D; --ink-2:#3B4B68; --mute:#6C7A93;
+  --navy:#16243D; --navy-2:#22355A;
+  --gold:#A8801A; --gold-lit:#D4AF37; --gold-soft:#F3E7C4; --on-gold:#FFFFFF;
+  --pos:#1B7A55; --warn:#B06A05; --dang:#B5362A;
+  --on-navy:#E9EDF5; --on-navy-mute:#9FB0CC;
+  --t1:#E9D8B4; --t2:#C6D8EA; --t3:#DCCDE8; --t4:#BFE3D6; --t5:#EBD2CB; --t6:#D3DCE9;
+  --shadow:0 1px 2px rgba(22,36,61,.05), 0 10px 28px -18px rgba(22,36,61,.45);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B121E; --panel:#141F33; --panel-2:#1A2740; --line:#27395C; --rail:#22314F;
+    --ink:#E9EDF5; --ink-2:#C4CEE0; --mute:#8798B4;
+    --navy:#141F33; --navy-2:#1E2E4D;
+    --gold:#E0BE63; --gold-lit:#E9CD79; --gold-soft:#3A3117; --on-gold:#131E31;
+    --pos:#4CC08D; --warn:#E0A44B; --dang:#F2705F;
+    --on-navy:#E9EDF5; --on-navy-mute:#93A5C2;
+    --t1:#4A3F22; --t2:#233C55; --t3:#3B2E4D; --t4:#1E4438; --t5:#4A2F2A; --t6:#2A3550;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B121E; --panel:#141F33; --panel-2:#1A2740; --line:#27395C; --rail:#22314F;
+  --ink:#E9EDF5; --ink-2:#C4CEE0; --mute:#8798B4;
+  --navy:#141F33; --navy-2:#1E2E4D;
+  --gold:#E0BE63; --gold-lit:#E9CD79; --gold-soft:#3A3117; --on-gold:#131E31;
+  --pos:#4CC08D; --warn:#E0A44B; --dang:#F2705F;
+  --on-navy:#E9EDF5; --on-navy-mute:#93A5C2;
+  --t1:#4A3F22; --t2:#233C55; --t3:#3B2E4D; --t4:#1E4438; --t5:#4A2F2A; --t6:#2A3550;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -18px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  direction:rtl; margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
+  font-size:15px; line-height:1.6; -webkit-text-size-adjust:100%;
+  font-variant-numeric:tabular-nums;
+}
+.wrap{max-width:780px; margin:0 auto; padding:16px 14px 60px; display:flex; flex-direction:column; gap:16px}
+h1,h2,h3{font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif; margin:0; font-weight:600; text-wrap:balance}
+button,input,select,textarea{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:6px}
+.num{direction:ltr; unicode-bidi:isolate; font-variant-numeric:tabular-nums}
+
+/* ---------- balance band ---------- */
+.band{background:var(--navy); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--line)}
+.band-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:14px 16px 10px}
+.band-top h1{color:#fff; font-size:19px; letter-spacing:.2px}
+.band-top .month{color:var(--on-navy-mute); font-size:12.5px; letter-spacing:.06em}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(212,175,55,.22)}
+.stat{padding:12px 16px 14px; text-align:center; border-inline-start:1px solid rgba(255,255,255,.08)}
+.stat:first-child{border-inline-start:0}
+.stat .k{color:var(--on-navy-mute); font-size:11.5px; letter-spacing:.06em; display:block; margin-bottom:4px}
+.stat .v{color:#fff; font-size:19px; font-weight:600; display:block}
+.stat.good .v{color:#6FDCA9} .stat.bad .v{color:#FF8E7E}
+.alloc{padding:0 16px 14px}
+.alloc-rail{height:7px; border-radius:99px; background:rgba(255,255,255,.13); overflow:hidden; display:flex}
+.alloc-rail i{display:block; height:100%}
+.alloc-rail i.spent{background:var(--gold-lit)}
+.alloc-rail i.left{background:rgba(255,255,255,.28)}
+.alloc-note{display:flex; justify-content:space-between; gap:8px; margin-top:7px; color:var(--on-navy-mute); font-size:11.5px}
+
+/* ---------- entry card ---------- */
+.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
+.card-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:13px 16px 0}
+.card-head h2{font-size:15.5px}
+.eyebrow{color:var(--mute); font-size:11.5px; letter-spacing:.07em}
+.entry{padding:13px 16px 16px; display:flex; flex-direction:column; gap:10px}
+.field{display:flex; flex-direction:column; gap:5px}
+.field label{font-size:12px; color:var(--mute); font-weight:500}
+input,select,textarea{
+  background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+  padding:11px 12px; width:100%; transition:border-color .15s, box-shadow .15s;
+}
+input:focus,select:focus{border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent); outline:none}
+input::placeholder{color:var(--mute)}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{
+  background:var(--panel-2); border:1px solid var(--line); border-radius:99px;
+  padding:5px 12px; font-size:13px; font-weight:500; cursor:pointer; color:var(--ink-2);
+}
+.chip:hover{border-color:var(--gold); color:var(--ink)}
+.btn{
+  border:1px solid transparent; border-radius:10px; padding:12px 16px; font-weight:600;
+  cursor:pointer; background:var(--navy); color:#fff; transition:filter .15s, background .15s;
+}
+.btn:hover{filter:brightness(1.12)}
+.btn.gold{background:var(--gold); color:var(--on-gold)}
+.btn.ghost{background:transparent; border-color:var(--line); color:var(--ink-2)}
+.btn.ghost:hover{border-color:var(--gold); color:var(--ink); filter:none}
+.btn.danger{background:transparent; border-color:color-mix(in srgb, var(--dang) 45%, transparent); color:var(--dang)}
+.btn.danger:hover{background:color-mix(in srgb, var(--dang) 12%, transparent); filter:none}
+.btn.sm{padding:8px 12px; font-size:13px; border-radius:9px}
+.btn.block{width:100%}
+
+/* ---------- tabs ---------- */
+.tabs{
+  position:sticky; top:0; z-index:20; display:grid; grid-template-columns:repeat(4,1fr); gap:4px;
+  background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px);
+  border:1px solid var(--line); border-radius:12px; padding:4px; margin:0 -2px;
+}
+.tab{background:transparent; border:0; border-radius:9px; padding:9px 4px; font-size:13.5px; font-weight:600; color:var(--mute); cursor:pointer}
+.tab[aria-selected="true"]{background:var(--panel); color:var(--ink); box-shadow:var(--shadow)}
+.panel[hidden]{display:none}
+.panel{display:flex; flex-direction:column; gap:14px}
+
+/* ---------- category rows ---------- */
+.list{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden}
+.list-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-bottom:1px solid var(--line); flex-wrap:wrap}
+.list-head h2{font-size:15px}
+.sortbar{display:flex; gap:4px}
+.sortbar button{background:transparent; border:1px solid var(--line); border-radius:8px; padding:5px 10px; font-size:12px; color:var(--mute); cursor:pointer}
+.sortbar button[aria-pressed="true"]{border-color:var(--gold); color:var(--ink); background:var(--gold-soft)}
+.cat{display:grid; grid-template-columns:38px 1fr auto; gap:11px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); cursor:pointer; transition:background .12s}
+.cat:last-child{border-bottom:0}
+.cat:hover{background:var(--panel-2)}
+.ico{width:38px; height:38px; border-radius:11px; display:grid; place-items:center; font-size:19px; background:var(--t2)}
+.cat-main{min-width:0; display:block}
+.cat-name{display:block; font-weight:600; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cat-rail{display:block; height:6px; border-radius:99px; background:var(--rail); overflow:hidden; margin:7px 0 5px}
+.cat-rail i{display:block; height:100%; border-radius:99px; background:var(--pos); transition:width .45s ease}
+.cat-rail i.warn{background:var(--warn)} .cat-rail i.over{background:var(--dang)}
+.cat-sub{font-size:12px; color:var(--mute); display:flex; gap:8px; flex-wrap:wrap}
+.cat-right{text-align:end; white-space:nowrap}
+.cat-remain{display:block; font-weight:600; font-size:14.5px; color:var(--pos)}
+.cat-remain.zero{color:var(--warn)}
+.cat-remain.over{color:var(--dang)}
+.cat-lim{display:block; font-size:11.5px; color:var(--mute)}
+.tag{font-size:11px; font-weight:600; padding:1px 7px; border-radius:99px; background:color-mix(in srgb, var(--dang) 14%, transparent); color:var(--dang)}
+
+/* ---------- log ---------- */
+.log-item{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; padding:11px 14px; border-bottom:1px solid var(--line)}
+.log-item:last-child{border-bottom:0}
+.log-name{font-weight:600; font-size:14px}
+.log-meta{font-size:11.5px; color:var(--mute)}
+.log-amt{font-weight:600; color:var(--dang)}
+.icon-btn{background:transparent; border:1px solid var(--line); color:var(--mute); border-radius:8px; width:30px; height:30px; cursor:pointer; line-height:1}
+.icon-btn:hover{border-color:var(--dang); color:var(--dang)}
+.empty{padding:26px 16px; text-align:center; color:var(--mute); font-size:13.5px}
+
+/* ---------- archive ---------- */
+.arch{border-bottom:1px solid var(--line); padding:12px 14px}
+.arch:last-child{border-bottom:0}
+.arch-top{display:flex; justify-content:space-between; align-items:baseline; gap:10px; cursor:pointer}
+.arch-name{font-weight:600}
+.arch-body{margin-top:10px; display:flex; flex-direction:column; gap:6px}
+.arch-line{display:grid; grid-template-columns:1fr 70px 60px; gap:8px; font-size:12.5px; color:var(--ink-2)}
+.trend{display:flex; align-items:flex-end; gap:8px; height:96px; padding:16px 14px 10px}
+.trend .col{flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:5px}
+.trend .bar{width:100%; max-width:38px; border-radius:6px 6px 0 0; background:var(--gold); min-height:3px}
+.trend .lbl{font-size:10.5px; color:var(--mute); white-space:nowrap}
+
+/* ---------- settings ---------- */
+.set{padding:14px; display:flex; flex-direction:column; gap:10px}
+.note{font-size:12.5px; color:var(--mute); line-height:1.65}
+.warnbar{background:color-mix(in srgb, var(--warn) 13%, transparent); border:1px solid color-mix(in srgb, var(--warn) 40%, transparent); color:var(--ink); border-radius:12px; padding:11px 13px; font-size:13px}
+
+/* ---------- modal ---------- */
+.modal{position:fixed; inset:0; z-index:60; display:grid; place-items:end center; background:rgba(8,14,25,.55); padding:0}
+.modal[hidden]{display:none}
+.sheet{background:var(--panel); border:1px solid var(--line); border-radius:18px 18px 0 0; width:100%; max-width:780px; padding:16px; display:flex; flex-direction:column; gap:11px; max-height:88vh; overflow-y:auto; animation:up .22s ease}
+@keyframes up{from{transform:translateY(16px); opacity:.4} to{transform:none; opacity:1}}
+.sheet h2{font-size:16px}
+.toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(70px); background:var(--navy); color:#fff; padding:10px 18px; border-radius:99px; font-size:13.5px; font-weight:500; box-shadow:var(--shadow); z-index:80; opacity:0; transition:.25s; border:1px solid var(--gold)}
+.toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+
+@media (min-width:620px){
+  .entry{display:grid; grid-template-columns:1.4fr 1fr 1fr auto; align-items:end; gap:10px}
+  .entry .chips{grid-column:1/-1}
+  .entry .btn{height:44px}
+  .modal{place-items:center; padding:20px}
+  .sheet{border-radius:16px; max-width:480px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ======= &#1588;&#1585;&#1610;&#1591; &#1575;&#1604;&#1585;&#1589;&#1610;&#1583; ======= -->
+  <header class="band">
+    <div class="band-top">
+      <h1>&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577; &#1571;&#1576;&#1608; &#1610;&#1575;&#1585;&#1575;</h1>
+      <span class="month" id="month-label"></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="k">&#1575;&#1604;&#1583;&#1582;&#1604;</span><span class="v num" id="s-income">0</span></div>
+      <div class="stat"><span class="k">&#1575;&#1604;&#1605;&#1589;&#1585;&#1608;&#1601;</span><span class="v num" id="s-spent">0</span></div>
+      <div class="stat good" id="s-left-box"><span class="k">&#1575;&#1604;&#1605;&#1578;&#1576;&#1602;&#1610;</span><span class="v num" id="s-left">0</span></div>
+    </div>
+    <div class="alloc">
+      <div class="alloc-rail"><i class="spent" id="alloc-spent"></i><i class="left" id="alloc-left"></i></div>
+      <div class="alloc-note"><span id="alloc-txt"></span><span id="alloc-day"></span></div>
+    </div>
+  </header>
+
+  <div id="storage-warn" class="warnbar" hidden></div>
+
+  <!-- ======= &#1578;&#1587;&#1580;&#1610;&#1604; &#1605;&#1589;&#1585;&#1608;&#1601; ======= -->
+  <section class="card">
+    <div class="card-head"><h2>&#1578;&#1587;&#1580;&#1610;&#1604; &#1605;&#1589;&#1585;&#1608;&#1601;</h2><span class="eyebrow" id="today-total"></span></div>
+    <form class="entry" id="entry-form" autocomplete="off">
+      <div class="field">
+        <label for="f-cat">&#1575;&#1604;&#1576;&#1606;&#1583;</label>
+        <select id="f-cat" required></select>
+      </div>
+      <div class="field">
+        <label for="f-amt">&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;</label>
+        <input type="number" id="f-amt" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00" required>
+      </div>
+      <div class="field">
+        <label for="f-note">&#1605;&#1604;&#1575;&#1581;&#1592;&#1577; (&#1575;&#1582;&#1578;&#1610;&#1575;&#1585;&#1610;)</label>
+        <input type="text" id="f-note" maxlength="60" placeholder="&#1605;&#1579;&#1575;&#1604;: &#1576;&#1606;&#1583;&#1607;">
+      </div>
+      <button class="btn gold" type="submit">&#1578;&#1587;&#1580;&#1610;&#1604;</button>
+      <div class="chips">
+        <button class="chip" type="button" data-add="20">+20</button>
+        <button class="chip" type="button" data-add="50">+50</button>
+        <button class="chip" type="button" data-add="100">+100</button>
+        <button class="chip" type="button" data-add="200">+200</button>
+        <button class="chip" type="button" data-add="500">+500</button>
+        <button class="chip" type="button" data-add="clear">&#1605;&#1587;&#1581;</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ======= &#1575;&#1604;&#1578;&#1576;&#1608;&#1610;&#1576;&#1575;&#1578; ======= -->
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="cats" aria-selected="true">&#1575;&#1604;&#1576;&#1606;&#1608;&#1583;</button>
+    <button class="tab" role="tab" data-tab="log" aria-selected="false">&#1575;&#1604;&#1587;&#1580;&#1604;</button>
+    <button class="tab" role="tab" data-tab="arch" aria-selected="false">&#1575;&#1604;&#1571;&#1585;&#1588;&#1610;&#1601;</button>
+    <button class="tab" role="tab" data-tab="set" aria-selected="false">&#1575;&#1604;&#1573;&#1593;&#1583;&#1575;&#1583;&#1575;&#1578;</button>
+  </nav>
+
+  <!-- ---- &#1575;&#1604;&#1576;&#1606;&#1608;&#1583; ---- -->
+  <section class="panel" id="p-cats">
+    <div class="list">
+      <div class="list-head">
+        <h2>&#1575;&#1604;&#1576;&#1606;&#1608;&#1583; <span class="eyebrow" id="cats-count"></span></h2>
+        <div class="sortbar">
+          <button data-sort="limit" aria-pressed="true">&#1575;&#1604;&#1571;&#1603;&#1576;&#1585; &#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577;</button>
+          <button data-sort="spent" aria-pressed="false">&#1575;&#1604;&#1571;&#1603;&#1579;&#1585; &#1589;&#1585;&#1601;&#1575;&#1611;</button>
+          <button data-sort="risk" aria-pressed="false">&#1575;&#1604;&#1571;&#1602;&#1585;&#1576; &#1604;&#1604;&#1578;&#1580;&#1575;&#1608;&#1586;</button>
+        </div>
+      </div>
+      <div id="cats-body"></div>
+    </div>
+    <button class="btn ghost block" type="button" id="btn-add-cat">&#1573;&#1590;&#1575;&#1601;&#1577; &#1576;&#1606;&#1583; &#1580;&#1583;&#1610;&#1583;</button>
+  </section>
+
+  <!-- ---- &#1575;&#1604;&#1587;&#1580;&#1604; ---- -->
+  <section class="panel" id="p-log" hidden>
+    <div class="list">
+      <div class="list-head">
+        <h2>&#1587;&#1580;&#1604; &#1575;&#1604;&#1588;&#1607;&#1585; <span class="eyebrow" id="log-count"></span></h2>
+        <select id="log-filter" style="width:auto; padding:6px 10px; font-size:13px"></select>
+      </div>
+      <div id="log-body"></div>
+    </div>
+  </section>
+
+  <!-- ---- &#1575;&#1604;&#1571;&#1585;&#1588;&#1610;&#1601; ---- -->
+  <section class="panel" id="p-arch" hidden>
+    <div class="list" id="trend-card" hidden>
+      <div class="list-head"><h2>&#1573;&#1580;&#1605;&#1575;&#1604;&#1610; &#1575;&#1604;&#1589;&#1585;&#1601; &#1588;&#1607;&#1585;&#1610;&#1575;&#1611;</h2></div>
+      <div class="trend" id="trend"></div>
+    </div>
+    <div class="list">
+      <div class="list-head"><h2>&#1575;&#1604;&#1588;&#1607;&#1608;&#1585; &#1575;&#1604;&#1605;&#1572;&#1585;&#1588;&#1601;&#1577;</h2></div>
+      <div id="arch-body"></div>
+    </div>
+  </section>
+
+  <!-- ---- &#1575;&#1604;&#1573;&#1593;&#1583;&#1575;&#1583;&#1575;&#1578; ---- -->
+  <section class="panel" id="p-set" hidden>
+    <div class="list">
+      <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1582;&#1604; &#1575;&#1604;&#1588;&#1607;&#1585;&#1610;</h2></div>
+      <div class="set">
+        <div class="row2">
+          <input type="number" id="f-income" inputmode="decimal" min="0" placeholder="&#1575;&#1604;&#1583;&#1582;&#1604; &#1576;&#1575;&#1604;&#1585;&#1610;&#1575;&#1604;">
+          <button class="btn" type="button" id="btn-income">&#1581;&#1601;&#1592; &#1575;&#1604;&#1583;&#1582;&#1604;</button>
+        </div>
+        <p class="note" id="alloc-detail"></p>
+      </div>
+    </div>
+
+    <div class="list">
+      <div class="list-head"><h2>&#1575;&#1604;&#1606;&#1587;&#1582; &#1575;&#1604;&#1575;&#1581;&#1578;&#1610;&#1575;&#1591;&#1610;</h2></div>
+      <div class="set">
+        <p class="note">&#1575;&#1604;&#1576;&#1610;&#1575;&#1606;&#1575;&#1578; &#1605;&#1581;&#1601;&#1608;&#1592;&#1577; &#1601;&#1610; &#1607;&#1584;&#1575; &#1575;&#1604;&#1605;&#1578;&#1589;&#1601;&#1581; &#1601;&#1602;&#1591;. &#1606;&#1586;&#1617;&#1604; &#1606;&#1587;&#1582;&#1577; &#1575;&#1581;&#1578;&#1610;&#1575;&#1591;&#1610;&#1577; &#1576;&#1610;&#1606; &#1601;&#1578;&#1585;&#1577; &#1608;&#1571;&#1582;&#1585;&#1609;&#1548; &#1608;&#1582;&#1589;&#1608;&#1589;&#1575;&#1611; &#1602;&#1576;&#1604; &#1578;&#1589;&#1601;&#1610;&#1585; &#1575;&#1604;&#1588;&#1607;&#1585;.</p>
+        <div class="row2">
+          <button class="btn ghost" type="button" id="btn-export">&#1578;&#1606;&#1586;&#1610;&#1604; &#1606;&#1587;&#1582;&#1577; (JSON)</button>
+          <button class="btn ghost" type="button" id="btn-import">&#1575;&#1587;&#1578;&#1593;&#1575;&#1583;&#1577; &#1605;&#1606; &#1605;&#1604;&#1601;</button>
+        </div>
+        <button class="btn ghost sm" type="button" id="btn-copy">&#1606;&#1587;&#1582; &#1575;&#1604;&#1576;&#1610;&#1575;&#1606;&#1575;&#1578; &#1603;&#1606;&#1589;</button>
+        <input type="file" id="f-file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+
+    <div class="list">
+      <div class="list-head"><h2>&#1576;&#1583;&#1575;&#1610;&#1577; &#1588;&#1607;&#1585; &#1580;&#1583;&#1610;&#1583;</h2></div>
+      <div class="set">
+        <p class="note">&#1575;&#1604;&#1578;&#1589;&#1601;&#1610;&#1585; &#1610;&#1581;&#1601;&#1592; &#1575;&#1604;&#1588;&#1607;&#1585; &#1575;&#1604;&#1581;&#1575;&#1604;&#1610; &#1601;&#1610; &#1575;&#1604;&#1571;&#1585;&#1588;&#1610;&#1601; (&#1576;&#1603;&#1604; &#1576;&#1606;&#1608;&#1583;&#1607; &#1608;&#1573;&#1580;&#1605;&#1575;&#1604;&#1610;&#1575;&#1578;&#1607;) &#1579;&#1605; &#1610;&#1576;&#1583;&#1571; &#1587;&#1580;&#1604;&#1575;&#1611; &#1580;&#1583;&#1610;&#1583;&#1575;&#1611;. &#1575;&#1604;&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1575;&#1578; &#1608;&#1575;&#1604;&#1576;&#1606;&#1608;&#1583; &#1578;&#1576;&#1602;&#1609; &#1603;&#1605;&#1575; &#1607;&#1610;.</p>
+        <button class="btn danger block" type="button" id="btn-reset">&#1571;&#1585;&#1588;&#1601;&#1577; &#1575;&#1604;&#1588;&#1607;&#1585; &#1608;&#1575;&#1604;&#1576;&#1583;&#1569; &#1605;&#1606; &#1580;&#1583;&#1610;&#1583;</button>
+        <button class="btn danger block sm" type="button" id="btn-wipe">&#1581;&#1584;&#1601; &#1603;&#1604; &#1588;&#1610;&#1569; &#1608;&#1575;&#1604;&#1593;&#1608;&#1583;&#1577; &#1604;&#1604;&#1573;&#1593;&#1583;&#1575;&#1583;&#1575;&#1578; &#1575;&#1604;&#1571;&#1589;&#1604;&#1610;&#1577;</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ======= &#1606;&#1575;&#1601;&#1584;&#1577; &#1578;&#1593;&#1583;&#1610;&#1604; &#1575;&#1604;&#1576;&#1606;&#1583; ======= -->
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <h2 id="m-title">&#1578;&#1593;&#1583;&#1610;&#1604; &#1575;&#1604;&#1576;&#1606;&#1583;</h2>
+    <div class="field"><label for="m-name">&#1575;&#1604;&#1575;&#1587;&#1605;</label><input type="text" id="m-name" maxlength="40"></div>
+    <div class="row2">
+      <div class="field"><label for="m-limit">&#1575;&#1604;&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577; &#1575;&#1604;&#1588;&#1607;&#1585;&#1610;&#1577;</label><input type="number" id="m-limit" inputmode="decimal" min="0" step="1"></div>
+      <div class="field"><label for="m-icon">&#1575;&#1604;&#1585;&#1605;&#1586;</label><input type="text" id="m-icon" maxlength="4" placeholder="&#128221;"></div>
+    </div>
+    <div class="field"><label for="m-tint">&#1575;&#1604;&#1604;&#1608;&#1606;</label><select id="m-tint">
+      <option value="1">&#1585;&#1605;&#1604;&#1610;</option><option value="2">&#1571;&#1586;&#1585;&#1602;</option><option value="3">&#1576;&#1606;&#1601;&#1587;&#1580;&#1610;</option>
+      <option value="4">&#1571;&#1582;&#1590;&#1585;</option><option value="5">&#1578;&#1585;&#1575;&#1576;&#1610;</option><option value="6">&#1585;&#1605;&#1575;&#1583;&#1610;</option>
+    </select></div>
+    <p class="note" id="m-info"></p>
+    <div class="row2">
+      <button class="btn gold" type="button" id="m-save">&#1581;&#1601;&#1592;</button>
+      <button class="btn ghost" type="button" id="m-cancel">&#1573;&#1604;&#1594;&#1575;&#1569;</button>
+    </div>
+    <button class="btn danger sm block" type="button" id="m-del">&#1581;&#1584;&#1601; &#1575;&#1604;&#1576;&#1606;&#1583;</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0627\u0644\u0623\u0635\u0644\u064a\u0629 ============ */
+var SCHEMA = 3;
+var DEFAULT_INCOME = 11731;
+var DEFAULT_CATS = [
+  ["agri","\u0627\u0644\u0642\u0631\u0636 \u0627\u0644\u0632\u0631\u0627\u0639\u064a",3167,"\u1f33e",1],
+  ["groceries","\u0645\u0642\u0627\u0636\u064a \u0627\u0644\u0628\u064a\u062a",2250,"\u1f6d2",2],
+  ["rent","\u0625\u064a\u062c\u0627\u0631 \u0627\u0644\u0634\u0642\u0629",1800,"\u1f3e0",3],
+  ["work","\u0627\u0633\u062a\u0642\u0637\u0627\u0639 \u0627\u0644\u0639\u0645\u0644",1000,"\u1f4bc",4],
+  ["me","\u0645\u0635\u0631\u0648\u0641\u064a (\u0623\u0628\u0648 \u064a\u0627\u0631\u0627)",500,"\u1f468",5],
+  ["wife","\u0645\u0635\u0631\u0648\u0641 \u0627\u0644\u0632\u0648\u062c\u0629",500,"\u1f469",1],
+  ["gas","\u0628\u0646\u0632\u064a\u0646 \u0627\u0644\u0633\u064a\u0627\u0631\u0629",500,"\u26fd",2],
+  ["elec","\u0641\u0627\u062a\u0648\u0631\u0629 \u0627\u0644\u0643\u0647\u0631\u0628\u0627\u0621",425,"\u26a1",3],
+  ["yara","\u0645\u0635\u0631\u0648\u0641 \u064a\u0627\u0631\u0627",350,"\u1f467",6],
+  ["transport","\u0646\u0642\u0644 \u064a\u0627\u0631\u0627",300,"\u1f68c",4],
+  ["parents","\u0627\u0644\u0648\u0627\u0644\u062f\u064a\u0646",250,"\u1f474",5],
+  ["subs","\u0627\u0644\u0627\u0634\u062a\u0631\u0627\u0643\u0627\u062a",250,"\u1f4fa",2],
+  ["wife_mob","\u062c\u0648\u0627\u0644 \u0627\u0644\u0632\u0648\u062c\u0629",85,"\u1f4f1",3],
+  ["charity","\u0635\u062f\u0642\u0629",50,"\u1f932",4]
+];
+var KEY = "abuYara.budget.v3";
+var OLD = {b:"abuYaraAppBudget", h:"abuYaraAppHistory", i:"abuYaraAppIncome"};
+
+/* ============ \u0627\u0644\u062a\u062e\u0632\u064a\u0646 ============ */
+var canStore = true;
+try { localStorage.setItem("__t","1"); localStorage.removeItem("__t"); }
+catch(e){ canStore = false; }
+
+var state = null, sortMode = "limit", editKey = null;
+
+function freshState(){
+  var s = {schema:SCHEMA, income:DEFAULT_INCOME, cats:{}, order:[], log:[], archives:[], startedAt:Date.now()};
+  DEFAULT_CATS.forEach(function(c){
+    s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4]};
+    s.order.push(c[0]);
+  });
+  return s;
+}
+
+function load(){
+  var raw = null;
+  try { raw = localStorage.getItem(KEY); } catch(e){}
+  if(raw){
+    try { return migrate(JSON.parse(raw)); } catch(e){ console.warn("\u0628\u064a\u0627\u0646\u0627\u062a \u062a\u0627\u0644\u0641\u0629\u060c \u0633\u064a\u062a\u0645 \u0627\u0644\u0628\u062f\u0621 \u0645\u0646 \u062c\u062f\u064a\u062f", e); }
+  }
+  var old = importLegacy();
+  return old || freshState();
+}
+
+/* \u062a\u0631\u062d\u064a\u0644 \u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0642\u062f\u064a\u0645\u0629 (abuYaraAppBudget/History/Income) */
+function importLegacy(){
+  var b=null,h=null,i=null;
+  try { b = JSON.parse(localStorage.getItem(OLD.b)||"null");
+        h = JSON.parse(localStorage.getItem(OLD.h)||"null");
+        i = parseFloat(localStorage.getItem(OLD.i)); } catch(e){ return null; }
+  if(!b) return null;
+  var s = freshState();
+  if(isFinite(i) && i > 0) s.income = i;
+  Object.keys(b).forEach(function(k){
+    var o = b[k]; if(!o) return;
+    if(!s.cats[k]){ s.cats[k] = {name:o.name||k, limit:num(o.limit), icon:o.icon||"\u1f4dd", tint:tintFrom(o.colorClass)}; s.order.push(k); }
+    else { s.cats[k].limit = num(o.limit) || s.cats[k].limit; }
+  });
+  var sums = {};
+  (h||[]).forEach(function(e){
+    var amt = num(e.amount); if(amt <= 0) return;
+    sums[e.categoryKey] = (sums[e.categoryKey]||0) + amt;
+    s.log.push({id:uid(), ts:null, dateText:String(e.date||"").replace(/<br>/g," \u2022 "), cat:e.categoryKey, amount:amt, note:""});
+  });
+  // \u0623\u064a \u0645\u0628\u0644\u063a \u0645\u0635\u0631\u0648\u0641 \u0641\u064a \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0642\u062f\u064a\u0645\u0629 \u0628\u0644\u0627 \u0642\u064a\u062f \u0645\u0637\u0627\u0628\u0642 \u064a\u064f\u0633\u062c\u064e\u0651\u0644 \u0643\u0631\u0635\u064a\u062f \u0645\u0631\u062d\u0651\u0644 \u062d\u062a\u0649 \u0644\u0627 \u062a\u0636\u064a\u0639 \u0627\u0644\u0623\u0631\u0642\u0627\u0645
+  Object.keys(b).forEach(function(k){
+    var diff = num(b[k] && b[k].spent) - (sums[k]||0);
+    if(diff > 0.005) s.log.push({id:uid(), ts:null, dateText:"\u0631\u0635\u064a\u062f \u0645\u0631\u062d\u0651\u0644", cat:k, amount:diff, note:"\u0645\u0646 \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629"});
+  });
+  return s;
+}
+function tintFrom(c){ var m = {"color-1":1,"color-2":2,"color-3":3,"color-4":4}; return m[c] || 2; }
+
+function migrate(s){
+  if(!s || typeof s !== "object") return freshState();
+  s.schema = SCHEMA;
+  s.income = num(s.income) || DEFAULT_INCOME;
+  s.cats = s.cats || {};
+  s.log = Array.isArray(s.log) ? s.log : [];
+  s.archives = Array.isArray(s.archives) ? s.archives : [];
+  s.order = Array.isArray(s.order) ? s.order.filter(function(k){ return s.cats[k]; }) : [];
+  // \u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u0623\u0635\u0644\u064a\u0629 \u0627\u0644\u0646\u0627\u0642\u0635\u0629 \u062a\u064f\u0636\u0627\u0641 (\u0648\u0647\u0630\u0647 \u0643\u0627\u0646\u062a \u0644\u0627 \u062a\u0635\u0644 \u0644\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u0641\u064a \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0642\u062f\u064a\u0645\u0629)
+  DEFAULT_CATS.forEach(function(c){
+    if(!s.cats[c[0]]){ s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4]}; s.order.push(c[0]); }
+  });
+  Object.keys(s.cats).forEach(function(k){
+    if(s.order.indexOf(k) < 0) s.order.push(k);
+    var c = s.cats[k];
+    c.limit = Math.max(0, num(c.limit));
+    c.tint = num(c.tint) || 2;
+    c.icon = c.icon || "\u1f4dd";
+    c.name = c.name || k;
+    delete c.spent;              // \u0627\u0644\u0645\u0635\u0631\u0648\u0641 \u0635\u0627\u0631 \u064a\u064f\u062d\u0633\u0628 \u0645\u0646 \u0627\u0644\u0633\u062c\u0644 \u0645\u0628\u0627\u0634\u0631\u0629
+  });
+  s.log = s.log.filter(function(e){ return e && s.cats[e.cat] && num(e.amount) > 0; })
+               .map(function(e){ if(!e.id) e.id = uid(); e.amount = num(e.amount); return e; });
+  return s;
+}
+
+function save(){
+  if(!canStore) return;
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ canStore = false; showStorageWarn("\u062a\u0639\u0630\u0651\u0631 \u0627\u0644\u062d\u0641\u0638 (\u0645\u0633\u0627\u062d\u0629 \u0627\u0644\u062a\u062e\u0632\u064a\u0646 \u0645\u0645\u062a\u0644\u0626\u0629). \u0646\u0632\u0651\u0644 \u0646\u0633\u062e\u0629 \u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629 \u0627\u0644\u0622\u0646."); }
+}
+
+/* ============ \u0623\u062f\u0648\u0627\u062a ============ */
+function num(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function money(n){ return Math.round(n).toLocaleString("en-US"); }
+// \u0635\u064a\u063a \u0627\u0644\u062c\u0645\u0639 \u0627\u0644\u0639\u0631\u0628\u064a\u0629: 1 \u0645\u0641\u0631\u062f\u060c 2 \u0645\u062b\u0646\u0649\u060c 3-10 \u062c\u0645\u0639 \u0642\u0644\u0629\u060c 11+ \u062a\u0645\u064a\u064a\u0632 \u0645\u0641\u0631\u062f \u0645\u0646\u0635\u0648\u0628
+function plural(n, one, two, few, many){
+  var a = Math.abs(Math.round(n)) % 100;
+  if(n === 1) return one;
+  if(n === 2) return two;
+  if(a >= 3 && a <= 10) return n + " " + few;
+  return n + " " + many;
+}
+function ops(n){ return plural(n, "\u0639\u0645\u0644\u064a\u0629 \u0648\u0627\u062d\u062f\u0629", "\u0639\u0645\u0644\u064a\u062a\u0627\u0646", "\u0639\u0645\u0644\u064a\u0627\u062a", "\u0639\u0645\u0644\u064a\u0629"); }
+function el(id){ return document.getElementById(id); }
+
+var dtDay = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long"});
+var dtTime = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{hour:"numeric",minute:"2-digit"});
+var dtMonth = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{month:"long",year:"numeric"});
+function stamp(e){
+  if(!e.ts) return e.dateText || "";
+  var d = new Date(e.ts);
+  return dtDay.format(d) + " \u2022 " + dtTime.format(d);
+}
+
+function spentOf(key){
+  var t = 0;
+  for(var i=0;i<state.log.length;i++) if(state.log[i].cat === key) t += state.log[i].amount;
+  return t;
+}
+function totalSpent(){ var t=0; for(var i=0;i<state.log.length;i++) t += state.log[i].amount; return t; }
+
+var toastTimer = null;
+function toast(msg){
+  var t = el("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("on"); }, 2200);
+}
+function showStorageWarn(msg){
+  var w = el("storage-warn"); w.textContent = msg; w.hidden = false;
+}
+
+/* ============ \u0627\u0644\u0639\u0631\u0636 ============ */
+function render(){ renderBand(); renderCatOptions(); renderCats(); renderLog(); renderArch(); renderSet(); }
+
+function renderBand(){
+  var spent = totalSpent(), left = state.income - spent;
+  el("month-label").textContent = dtMonth.format(new Date());
+  el("s-income").textContent = money(state.income);
+  el("s-spent").textContent = money(spent);
+  el("s-left").textContent = (left < 0 ? "\u2212" : "") + money(Math.abs(left));
+  var box = el("s-left-box");
+  box.classList.toggle("good", left >= 0);
+  box.classList.toggle("bad", left < 0);
+
+  var pct = state.income > 0 ? Math.min(100, (spent / state.income) * 100) : (spent > 0 ? 100 : 0);
+  el("alloc-spent").style.width = pct + "%";
+  el("alloc-left").style.width = (100 - pct) + "%";
+  el("alloc-txt").textContent = "\u0635\u064f\u0631\u0641 " + Math.round(pct) + "\u066a \u0645\u0646 \u0627\u0644\u062f\u062e\u0644";
+
+  var now = new Date();
+  var daysLeft = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate() - now.getDate();
+  el("alloc-day").textContent = left >= 0 && daysLeft > 0
+    ? money(left / (daysLeft + 1)) + " \u0631.\u0633/\u064a\u0648\u0645 \u0644\u0628\u0627\u0642\u064a \u0627\u0644\u0634\u0647\u0631 (" + plural(daysLeft+1, "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f", "\u064a\u0648\u0645\u0627\u0646", "\u0623\u064a\u0627\u0645", "\u064a\u0648\u0645\u0627\u064b") + ")"
+    : (left < 0 ? "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u062f\u062e\u0644 \u0628\u0640 " + money(-left) + " \u0631.\u0633" : "\u0622\u062e\u0631 \u064a\u0648\u0645 \u0641\u064a \u0627\u0644\u0634\u0647\u0631");
+
+  var today = new Date(); today.setHours(0,0,0,0);
+  var t0 = today.getTime(), sum = 0, n = 0;
+  state.log.forEach(function(e){ if(e.ts && e.ts >= t0){ sum += e.amount; n++; } });
+  el("today-total").textContent = n ? "\u0627\u0644\u064a\u0648\u0645: " + money(sum) + " \u0631.\u0633 \u0641\u064a " + ops(n) : "\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0627\u0644\u064a\u0648\u0645";
+}
+
+function renderCatOptions(){
+  var sel = el("f-cat"), cur = sel.value;
+  var html = '<option value="" disabled selected>\u0627\u062e\u062a\u0631 \u0627\u0644\u0628\u0646\u062f\u2026</option>';
+  state.order.forEach(function(k){ html += '<option value="'+k+'">'+esc(state.cats[k].name)+'</option>'; });
+  sel.innerHTML = html;
+  if(cur && state.cats[cur]) sel.value = cur;
+
+  var f = el("log-filter"), fc = f.value;
+  var fh = '<option value="">\u0643\u0644 \u0627\u0644\u0628\u0646\u0648\u062f</option>';
+  state.order.forEach(function(k){ fh += '<option value="'+k+'">'+esc(state.cats[k].name)+'</option>'; });
+  f.innerHTML = fh;
+  if(fc && state.cats[fc]) f.value = fc;
+}
+
+function sortedKeys(){
+  var keys = state.order.slice();
+  if(sortMode === "spent") keys.sort(function(a,b){ return spentOf(b) - spentOf(a); });
+  else if(sortMode === "risk") keys.sort(function(a,b){ return ratio(b) - ratio(a); });
+  else keys.sort(function(a,b){ return state.cats[b].limit - state.cats[a].limit; });
+  return keys;
+}
+function ratio(k){
+  var c = state.cats[k], s = spentOf(k);
+  if(c.limit <= 0) return s > 0 ? 999 : -1;      // \u062d\u0645\u0627\u064a\u0629 \u0645\u0646 \u0627\u0644\u0642\u0633\u0645\u0629 \u0639\u0644\u0649 \u0635\u0641\u0631
+  return s / c.limit;
+}
+
+function renderCats(){
+  var body = el("cats-body"), keys = sortedKeys(), over = 0, html = "";
+  keys.forEach(function(k){
+    var c = state.cats[k], s = spentOf(k), remain = c.limit - s, r = ratio(k);
+    var pct = c.limit > 0 ? Math.min(100, (s / c.limit) * 100) : (s > 0 ? 100 : 0);
+    var cls = r > 1 ? "over" : (r >= 0.85 ? "warn" : "");
+    if(r > 1) over++;
+    html += '<div class="cat" data-key="'+k+'" role="button" tabindex="0">'
+      + '<span class="ico" style="background:var(--t'+c.tint+')">'+esc(c.icon)+'</span>'
+      + '<span class="cat-main">'
+        + '<span class="cat-name">'+esc(c.name)+ (r>1 ? ' <span class="tag">\u062a\u062c\u0627\u0648\u0632</span>' : '') +'</span>'
+        + '<span class="cat-rail"><i class="'+cls+'" style="width:'+pct+'%"></i></span>'
+        + '<span class="cat-sub"><span>\u0635\u064f\u0631\u0641 <b class="num">'+money(s)+'</b></span><span>'+(c.limit>0 ? Math.round(s/c.limit*100)+"\u066a" : "\u0628\u0644\u0627 \u0645\u064a\u0632\u0627\u0646\u064a\u0629")+'</span></span>'
+      + '</span>'
+      + '<span class="cat-right">'
+        + '<span class="cat-remain '+(remain<0?"over":(remain<0.5?"zero":""))+' num">'+(remain<0?"\u2212":"")+money(Math.abs(remain))+'</span>'
+        + '<span class="cat-lim">\u0645\u0646 <span class="num">'+money(c.limit)+'</span></span>'
+      + '</span></div>';
+  });
+  body.innerHTML = html || '<p class="empty">\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u0646\u0648\u062f. \u0623\u0636\u0641 \u0628\u0646\u062f\u0627\u064b \u0644\u0644\u0628\u062f\u0621.</p>';
+  el("cats-count").textContent = plural(keys.length, "\u0628\u0646\u062f \u0648\u0627\u062d\u062f", "\u0628\u0646\u062f\u0627\u0646", "\u0628\u0646\u0648\u062f", "\u0628\u0646\u062f\u0627\u064b")
+    + (over ? " \u2022 " + plural(over, "\u0648\u0627\u062d\u062f \u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u0627\u062b\u0646\u0627\u0646 \u062a\u062c\u0627\u0648\u0632\u0627 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629") : "");
+}
+
+function renderLog(){
+  var f = el("log-filter").value;
+  var items = state.log.filter(function(e){ return !f || e.cat === f; }).slice().reverse();
+  var html = "";
+  items.forEach(function(e){
+    var c = state.cats[e.cat];
+    html += '<div class="log-item">'
+      + '<span><span class="log-name">'+esc(c ? c.icon+" "+c.name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641")+'</span>'
+      + '<br><span class="log-meta">'+esc(stamp(e))+(e.note ? " \u2014 "+esc(e.note) : "")+'</span></span>'
+      + '<span class="log-amt num">'+money(e.amount)+'</span>'
+      + '<button class="icon-btn" type="button" data-del="'+e.id+'" aria-label="\u062d\u0630\u0641">\u2715</button>'
+      + '</div>';
+  });
+  el("log-body").innerHTML = html || '<p class="empty">\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0645\u0633\u062c\u0644\u0629'+(f?" \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f":"")+'.</p>';
+  var sum = items.reduce(function(a,e){ return a + e.amount; }, 0);
+  el("log-count").textContent = ops(items.length) + " \u2022 " + money(sum) + " \u0631.\u0633";
+}
+
+function renderArch(){
+  var body = el("arch-body");
+  if(!state.archives.length){
+    body.innerHTML = '<p class="empty">\u0644\u0627 \u062a\u0648\u062c\u062f \u0634\u0647\u0648\u0631 \u0645\u0624\u0631\u0634\u0641\u0629 \u0628\u0639\u062f. \u0639\u0646\u062f \u0628\u062f\u0627\u064a\u0629 \u0634\u0647\u0631 \u062c\u062f\u064a\u062f \u0633\u064a\u064f\u062d\u0641\u0638 \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062d\u0627\u0644\u064a \u0647\u0646\u0627.</p>';
+    el("trend-card").hidden = true;
+    return;
+  }
+  var html = "";
+  state.archives.slice().reverse().forEach(function(a, i){
+    var lines = a.cats.filter(function(c){ return c.spent > 0; })
+      .sort(function(x,y){ return y.spent - x.spent; })
+      .map(function(c){
+        return '<span class="arch-line"><span>'+esc(c.icon||"")+" "+esc(c.name)+'</span>'
+             + '<span class="num">'+money(c.spent)+'</span>'
+             + '<span class="num" style="color:'+(c.spent>c.limit?"var(--dang)":"var(--mute)")+'">'
+             + (c.limit>0 ? Math.round(c.spent/c.limit*100)+"\u066a" : "\u2014")+'</span></span>';
+      }).join("");
+    html += '<div class="arch">'
+      + '<div class="arch-top" data-arch="'+i+'" role="button" tabindex="0">'
+        + '<span class="arch-name">'+esc(a.label)+'</span>'
+        + '<span class="num" style="color:var(--mute)">'+money(a.spent)+' / '+money(a.income)+' \u0631.\u0633</span>'
+      + '</div>'
+      + '<div class="arch-body" hidden>'+(lines || '<span class="note">\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631.</span>')
+      + '<span class="note">'+ops(a.count)+' \u2022 \u0627\u0644\u0645\u062a\u0628\u0642\u064a '+money(a.income - a.spent)+' \u0631.\u0633</span></div>'
+      + '</div>';
+  });
+  body.innerHTML = html;
+
+  var recent = state.archives.slice(-6);
+  var max = Math.max.apply(null, recent.map(function(a){ return a.spent; }).concat([1]));
+  el("trend").innerHTML = recent.map(function(a){
+    return '<span class="col"><span class="num" style="font-size:11px;color:var(--mute)">'+money(a.spent)+'</span>'
+         + '<span class="bar" style="height:'+Math.max(4, Math.round((a.spent/max)*58))+'px"></span>'
+         + '<span class="lbl">'+esc(a.short||a.label)+'</span></span>';
+  }).join("");
+  el("trend-card").hidden = false;
+}
+
+function renderSet(){
+  var alloc = state.order.reduce(function(a,k){ return a + state.cats[k].limit; }, 0);
+  var diff = state.income - alloc;
+  el("alloc-detail").innerHTML = "\u0645\u062c\u0645\u0648\u0639 \u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u0627\u0644\u0628\u0646\u0648\u062f <b class='num'>"+money(alloc)+"</b> \u0631.\u0633 \u0645\u0646 \u062f\u062e\u0644 <b class='num'>"+money(state.income)+"</b> \u0631.\u0633 \u2014 "
+    + (Math.abs(diff) < 1 ? "\u0645\u0637\u0627\u0628\u0642 \u062a\u0645\u0627\u0645\u0627\u064b."
+       : diff > 0 ? "\u064a\u062a\u0628\u0642\u0649 <b class='num'>"+money(diff)+"</b> \u0631.\u0633 \u063a\u064a\u0631 \u0645\u0648\u0632\u0651\u0639\u0629."
+       : "\u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u062a\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u062f\u062e\u0644 \u0628\u0640 <b class='num'>"+money(-diff)+"</b> \u0631.\u0633.");
+}
+
+/* ============ \u0627\u0644\u0639\u0645\u0644\u064a\u0627\u062a ============ */
+el("entry-form").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var k = el("f-cat").value, amt = num(el("f-amt").value);
+  if(!k || !state.cats[k]) return toast("\u0627\u062e\u062a\u0631 \u0627\u0644\u0628\u0646\u062f \u0623\u0648\u0644\u0627\u064b");
+  if(amt <= 0) return toast("\u0623\u062f\u062e\u0644 \u0645\u0628\u0644\u063a\u0627\u064b \u0623\u0643\u0628\u0631 \u0645\u0646 \u0635\u0641\u0631");
+  state.log.push({id:uid(), ts:Date.now(), cat:k, amount:amt, note:el("f-note").value.trim()});
+  save(); render();
+  el("f-amt").value = ""; el("f-note").value = "";
+  var s = spentOf(k), c = state.cats[k];
+  toast(c.limit > 0 && s > c.limit ? "\u0633\u064f\u062c\u0651\u0644 \u2014 \u062a\u062c\u0627\u0648\u0632\u062a \u0645\u064a\u0632\u0627\u0646\u064a\u0629 " + c.name : "\u0633\u064f\u062c\u0651\u0644 " + money(amt) + " \u0631.\u0633");
+});
+
+document.querySelector(".chips").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-add]"); if(!b) return;
+  var f = el("f-amt");
+  if(b.dataset.add === "clear") f.value = "";
+  else f.value = num(f.value) + num(b.dataset.add);
+  f.focus();
+});
+
+el("log-body").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-del]"); if(!b) return;
+  var id = b.dataset.del, i = state.log.findIndex(function(e){ return e.id === id; });
+  if(i < 0) return;
+  var e = state.log[i];
+  if(!confirm("\u062d\u0630\u0641 \u0645\u0635\u0631\u0648\u0641 " + money(e.amount) + " \u0631.\u0633 \u0645\u0646 " + (state.cats[e.cat] ? state.cats[e.cat].name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641") + "\u061f")) return;
+  state.log.splice(i,1); save(); render(); toast("\u062d\u064f\u0630\u0641 \u0627\u0644\u0642\u064a\u062f");
+});
+el("log-filter").addEventListener("change", renderLog);
+
+el("arch-body").addEventListener("click", function(ev){
+  var t = ev.target.closest("[data-arch]"); if(!t) return;
+  var b = t.nextElementSibling; b.hidden = !b.hidden;
+});
+
+document.querySelector(".sortbar").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-sort]"); if(!b) return;
+  sortMode = b.dataset.sort;
+  [].forEach.call(this.children, function(x){ x.setAttribute("aria-pressed", String(x === b)); });
+  renderCats();
+});
+
+/* --- \u0627\u0644\u062a\u0628\u0648\u064a\u0628\u0627\u062a --- */
+document.querySelector(".tabs").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-tab]"); if(!b) return;
+  [].forEach.call(this.children, function(x){ x.setAttribute("aria-selected", String(x === b)); });
+  ["cats","log","arch","set"].forEach(function(n){ el("p-"+n).hidden = (n !== b.dataset.tab); });
+});
+
+/* --- \u0645\u062d\u0631\u0651\u0631 \u0627\u0644\u0628\u0646\u062f --- */
+el("cats-body").addEventListener("click", function(ev){
+  var c = ev.target.closest("[data-key]"); if(c) openEditor(c.dataset.key);
+});
+el("cats-body").addEventListener("keydown", function(ev){
+  if(ev.key !== "Enter" && ev.key !== " ") return;
+  var c = ev.target.closest("[data-key]"); if(c){ ev.preventDefault(); openEditor(c.dataset.key); }
+});
+el("btn-add-cat").addEventListener("click", function(){ openEditor(null); });
+
+function openEditor(k){
+  editKey = k;
+  var c = k ? state.cats[k] : {name:"", limit:"", icon:"\u1f4dd", tint:2};
+  el("m-title").textContent = k ? "\u062a\u0639\u062f\u064a\u0644 \u0627\u0644\u0628\u0646\u062f" : "\u0628\u0646\u062f \u062c\u062f\u064a\u062f";
+  el("m-name").value = c.name; el("m-limit").value = c.limit;
+  el("m-icon").value = c.icon; el("m-tint").value = c.tint;
+  var n = k ? state.log.filter(function(e){ return e.cat === k; }).length : 0;
+  el("m-info").textContent = k ? (n ? "\u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f " + ops(n) + " \u0645\u0633\u062c\u0644\u0629 \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631." : "\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631.") : "";
+  el("m-del").hidden = !k;
+  el("modal").hidden = false;
+  el("m-name").focus();
+}
+function closeEditor(){ el("modal").hidden = true; editKey = null; }
+el("m-cancel").addEventListener("click", closeEditor);
+el("modal").addEventListener("click", function(ev){ if(ev.target === this) closeEditor(); });
+document.addEventListener("keydown", function(ev){ if(ev.key === "Escape" && !el("modal").hidden) closeEditor(); });
+
+el("m-save").addEventListener("click", function(){
+  var name = el("m-name").value.trim(), limit = num(el("m-limit").value);
+  if(!name) return toast("\u0627\u0643\u062a\u0628 \u0627\u0633\u0645 \u0627\u0644\u0628\u0646\u062f");
+  if(limit < 0) return toast("\u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0644\u0627 \u062a\u0643\u0648\u0646 \u0628\u0627\u0644\u0633\u0627\u0644\u0628");
+  var data = {name:name, limit:limit, icon:el("m-icon").value.trim() || "\u1f4dd", tint:num(el("m-tint").value) || 2};
+  if(editKey){ state.cats[editKey] = data; }
+  else {
+    var k = "c" + uid();
+    state.cats[k] = data; state.order.push(k);
+  }
+  save(); render(); closeEditor();
+  toast(editKey ? "\u062d\u064f\u0641\u0638 \u0627\u0644\u0628\u0646\u062f" : "\u0623\u064f\u0636\u064a\u0641 \u0627\u0644\u0628\u0646\u062f");
+});
+
+el("m-del").addEventListener("click", function(){
+  if(!editKey) return;
+  var k = editKey, n = state.log.filter(function(e){ return e.cat === k; }).length;
+  var msg = n ? "\u062d\u0630\u0641 \"" + state.cats[k].name + "\" \u0645\u0639 " + ops(n) + " \u0645\u0633\u062c\u0644\u0629 \u0641\u064a\u0647\u061f \u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0631\u0627\u062c\u0639."
+              : "\u062d\u0630\u0641 \"" + state.cats[k].name + "\"\u061f";
+  if(!confirm(msg)) return;
+  state.log = state.log.filter(function(e){ return e.cat !== k; });
+  delete state.cats[k];
+  state.order = state.order.filter(function(x){ return x !== k; });
+  save(); render(); closeEditor(); toast("\u062d\u064f\u0630\u0641 \u0627\u0644\u0628\u0646\u062f");
+});
+
+/* --- \u0627\u0644\u062f\u062e\u0644 --- */
+el("btn-income").addEventListener("click", function(){
+  var v = num(el("f-income").value);
+  if(v <= 0) return toast("\u0623\u062f\u062e\u0644 \u0645\u0628\u0644\u063a\u0627\u064b \u0635\u062d\u064a\u062d\u0627\u064b");
+  state.income = v; el("f-income").value = "";
+  save(); render(); toast("\u062d\u064f\u062f\u0651\u062b \u0627\u0644\u062f\u062e\u0644");
+});
+
+/* --- \u0627\u0644\u0623\u0631\u0634\u0641\u0629 \u0648\u0627\u0644\u062a\u0635\u0641\u064a\u0631 --- */
+el("btn-reset").addEventListener("click", function(){
+  var spent = totalSpent();
+  if(!state.log.length && !confirm("\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631. \u0623\u0631\u0634\u0641\u0629 \u0639\u0644\u0649 \u0623\u064a \u062d\u0627\u0644\u061f")) return;
+  if(state.log.length && !confirm("\u0623\u0631\u0634\u0641\u0629 " + dtMonth.format(new Date()) + " (" + money(spent) + " \u0631.\u0633 \u0641\u064a " + ops(state.log.length) + ") \u0648\u0627\u0644\u0628\u062f\u0621 \u0628\u0634\u0647\u0631 \u062c\u062f\u064a\u062f\u061f")) return;
+  var now = new Date();
+  state.archives.push({
+    id:uid(), endedAt:Date.now(),
+    label:dtMonth.format(now),
+    short:new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{month:"short"}).format(now),
+    income:state.income, spent:spent, count:state.log.length,
+    cats:state.order.map(function(k){
+      var c = state.cats[k];
+      return {key:k, name:c.name, icon:c.icon, limit:c.limit, spent:spentOf(k)};
+    })
+  });
+  state.log = []; state.startedAt = Date.now();
+  save(); render(); toast("\u0623\u064f\u0631\u0634\u0641 \u0627\u0644\u0634\u0647\u0631 \u2014 \u0628\u062f\u0627\u064a\u0629 \u062c\u062f\u064a\u062f\u0629");
+});
+
+el("btn-wipe").addEventListener("click", function(){
+  if(!confirm("\u062d\u0630\u0641 \u0643\u0644 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a (\u0627\u0644\u0633\u062c\u0644 \u0648\u0627\u0644\u0623\u0631\u0634\u064a\u0641 \u0648\u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u0645\u062e\u0635\u0635\u0629) \u0648\u0627\u0644\u0639\u0648\u062f\u0629 \u0644\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0627\u0644\u0623\u0635\u0644\u064a\u0629\u061f")) return;
+  if(!confirm("\u062a\u0623\u0643\u064a\u062f \u0623\u062e\u064a\u0631: \u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0631\u0627\u062c\u0639 \u0639\u0646 \u0647\u0630\u0647 \u0627\u0644\u062e\u0637\u0648\u0629.")) return;
+  state = freshState(); save(); render(); toast("\u0623\u064f\u0639\u064a\u062f \u0627\u0644\u0636\u0628\u0637");
+});
+
+/* --- \u0627\u0644\u0646\u0633\u062e \u0627\u0644\u0627\u062d\u062a\u064a\u0627\u0637\u064a --- */
+function backupName(){
+  var d = new Date();
+  return "budget-abu-yara-" + d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0"+d.getDate()).slice(-2) + ".json";
+}
+el("btn-export").addEventListener("click", async function(){
+  var json = JSON.stringify(state, null, 2);
+  var dl = null;
+  try { if(window.claude && claude.use) dl = await claude.use("downloads"); } catch(e){}
+  if(dl){
+    try { await dl.save({filename:backupName(), data:json}); toast("\u0646\u064f\u0632\u0651\u0644\u062a \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629"); }
+    catch(e){ toast("\u0644\u0645 \u064a\u0643\u062a\u0645\u0644 \u0627\u0644\u062a\u0646\u0632\u064a\u0644"); }
+    return;
+  }
+  try {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([json], {type:"application/json"}));
+    a.download = backupName(); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+    toast("\u0646\u064f\u0632\u0651\u0644\u062a \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629");
+  } catch(e){ toast("\u0627\u0644\u062a\u0646\u0632\u064a\u0644 \u063a\u064a\u0631 \u0645\u062a\u0627\u062d \u0647\u0646\u0627 \u2014 \u0627\u0633\u062a\u062e\u062f\u0645 \u0646\u0633\u062e \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0643\u0646\u0635"); }
+});
+
+el("btn-copy").addEventListener("click", async function(){
+  var json = JSON.stringify(state);
+  try { await navigator.clipboard.writeText(json); toast("\u0646\u064f\u0633\u062e\u062a \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u2014 \u0627\u062d\u0641\u0638\u0647\u0627 \u0641\u064a \u0645\u0644\u0627\u062d\u0638\u0627\u062a\u0643"); }
+  catch(e){ prompt("\u0627\u0646\u0633\u062e \u0627\u0644\u0646\u0635 \u0627\u0644\u062a\u0627\u0644\u064a \u0648\u0627\u062d\u0641\u0638\u0647:", json); }
+});
+
+el("btn-import").addEventListener("click", function(){ el("f-file").click(); });
+el("f-file").addEventListener("change", function(){
+  var file = this.files && this.files[0]; if(!file) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try {
+      var incoming = JSON.parse(r.result);
+      if(!incoming || typeof incoming !== "object" || !incoming.cats) throw new Error("shape");
+      if(!confirm("\u0627\u0633\u062a\u0628\u062f\u0627\u0644 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u062d\u0627\u0644\u064a\u0629 \u0628\u0645\u062d\u062a\u0648\u0649 \u0627\u0644\u0645\u0644\u0641\u061f \u064a\u064f\u0646\u0635\u062d \u0628\u062a\u0646\u0632\u064a\u0644 \u0646\u0633\u062e\u0629 \u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629 \u0623\u0648\u0644\u0627\u064b.")) return;
+      state = migrate(incoming); save(); render(); toast("\u0627\u0633\u062a\u064f\u0639\u064a\u062f\u062a \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a");
+    } catch(e){ toast("\u0627\u0644\u0645\u0644\u0641 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d"); }
+  };
+  r.readAsText(file);
+  this.value = "";
+});
+
+/* ============ \u0627\u0644\u0625\u0642\u0644\u0627\u0639 ============ */
+state = load();
+if(!canStore) showStorageWarn("\u062a\u0646\u0628\u064a\u0647: \u0647\u0630\u0627 \u0627\u0644\u0645\u062a\u0635\u0641\u062d \u064a\u0645\u0646\u0639 \u0627\u0644\u062d\u0641\u0638 \u0627\u0644\u0645\u062d\u0644\u064a\u060c \u0641\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0633\u062a\u0636\u064a\u0639 \u0639\u0646\u062f \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u0635\u0641\u062d\u0629. \u0627\u0633\u062a\u062e\u062f\u0645 \u00ab\u062a\u0646\u0632\u064a\u0644 \u0646\u0633\u062e\u0629\u00bb \u0641\u064a \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0644\u0644\u0627\u062d\u062a\u0641\u0627\u0638 \u0628\u0647\u0627.");
+else save();
+render();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js')['catch'](function(){});
+  });
+}
+</script>
+</body>
+</html>
