@@ -95,6 +95,10 @@ button,input,select,textarea{font:inherit; color:inherit}
 .alloc-rail i.spent{background:var(--gold-lit)}
 .alloc-rail i.left{background:rgba(255,255,255,.28)}
 .alloc-note{display:flex; justify-content:space-between; gap:8px; margin-top:7px; color:var(--on-navy-mute); font-size:11.5px}
+.alloc-plan{margin-top:7px; padding-top:7px; border-top:1px dashed rgba(212,175,55,.28);
+  color:var(--on-navy-mute); font-size:11.5px; line-height:1.7}
+.alloc-plan b{font-weight:700; color:#fff}
+.alloc-plan b.pos{color:#6FDCA9} .alloc-plan b.neg{color:#FF8E7E}
 
 /* ---------- entry card ---------- */
 .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
@@ -274,6 +278,7 @@ input::placeholder{color:var(--mute)}
     <div class="alloc">
       <div class="alloc-rail"><i class="spent" id="alloc-spent"></i><i class="left" id="alloc-left"></i></div>
       <div class="alloc-note"><span id="alloc-txt"></span><span id="alloc-day"></span></div>
+      <div class="alloc-plan" id="alloc-plan"></div>
     </div>
   </header>
 
@@ -862,6 +867,21 @@ function renderBand(){
     : (freeLeft <= 0
         ? "\u0644\u0627 \u0645\u062a\u0627\u062d \u0644\u0644\u0635\u0631\u0641 \u0627\u0644\u062d\u0631 \u2014 \u0645\u062d\u062c\u0648\u0632 " + money(committed) + " \u0631.\u0633 \u0644\u0644\u062b\u0627\u0628\u062a\u0629"
         : money(Math.round(freeLeft / Math.max(1, dLeft))) + " \u0631.\u0633/\u064a\u0648\u0645 \u0645\u062a\u0627\u062d \u062d\u062a\u0649 \u0627\u0644\u0631\u0627\u062a\u0628");
+
+  var planned = 0, plannedCount = 0;
+  state.order.forEach(function(k){
+    var c = state.cats[k];
+    if(c.open || c.hidden || c.limit <= 0) return;
+    planned += c.limit; plannedCount++;
+  });
+  var unplanned = income - planned;
+  el("alloc-plan").innerHTML = plannedCount
+    ? "\u0628\u0639\u062f \u062e\u0635\u0645 " + plural(plannedCount, "\u0628\u0646\u062f \u0648\u0627\u062d\u062f \u0645\u062d\u062f\u062f", "\u0628\u0646\u062f\u064a\u0646 \u0645\u062d\u062f\u062f\u064a\u0646", "\u0628\u0646\u0648\u062f \u0645\u062d\u062f\u062f\u0629", "\u0628\u0646\u062f\u0627\u064b \u0645\u062d\u062f\u062f\u0627\u064b")
+      + " (<b class='num'>" + money(planned) + "</b> \u0631.\u0633) \u064a\u0628\u0642\u0649 \u0645\u0646 \u0627\u0644\u062f\u062e\u0644 "
+      + "<b class='num " + (unplanned >= 0 ? "pos" : "neg") + "'>"
+      + (unplanned < 0 ? "\u2212" : "") + money(Math.abs(unplanned)) + "</b> \u0631.\u0633"
+      + (unplanned < 0 ? " \u2014 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u062a\u062a\u062c\u0627\u0648\u0632 \u062f\u062e\u0644\u0643" : "")
+    : "\u0644\u0645 \u062a\u062d\u062f\u062f \u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0644\u0623\u064a \u0628\u0646\u062f \u0628\u0639\u062f.";
 
   var today = new Date(); today.setHours(0,0,0,0);
   var t0 = today.getTime(), sum = 0, n = 0;
