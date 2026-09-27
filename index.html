@@ -193,8 +193,25 @@ input::placeholder{color:var(--mute)}
 /* ---------- archive ---------- */
 .arch{border-bottom:1px solid var(--line); padding:12px 14px}
 .arch:last-child{border-bottom:0}
-.arch-top{display:flex; justify-content:space-between; align-items:baseline; gap:10px; cursor:pointer}
+.arch-top{display:grid; grid-template-columns:1fr auto 16px; gap:10px; align-items:center; cursor:pointer}
+.arch-top:hover .arch-name{color:var(--gold)}
+.arch-head{min-width:0; display:flex; flex-direction:column; gap:2px}
 .arch-name{font-weight:600}
+.arch-range{font-size:11.5px; color:var(--mute)}
+.arch-fig{display:flex; flex-direction:column; align-items:flex-end; gap:2px; white-space:nowrap}
+.arch-spent{font-weight:600; font-size:14px}
+.arch-sur{font-size:11.5px; font-weight:600}
+.arch-sur.up{color:var(--pos)} .arch-sur.down{color:var(--dang)}
+.arch-chev{color:var(--mute); font-size:19px; line-height:1; text-align:center; transition:transform .2s}
+.arch-top[aria-expanded="true"] .arch-chev{transform:rotate(180deg); color:var(--gold)}
+.arch-sum{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; background:var(--panel-2);
+  border:1px solid var(--line); border-radius:10px; padding:10px; margin-bottom:4px; text-align:center}
+.arch-sum span{display:flex; flex-direction:column; gap:3px}
+.arch-sum i{font-style:normal; font-size:11px; color:var(--mute)}
+.arch-sum b{font-size:14.5px; font-weight:700}
+.arch-sum b.pos{color:var(--pos)} .arch-sum b.neg{color:var(--dang)}
+.arch-h{margin:10px 0 2px; font-size:12px; font-weight:700; color:var(--gold);
+  font-family:"IBM Plex Sans Arabic",sans-serif; letter-spacing:.03em}
 .arch-body{margin-top:10px; display:flex; flex-direction:column; gap:6px}
 .arch-line{display:grid; grid-template-columns:1fr 70px 68px; gap:8px; font-size:12.5px; color:var(--ink-2)}
 .arch-details{margin-top:8px; border-top:1px solid var(--line); padding-top:8px}
@@ -367,6 +384,7 @@ input::placeholder{color:var(--mute)}
     </div>
     <div class="list">
       <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1608;&#1585;&#1575;&#1578; &#1575;&#1604;&#1605;&#1572;&#1585;&#1588;&#1601;&#1577;</h2></div>
+      <p class="hint">&#1575;&#1590;&#1594;&#1591; &#1571;&#1610; &#1583;&#1608;&#1585;&#1577; &#1604;&#1593;&#1585;&#1590; &#1578;&#1601;&#1575;&#1589;&#1610;&#1604;&#1607;&#1575; &#1603;&#1575;&#1605;&#1604;&#1577;.</p>
       <div id="arch-body"></div>
     </div>
   </section>
@@ -978,38 +996,72 @@ function renderArch(){
   }
   var html = "";
   state.archives.slice().reverse().forEach(function(a, i){
-    var lines = a.cats.filter(function(c){ return c.spent > 0; })
+    var surplus = (a.surplus === undefined) ? (a.income - a.spent) : a.surplus;
+    var range = a.startedAt ? cycleRange(a.startedAt, cycleEndOf(new Date(a.startedAt), state.payday)) : "";
+
+    var catLines = a.cats.filter(function(c){ return c.spent > 0; })
       .sort(function(x,y){ return y.spent - x.spent; })
       .map(function(c){
-        return '<span class="arch-line"><span>'+esc(c.icon||"")+" "+esc(c.name)+'</span>'
+        return '<span class="arch-line"><span>'+esc((c.icon||"")+" "+c.name)+'</span>'
              + '<span class="num">'+money(c.spent)+'</span>'
-             + '<span class="num" style="color:'+(c.spent>c.limit?"var(--dang)":"var(--mute)")+'">'
-             + (c.limit>0 ? Math.round(c.spent/c.limit*100)+"\u066a" : "\u2014")+'</span></span>';
+             + '<span class="num" style="color:'+(!c.open && c.limit>0 && c.spent>c.limit ? "var(--dang)" : "var(--mute)")+'">'
+             + (!c.open && c.limit>0 ? Math.round(c.spent/c.limit*100)+"\u066a" : "\u2014")+'</span></span>';
       }).join("");
+
+    var entryLines = a.entries
+      ? a.entries.slice().sort(function(x,y){ return (y.ts||0)-(x.ts||0); }).map(function(en){
+          return '<span class="arch-line"><span>'
+               + (en.auto ? '<span class="tag auto">\u062a\u0644\u0642\u0627\u0626\u064a</span> ' : '')
+               + esc((en.icon||"")+" "+en.name) + (en.note && !en.auto ? ' \u2014 '+esc(en.note) : '')+'</span>'
+               + '<span class="num">'+money(en.amount)+'</span>'
+               + '<span class="num" style="color:var(--mute)">'+esc(en.ts ? dtDay.format(new Date(en.ts)) : "")+'</span></span>';
+        }).join("")
+      : "";
+
+    var incLines = (a.incomeEntries && a.incomeEntries.length)
+      ? a.incomeEntries.slice().sort(function(x,y){ return (y.ts||0)-(x.ts||0); }).map(function(en){
+          return '<span class="arch-line"><span>'+esc(en.note || "\u062f\u062e\u0644")+'</span>'
+               + '<span class="num" style="color:var(--pos)">'+(en.amount>0?"+":"")+money(en.amount)+'</span>'
+               + '<span class="num" style="color:var(--mute)">'+esc(en.ts ? dtDay.format(new Date(en.ts)) : "")+'</span></span>';
+        }).join("")
+      : "";
+
     html += '<div class="arch">'
-      + '<div class="arch-top" data-arch="'+i+'" role="button" tabindex="0">'
-        + '<span class="arch-name">'+esc(a.label)+'</span>'
-        + '<span class="num" style="color:var(--mute)">'+money(a.spent)+' / '+money(a.income)+' \u0631.\u0633</span>'
-      + '</div>'
-      + '<div class="arch-body" hidden>'+(lines || '<span class="note">\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.</span>')
-      + '<span class="note">'+ops(a.count)+' \u2022 \u0627\u0644\u062f\u062e\u0644 '+money(a.income)+' \u0631.\u0633 \u2022 '
-        + (a.surplus === undefined
-            ? '\u0627\u0644\u0645\u062a\u0628\u0642\u064a ' + money(a.income - a.spent) + ' \u0631.\u0633'
-            : (a.surplus >= 0 ? '\u0641\u0627\u0626\u0636 ' : '\u0639\u062c\u0632 ') + money(Math.abs(a.surplus)) + ' \u0631.\u0633'
-              + (a.toFund !== undefined ? ' \u062d\u064f\u0648\u0651\u0644 \u0625\u0644\u0649 \u0627\u0644\u0635\u0646\u062f\u0648\u0642' : ''))
+      + '<div class="arch-top" data-arch="'+i+'" role="button" tabindex="0" aria-expanded="false">'
+        + '<span class="arch-head">'
+          + '<span class="arch-name">'+esc(a.label)+'</span>'
+          + (range ? '<span class="arch-range">'+esc(range)+'</span>' : '')
         + '</span>'
-      + (a.entries
-          ? '<details class="arch-details"><summary>\u0639\u0631\u0636 \u0627\u0644\u0642\u064a\u0648\u062f ('+a.entries.length+')</summary>'
-            + a.entries.slice().sort(function(x,y){ return (y.ts||0)-(x.ts||0); }).map(function(en){
-                return '<span class="arch-line"><span>'+esc((en.icon||"")+" "+en.name)
-                     + (en.note ? ' \u2014 '+esc(en.note) : '')+'</span>'
-                     + '<span class="num">'+money(en.amount)+'</span>'
-                     + '<span class="num" style="color:var(--mute)">'+esc(en.ts ? dtDay.format(new Date(en.ts)) : "")+'</span></span>';
-              }).join("") + '</details>'
-          : '<span class="note">\u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u0642\u064a\u0648\u062f \u063a\u064a\u0631 \u0645\u062d\u0641\u0648\u0638\u0629 \u0644\u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 (\u0633\u064f\u062c\u0651\u0644\u062a \u0642\u0628\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b).</span>')
+        + '<span class="arch-fig">'
+          + '<span class="num arch-spent">'+money(a.spent)+' \u0631.\u0633</span>'
+          + '<span class="arch-sur '+(surplus >= 0 ? "up" : "down")+'">'
+            + (surplus >= 0 ? "\u0641\u0627\u0626\u0636 " : "\u0639\u062c\u0632 ") + money(Math.abs(surplus))+'</span>'
+        + '</span>'
+        + '<span class="arch-chev" aria-hidden="true">\u2304</span>'
+      + '</div>'
+      + '<div class="arch-body" hidden>'
+        + '<div class="arch-sum">'
+          + '<span><i>\u0627\u0644\u062f\u062e\u0644</i><b class="num">'+money(a.income)+'</b></span>'
+          + '<span><i>\u0627\u0644\u0645\u0635\u0631\u0648\u0641</i><b class="num">'+money(a.spent)+'</b></span>'
+          + '<span><i>'+(surplus >= 0 ? "\u0627\u0644\u0641\u0627\u0626\u0636" : "\u0627\u0644\u0639\u062c\u0632")+'</i>'
+            + '<b class="num '+(surplus >= 0 ? "pos" : "neg")+'">'+money(Math.abs(surplus))+'</b></span>'
+        + '</div>'
+        + (a.toFund !== undefined
+            ? '<p class="note">'+(a.toFund >= 0 ? "\u062d\u064f\u0648\u0651\u0644 \u0625\u0644\u0649 \u0635\u0646\u062f\u0648\u0642 \u0627\u0644\u0637\u0648\u0627\u0631\u0626 " : "\u063a\u064f\u0637\u0651\u064a \u0645\u0646 \u0635\u0646\u062f\u0648\u0642 \u0627\u0644\u0637\u0648\u0627\u0631\u0626 ")
+              + money(Math.abs(a.toFund))+' \u0631.\u0633.</p>'
+            : '')
+        + (incLines ? '<h4 class="arch-h">\u0627\u0644\u062f\u062e\u0644</h4>' + incLines : '')
+        + '<h4 class="arch-h">\u0627\u0644\u0628\u0646\u0648\u062f</h4>'
+        + (catLines || '<span class="note">\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.</span>')
+        + (a.entries
+            ? (entryLines
+                ? '<h4 class="arch-h">\u0627\u0644\u0642\u064a\u0648\u062f ('+a.entries.length+')</h4>' + entryLines
+                : '')
+            : '<p class="note">\u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u0642\u064a\u0648\u062f \u063a\u064a\u0631 \u0645\u062d\u0641\u0648\u0638\u0629 \u0644\u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 (\u0633\u064f\u062c\u0651\u0644\u062a \u0642\u0628\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b).</p>')
       + '</div>'
       + '</div>';
   });
+
   body.innerHTML = html;
 
   var recent = state.archives.slice(-6);
@@ -1168,9 +1220,16 @@ el("e-del").addEventListener("click", function(){
   save(); render(); closeEntryEditor(); toast("\u062d\u064f\u0630\u0641 \u0627\u0644\u0642\u064a\u062f");
 });
 
+el("arch-body").addEventListener("keydown", function(ev){
+  if(ev.key !== "Enter" && ev.key !== " ") return;
+  var t = ev.target.closest("[data-arch]");
+  if(t){ ev.preventDefault(); t.click(); }
+});
 el("arch-body").addEventListener("click", function(ev){
   var t = ev.target.closest("[data-arch]"); if(!t) return;
-  var b = t.nextElementSibling; b.hidden = !b.hidden;
+  var b = t.nextElementSibling;
+  b.hidden = !b.hidden;
+  t.setAttribute("aria-expanded", String(!b.hidden));
 });
 
 document.querySelector(".sortbar").addEventListener("click", function(ev){
