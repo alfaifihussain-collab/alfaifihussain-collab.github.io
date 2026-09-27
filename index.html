@@ -421,6 +421,29 @@ input::placeholder{color:var(--mute)}
     </div>
 
     <div class="list">
+      <div class="list-head"><h2>&#1575;&#1604;&#1605;&#1586;&#1575;&#1605;&#1606;&#1577;</h2><span class="eyebrow" id="sync-state"></span></div>
+      <div class="set">
+        <p class="note" id="sync-note"></p>
+        <div class="row2" id="sync-auth" hidden>
+          <button class="btn" type="button" id="sync-in">&#1578;&#1587;&#1580;&#1610;&#1604; &#1575;&#1604;&#1583;&#1582;&#1608;&#1604; &#1576;&#1580;&#1608;&#1580;&#1604;</button>
+          <button class="btn ghost" type="button" id="sync-out" hidden>&#1582;&#1585;&#1608;&#1580;</button>
+        </div>
+        <div id="sync-share" hidden>
+          <p class="note">&#1585;&#1605;&#1586; &#1575;&#1604;&#1605;&#1588;&#1575;&#1585;&#1603;&#1577; &#8212; &#1571;&#1585;&#1587;&#1604;&#1607; &#1604;&#1605;&#1606; &#1578;&#1585;&#1610;&#1583; &#1605;&#1588;&#1575;&#1585;&#1603;&#1578;&#1607; &#1575;&#1604;&#1576;&#1610;&#1575;&#1606;&#1575;&#1578;:</p>
+          <div class="row2">
+            <input type="text" id="sync-hid" readonly>
+            <button class="btn ghost" type="button" id="sync-copy">&#1606;&#1587;&#1582; &#1575;&#1604;&#1585;&#1605;&#1586;</button>
+          </div>
+          <p class="note">&#1604;&#1604;&#1575;&#1606;&#1590;&#1605;&#1575;&#1605; &#1573;&#1604;&#1609; &#1576;&#1610;&#1575;&#1606;&#1575;&#1578; &#1588;&#1582;&#1589; &#1570;&#1582;&#1585;&#1548; &#1575;&#1604;&#1589;&#1602; &#1585;&#1605;&#1586;&#1607; &#1607;&#1606;&#1575;:</p>
+          <div class="row2">
+            <input type="text" id="sync-join" placeholder="&#1585;&#1605;&#1586; &#1575;&#1604;&#1605;&#1588;&#1575;&#1585;&#1603;&#1577;">
+            <button class="btn ghost" type="button" id="sync-join-btn">&#1575;&#1606;&#1590;&#1605;&#1575;&#1605;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="list">
       <div class="list-head"><h2>&#1575;&#1604;&#1606;&#1587;&#1582; &#1575;&#1604;&#1575;&#1581;&#1578;&#1610;&#1575;&#1591;&#1610;</h2></div>
       <div class="set">
         <p class="note">&#1575;&#1604;&#1576;&#1610;&#1575;&#1606;&#1575;&#1578; &#1605;&#1581;&#1601;&#1608;&#1592;&#1577; &#1601;&#1610; &#1607;&#1584;&#1575; &#1575;&#1604;&#1605;&#1578;&#1589;&#1601;&#1581; &#1601;&#1602;&#1591;. &#1606;&#1586;&#1617;&#1604; &#1606;&#1587;&#1582;&#1577; &#1575;&#1581;&#1578;&#1610;&#1575;&#1591;&#1610;&#1577; &#1576;&#1610;&#1606; &#1601;&#1578;&#1585;&#1577; &#1608;&#1571;&#1582;&#1585;&#1609;.</p>
@@ -544,7 +567,8 @@ var state = null, sortMode = "manual", editKey = null, editEntry = null, rolledO
 function freshState(){
   var s = {schema:SCHEMA, salary:DEFAULT_INCOME, payday:PAYDAY_DEFAULT, cats:{}, order:[],
            log:[], incomeLog:[], archives:[], autoPosted:[], salaryPosted:false,
-           fund:{balance:0, log:[]}, lastBackup:null, startedAt:Date.now()};
+           fund:{balance:0, log:[]}, lastBackup:null, tomb:{}, updatedAt:Date.now(),
+           startedAt:Date.now()};
   s.cycleStart = cycleStartOf(new Date(), s.payday);
   DEFAULT_CATS.forEach(function(c){
     s.cats[c[0]] = {name:c[1], limit:c[2], icon:c[3], tint:c[4], fixed:!!c[5]};
@@ -600,9 +624,22 @@ function migrate(s){
   s.incomeLog = Array.isArray(s.incomeLog) ? s.incomeLog : [];
   if(typeof s.salaryPosted !== "boolean") s.salaryPosted = false;
   if(!s.fund || typeof s.fund !== "object") s.fund = {balance:0, log:[]};
-  s.fund.balance = num(s.fund.balance);
   if(!Array.isArray(s.fund.log)) s.fund.log = [];
+  s.fund.log = s.fund.log.map(function(m){
+    if(!m.id) m.id = uid();
+    m.amount = num(m.amount);
+    if(!m.mts) m.mts = m.ts || Date.now();
+    return m;
+  });
+  var stored = num(s.fund.balance), derived = fundBalance(s);
+  if(Math.abs(stored - derived) > 0.005){
+    s.fund.log.push({id:uid(), ts:Date.now(), mts:Date.now(), amount:stored - derived,
+                     note:"\u062a\u0633\u0648\u064a\u0629 \u0631\u0635\u064a\u062f \u0633\u0627\u0628\u0642"});
+  }
+  s.fund.balance = fundBalance(s);
   if(typeof s.lastBackup !== "number") s.lastBackup = null;
+  if(!s.tomb || typeof s.tomb !== "object") s.tomb = {};
+  if(typeof s.updatedAt !== "number") s.updatedAt = Date.now();
   if(s.payday !== 0 && !(num(s.payday) >= 1 && num(s.payday) <= 28)) s.payday = PAYDAY_DEFAULT;
   s.cats = s.cats || {};
   s.log = Array.isArray(s.log) ? s.log : [];
@@ -642,6 +679,9 @@ function migrate(s){
 }
 
 function save(){
+  state.updatedAt = Date.now();
+  pruneTomb(state);
+  syncPush();
   if(!canStore) return;
   try { localStorage.setItem(KEY, JSON.stringify(state)); }
   catch(e){ canStore = false; showStorageWarn("\u062a\u0639\u0630\u0651\u0631 \u0627\u0644\u062d\u0641\u0638 (\u0645\u0633\u0627\u062d\u0629 \u0627\u0644\u062a\u062e\u0632\u064a\u0646 \u0645\u0645\u062a\u0644\u0626\u0629). \u0646\u0632\u0651\u0644 \u0646\u0633\u062e\u0629 \u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629 \u0627\u0644\u0622\u0646."); }
@@ -676,6 +716,44 @@ function isPayday(){ return cycleStartOf(new Date(), state.payday) === midnight(
 
 function num(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+/* ---- \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629: \u0634\u0648\u0627\u0647\u062f \u0627\u0644\u062d\u0630\u0641 \u062a\u0645\u0646\u0639 \u0639\u0648\u062f\u0629 \u0627\u0644\u0645\u062d\u0630\u0648\u0641 \u0639\u0646\u062f \u0627\u0644\u062f\u0645\u062c ---- */
+function tombstone(id){ if(id) state.tomb[id] = Date.now(); }
+function pruneTomb(s){
+  var cut = Date.now() - 120 * DAY_MS;      // \u0634\u0627\u0647\u062f \u0627\u0644\u062d\u0630\u0641 \u064a\u0643\u0641\u064a\u0647 \u0623\u0631\u0628\u0639\u0629 \u0623\u0634\u0647\u0631
+  Object.keys(s.tomb || {}).forEach(function(k){ if(s.tomb[k] < cut) delete s.tomb[k]; });
+}
+
+// \u0627\u062a\u062d\u0627\u062f \u0642\u0627\u0626\u0645\u062a\u064a\u0646 \u0628\u0627\u0644\u0645\u0639\u0631\u0651\u0641: \u064a\u064f\u0631\u062c\u064e\u0651\u062d \u0627\u0644\u0623\u062d\u062f\u062b \u062a\u0639\u062f\u064a\u0644\u0627\u064b\u060c \u0648\u064a\u064f\u0633\u062a\u0628\u0639\u062f \u0645\u0627 \u062d\u064f\u0630\u0641
+function unionById(a, b, tomb){
+  var by = {};
+  (a || []).concat(b || []).forEach(function(e){
+    if(!e || !e.id || (tomb && tomb[e.id])) return;
+    var old = by[e.id];
+    if(!old || (e.mts || e.ts || 0) > (old.mts || old.ts || 0)) by[e.id] = e;
+  });
+  return Object.keys(by).map(function(k){ return by[k]; })
+               .sort(function(x, y){ return (x.ts || 0) - (y.ts || 0); });
+}
+
+// \u0627\u0644\u062f\u0645\u062c: \u0627\u0644\u0642\u064a\u0648\u062f \u062a\u062a\u062d\u062f \u0645\u0646 \u0627\u0644\u062c\u0647\u0627\u0632\u064a\u0646\u060c \u0648\u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u062a\u0624\u062e\u0630 \u0645\u0646 \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0623\u062d\u062f\u062b
+function mergeStates(local, remote){
+  if(!remote || typeof remote !== "object") return local;
+  var newer = (remote.updatedAt || 0) > (local.updatedAt || 0) ? remote : local;
+  var out = JSON.parse(JSON.stringify(newer));
+  out.tomb = Object.assign({}, local.tomb || {}, remote.tomb || {});
+  out.log = unionById(local.log, remote.log, out.tomb);
+  out.incomeLog = unionById(local.incomeLog, remote.incomeLog, out.tomb);
+  out.archives = unionById(local.archives, remote.archives, out.tomb);
+  out.fund = out.fund || {balance:0, log:[]};
+  out.fund.log = unionById((local.fund || {}).log, (remote.fund || {}).log, out.tomb);
+  out.fund.balance = fundBalance(out);
+  out.autoPosted = (local.autoPosted || []).concat(remote.autoPosted || [])
+    .filter(function(k, i, arr){ return arr.indexOf(k) === i; });
+  out.salaryPosted = !!(local.salaryPosted || remote.salaryPosted);
+  out.updatedAt = Math.max(local.updatedAt || 0, remote.updatedAt || 0);
+  return out;
+}
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
 function money(n){
@@ -732,7 +810,7 @@ function ensureAutoPosts(){
     if(state.autoPosted.indexOf(k) >= 0) return;   // \u062e\u064f\u0635\u0645 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629
     state.autoPosted.push(k);
     if(sumFor(state, k) > 0) return;               // \u0633\u064f\u062c\u0651\u0644 \u064a\u062f\u0648\u064a\u0627\u064b\u060c \u0641\u0644\u0627 \u064a\u064f\u0643\u0631\u064e\u0651\u0631
-    state.log.push({id:uid(), ts:state.cycleStart, cat:k, amount:c.limit,
+    state.log.push({id:uid(), ts:state.cycleStart, mts:Date.now(), cat:k, amount:c.limit,
                     note:"\u062e\u0635\u0645 \u062a\u0644\u0642\u0627\u0626\u064a", auto:true});
     added++;
   });
@@ -757,20 +835,26 @@ function ensureSalaryPost(){
   if(state.salaryPosted) return 0;
   state.salaryPosted = true;
   if(state.incomeLog.length || state.salary <= 0) return 0;
-  state.incomeLog.push({id:uid(), ts:state.cycleStart, amount:state.salary,
+  state.incomeLog.push({id:uid(), ts:state.cycleStart, mts:Date.now(), amount:state.salary,
                         note:"\u0627\u0644\u0631\u0627\u062a\u0628", auto:true});
   return 1;
 }
 
 // \u062d\u0631\u0643\u0629 \u0639\u0644\u0649 \u0627\u0644\u0635\u0646\u062f\u0648\u0642 \u062a\u0642\u0627\u0628\u0644\u0647\u0627 \u062d\u0631\u0643\u0629 \u0645\u0639\u0627\u0643\u0633\u0629 \u0641\u064a \u062f\u062e\u0644 \u0627\u0644\u062f\u0648\u0631\u0629\u060c \u0641\u062a\u0628\u0642\u0649 \u0627\u0644\u0623\u0631\u0642\u0627\u0645 \u0645\u062a\u0648\u0627\u0632\u0646\u0629
+function fundBalance(s){
+  var t = 0;
+  for(var i=0;i<s.fund.log.length;i++) t += s.fund.log[i].amount;
+  return Math.round(t * 100) / 100;
+}
+
 function fundMove(amount, note, alsoCycle){
-  var link = uid();
-  state.fund.balance = Math.round((state.fund.balance + amount) * 100) / 100;
-  state.fund.log.push({id:uid(), ts:Date.now(), amount:amount, note:note, link:link});
+  var link = uid(), now = Date.now();
+  state.fund.log.push({id:uid(), ts:now, mts:now, amount:amount, note:note, link:link});
   if(alsoCycle){
-    state.incomeLog.push({id:uid(), ts:Date.now(), amount:-amount,
+    state.incomeLog.push({id:uid(), ts:now, mts:now, amount:-amount,
                           note:note, auto:true, fund:true, link:link});
   }
+  state.fund.balance = fundBalance(state);
 }
 
 // \u062d\u0630\u0641 \u062d\u0631\u0643\u0629 \u064a\u062f\u0648\u064a\u0629 \u064a\u0639\u064a\u062f \u0627\u0644\u0631\u0635\u064a\u062f \u0648\u064a\u0632\u064a\u0644 \u0642\u064a\u062f \u0627\u0644\u062f\u062e\u0644 \u0627\u0644\u0645\u0642\u0627\u0628\u0644 \u0645\u0639\u0627\u064b\u060c \u0641\u0644\u0627 \u064a\u0636\u064a\u0639 \u0645\u0628\u0644\u063a
@@ -780,9 +864,13 @@ function fundDelete(id){
   var m = state.fund.log[i];
   if(m.carry) return toast("\u062a\u062d\u0648\u064a\u0644 \u062a\u0644\u0642\u0627\u0626\u064a \u0644\u062f\u0648\u0631\u0629 \u0645\u0624\u0631\u0634\u0641\u0629 \u2014 \u0644\u0627 \u064a\u064f\u062d\u0630\u0641");
   if(!confirm("\u062d\u0630\u0641 \u0647\u0630\u0647 \u0627\u0644\u062d\u0631\u0643\u0629\u061f \u0633\u064a\u0639\u0648\u062f \u0627\u0644\u0645\u0628\u0644\u063a \u0643\u0645\u0627 \u0643\u0627\u0646 \u0642\u0628\u0644\u0647\u0627.")) return;
-  state.fund.balance = Math.round((state.fund.balance - m.amount) * 100) / 100;
   state.fund.log.splice(i, 1);
-  if(m.link) state.incomeLog = state.incomeLog.filter(function(e){ return e.link !== m.link; });
+  tombstone(m.id);
+  if(m.link) state.incomeLog = state.incomeLog.filter(function(e){
+    if(e.link === m.link){ tombstone(e.id); return false; }
+    return true;
+  });
+  state.fund.balance = fundBalance(state);
   save(); render(); toast("\u062d\u064f\u0630\u0641\u062a \u0627\u0644\u062d\u0631\u0643\u0629");
 }
 
@@ -820,9 +908,9 @@ function archiveCycle(s, startTs){
 // \u0641\u0627\u0626\u0636 \u0627\u0644\u062f\u0648\u0631\u0629 \u064a\u0630\u0647\u0628 \u0625\u0644\u0649 \u0635\u0646\u062f\u0648\u0642 \u0627\u0644\u0637\u0648\u0627\u0631\u0626\u060c \u0648\u0639\u062c\u0632\u0647\u0627 \u064a\u064f\u063a\u0637\u0651\u0649 \u0645\u0646\u0647
 function transferSurplus(s, a, startTs){
   if(Math.abs(a.surplus) < 0.005) return;
-  s.fund.balance = Math.round((s.fund.balance + a.surplus) * 100) / 100;
-  s.fund.log.push({id:uid(), ts:Date.now(), amount:a.surplus, carry:true,
+  s.fund.log.push({id:uid(), ts:Date.now(), mts:Date.now(), amount:a.surplus, carry:true,
                    note:(a.surplus > 0 ? "\u0641\u0627\u0626\u0636 " : "\u0639\u062c\u0632 ") + cycleLabel(startTs)});
+  s.fund.balance = fundBalance(s);
   a.toFund = a.surplus;
 }
 // \u0644\u0648 \u0645\u0631\u0651\u062a \u062f\u0648\u0631\u0629 \u0623\u0648 \u0623\u0643\u062b\u0631 \u0628\u0644\u0627 \u0641\u062a\u062d \u0627\u0644\u062a\u0637\u0628\u064a\u0642\u060c \u062a\u064f\u0624\u0631\u0634\u0641 \u0643\u0644\u064c\u0651 \u0639\u0644\u0649 \u062d\u062f\u0629 \u0628\u0642\u064a\u0648\u062f\u0647\u0627 \u0647\u064a
@@ -1179,7 +1267,7 @@ el("entry-form").addEventListener("submit", function(ev){
   var amt = num(el("f-amt").value), note = el("f-note").value.trim();
   if(amt <= 0) return toast("\u0623\u062f\u062e\u0644 \u0645\u0628\u0644\u063a\u0627\u064b \u0623\u0643\u0628\u0631 \u0645\u0646 \u0635\u0641\u0631");
   if(entryMode === "inc"){
-    state.incomeLog.push({id:uid(), ts:Date.now(), amount:amt, note:note || "\u062f\u062e\u0644 \u0625\u0636\u0627\u0641\u064a"});
+    state.incomeLog.push({id:uid(), ts:Date.now(), mts:Date.now(), amount:amt, note:note || "\u062f\u062e\u0644 \u0625\u0636\u0627\u0641\u064a"});
     save(); render();
     el("f-amt").value = ""; el("f-note").value = "";
     setEntryMode("exp");      // \u062d\u062a\u0649 \u0644\u0627 \u064a\u064f\u0633\u062c\u064e\u0651\u0644 \u0627\u0644\u0645\u0635\u0631\u0648\u0641 \u0627\u0644\u062a\u0627\u0644\u064a \u062f\u062e\u0644\u0627\u064b \u0628\u0627\u0644\u062e\u0637\u0623
@@ -1187,7 +1275,7 @@ el("entry-form").addEventListener("submit", function(ev){
   }
   var k = el("f-cat").value;
   if(!k || !state.cats[k]) return toast("\u0627\u062e\u062a\u0631 \u0627\u0644\u0628\u0646\u062f \u0623\u0648\u0644\u0627\u064b");
-  state.log.push({id:uid(), ts:Date.now(), cat:k, amount:amt, note:note});
+  state.log.push({id:uid(), ts:Date.now(), mts:Date.now(), cat:k, amount:amt, note:note});
   save(); render();
   el("f-amt").value = ""; el("f-note").value = "";
   var sp = spentOf(k), c = state.cats[k];
@@ -1249,6 +1337,7 @@ el("e-save").addEventListener("click", function(){
   e.ts = newTs;
   e.note = el("e-note").value.trim();
   if(editEntry.kind !== "inc") e.cat = el("e-cat").value;
+  e.mts = Date.now();
   delete e.auto;
   save(); render(); closeEntryEditor();
   var cEnd = cycleEndOf(new Date(), state.payday);
@@ -1263,6 +1352,7 @@ el("e-del").addEventListener("click", function(){
   var i = list.findIndex(function(x){ return x.id === editEntry.id; });
   if(i < 0) return closeEntryEditor();
   if(!confirm("\u062d\u0630\u0641 \u0647\u0630\u0627 \u0627\u0644\u0642\u064a\u062f \u0646\u0647\u0627\u0626\u064a\u0627\u064b\u061f")) return;
+  tombstone(list[i].id);
   list.splice(i, 1);
   save(); render(); closeEntryEditor(); toast("\u062d\u064f\u0630\u0641 \u0627\u0644\u0642\u064a\u062f");
 });
@@ -1378,7 +1468,10 @@ el("m-del").addEventListener("click", function(){
   var msg = n ? "\u062d\u0630\u0641 \"" + state.cats[k].name + "\" \u0645\u0639 " + ops(n) + " \u0641\u064a\u0647\u061f \u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0631\u0627\u062c\u0639."
               : "\u062d\u0630\u0641 \"" + state.cats[k].name + "\"\u061f";
   if(!confirm(msg)) return;
-  state.log = state.log.filter(function(e){ return e.cat !== k; });
+  state.log = state.log.filter(function(e){
+    if(e.cat === k){ tombstone(e.id); return false; }
+    return true;
+  });
   delete state.cats[k];
   state.order = state.order.filter(function(x){ return x !== k; });
   save(); render(); closeEditor(); toast("\u062d\u064f\u0630\u0641 \u0627\u0644\u0628\u0646\u062f");
@@ -1441,6 +1534,39 @@ el("btn-wipe").addEventListener("click", function(){
   state = freshState(); save(); render(); toast("\u0623\u064f\u0639\u064a\u062f \u0627\u0644\u0636\u0628\u0637");
 });
 
+/* --- \u0623\u0632\u0631\u0627\u0631 \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629 --- */
+el("sync-in").addEventListener("click", async function(){
+  if(!fb.ready) return;
+  try {
+    var prov = new fb.M.auth.GoogleAuthProvider();
+    await fb.M.auth.signInWithRedirect(fb.auth, prov);
+  } catch(e){ syncNote("\u062a\u0639\u0630\u0651\u0631 \u0627\u0644\u062f\u062e\u0648\u0644: " + (e && e.message || e), "error"); }
+});
+
+el("sync-out").addEventListener("click", async function(){
+  if(!confirm("\u0627\u0644\u062e\u0631\u0648\u062c \u064a\u0648\u0642\u0641 \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629 \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u062c\u0647\u0627\u0632. \u0628\u064a\u0627\u0646\u0627\u062a\u0643 \u062a\u0628\u0642\u0649 \u0645\u062d\u0641\u0648\u0638\u0629 \u0641\u064a\u0647 \u0648\u0641\u064a \u0627\u0644\u0633\u062d\u0627\u0628\u0629.")) return;
+  detachHousehold();
+  try { localStorage.removeItem(HID_KEY); } catch(e){}
+  try { await fb.M.auth.signOut(fb.auth); } catch(e){}
+  toast("\u0623\u064f\u0648\u0642\u0641\u062a \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629");
+});
+
+el("sync-copy").addEventListener("click", async function(){
+  var v = el("sync-hid").value;
+  try { await navigator.clipboard.writeText(v); toast("\u0646\u064f\u0633\u062e \u0631\u0645\u0632 \u0627\u0644\u0645\u0634\u0627\u0631\u0643\u0629"); }
+  catch(e){ prompt("\u0627\u0646\u0633\u062e \u0627\u0644\u0631\u0645\u0632:", v); }
+});
+
+el("sync-join-btn").addEventListener("click", async function(){
+  var v = el("sync-join").value.trim();
+  if(!v) return toast("\u0627\u0644\u0635\u0642 \u0631\u0645\u0632 \u0627\u0644\u0645\u0634\u0627\u0631\u0643\u0629");
+  if(!confirm("\u0627\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u064a\u0633\u062a\u0628\u062f\u0644 \u0628\u064a\u0627\u0646\u0627\u062a\u0643 \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u062c\u0647\u0627\u0632 \u0628\u0628\u064a\u0627\u0646\u0627\u062a \u0635\u0627\u062d\u0628 \u0627\u0644\u0631\u0645\u0632 \u0628\u0639\u062f \u062f\u0645\u062c\u0647\u0627. \u062a\u0643\u0645\u0644\u061f")) return;
+  try { localStorage.setItem(HID_KEY, v); } catch(e){}
+  el("sync-join").value = "";
+  await attachHousehold();
+  toast("\u062a\u0645 \u0627\u0644\u0627\u0646\u0636\u0645\u0627\u0645");
+});
+
 /* --- \u0627\u0644\u0646\u0633\u062e \u0627\u0644\u0627\u062d\u062a\u064a\u0627\u0637\u064a --- */
 function markBackup(){ state.lastBackup = Date.now(); save(); renderSet(); }
 function backupName(){
@@ -1487,6 +1613,142 @@ el("f-file").addEventListener("change", function(){
   this.value = "";
 });
 
+/* ============ \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629 \u0639\u0628\u0631 Firebase ============ */
+/* \u062a\u064f\u0645\u0644\u0623 \u0628\u0639\u062f \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0645\u0634\u0631\u0648\u0639\u061b \u0645\u0627 \u062f\u0627\u0645\u062a null \u064a\u0628\u0642\u0649 \u0643\u0644 \u0645\u0627 \u062a\u062d\u062a\u0647\u0627 \u062e\u0627\u0645\u0644\u0627\u064b */
+var FB_CONFIG = null;
+
+var HID_KEY = "abuYara.hid";
+var fb = {ready:false, auth:null, db:null, doc:null, user:null, hid:null,
+          unsub:null, status:"off", pushTimer:null, applying:false, lastErr:""};
+
+function syncNote(msg, st){
+  if(st) fb.status = st;
+  var n = el("sync-note"), b = el("sync-state");
+  if(n) n.textContent = msg;
+  if(b) b.textContent = {off:"\u063a\u064a\u0631 \u0645\u0641\u0639\u0651\u0644\u0629", loading:"\u062c\u0627\u0631\u064d \u0627\u0644\u062a\u062d\u0636\u064a\u0631\u2026", out:"\u063a\u064a\u0631 \u0645\u0633\u062c\u0651\u0644",
+                         on:"\u062a\u0639\u0645\u0644", saving:"\u062c\u0627\u0631\u064d \u0627\u0644\u062d\u0641\u0638\u2026", error:"\u062a\u0639\u0630\u0651\u0631\u062a"}[fb.status] || "";
+}
+
+function syncUI(){
+  var authRow = el("sync-auth"), share = el("sync-share");
+  if(!authRow) return;
+  authRow.hidden = !fb.ready;
+  share.hidden = !fb.user;
+  el("sync-in").hidden = !!fb.user;
+  el("sync-out").hidden = !fb.user;
+  if(fb.user) el("sync-hid").value = fb.hid || "";
+}
+
+async function syncInit(){
+  if(!FB_CONFIG){
+    syncNote("\u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629 \u063a\u064a\u0631 \u0645\u0641\u0639\u0651\u0644\u0629. \u0628\u064a\u0627\u0646\u0627\u062a\u0643 \u0645\u062d\u0641\u0648\u0638\u0629 \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u0645\u062a\u0635\u0641\u062d \u0648\u062d\u062f\u0647.", "off");
+    return syncUI();
+  }
+  syncNote("\u062c\u0627\u0631\u064d \u062a\u062d\u0636\u064a\u0631 \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629\u2026", "loading");
+  try {
+    var appMod = await import("https://cdn.jsdelivr.net/npm/firebase@11.1.0/app/+esm");
+    var authMod = await import("https://cdn.jsdelivr.net/npm/firebase@11.1.0/auth/+esm");
+    var dbMod = await import("https://cdn.jsdelivr.net/npm/firebase@11.1.0/firestore/+esm");
+    var app = appMod.initializeApp(FB_CONFIG);
+    fb.auth = authMod.getAuth(app);
+    fb.db = dbMod.getFirestore(app);
+    fb.M = {auth:authMod, db:dbMod};
+    fb.ready = true;
+
+    await authMod.getRedirectResult(fb.auth)["catch"](function(){});
+    authMod.onAuthStateChanged(fb.auth, function(u){
+      fb.user = u || null;
+      if(u) attachHousehold();
+      else { detachHousehold(); syncNote("\u0633\u062c\u0651\u0644 \u0627\u0644\u062f\u062e\u0648\u0644 \u0644\u062a\u064f\u062d\u0641\u0638 \u0628\u064a\u0627\u0646\u0627\u062a\u0643 \u062e\u0627\u0631\u062c \u0627\u0644\u062c\u0647\u0627\u0632.", "out"); }
+      syncUI();
+    });
+  } catch(e){
+    fb.lastErr = String(e && e.message || e);
+    syncNote("\u062a\u0639\u0630\u0651\u0631 \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629: " + fb.lastErr, "error");
+    syncUI();
+  }
+}
+
+function hidOf(){
+  var saved = null;
+  try { saved = localStorage.getItem(HID_KEY); } catch(e){}
+  return saved || (fb.user ? fb.user.uid : null);
+}
+
+async function attachHousehold(){
+  detachHousehold();
+  fb.hid = hidOf();
+  if(!fb.hid) return;
+  try {
+    fb.doc = fb.M.db.doc(fb.db, "households", fb.hid);
+    var snap = await fb.M.db.getDoc(fb.doc);
+    if(!snap.exists()){
+      await fb.M.db.setDoc(fb.doc, {members:[fb.user.uid], state:JSON.stringify(state),
+                                    updatedAt:Date.now()});
+    } else {
+      var d = snap.data() || {};
+      if((d.members || []).indexOf(fb.user.uid) < 0){
+        await fb.M.db.updateDoc(fb.doc, {members:(d.members || []).concat([fb.user.uid])});
+      }
+    }
+    try { localStorage.setItem(HID_KEY, fb.hid); } catch(e){}
+
+    fb.unsub = fb.M.db.onSnapshot(fb.doc, function(snap){
+      if(!snap.exists()) return;
+      var d = snap.data() || {};
+      if(!d.state) return;
+      var remote;
+      try { remote = JSON.parse(d.state); } catch(e){ return; }
+      if(d.device === DEVICE_ID && (d.updatedAt || 0) <= (state.updatedAt || 0)) return;
+      fb.applying = true;
+      state = migrate(mergeStates(state, remote));
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+      fb.applying = false;
+      render();
+      syncNote("\u0645\u062d\u062f\u0651\u062b\u0629 \u2014 \u0622\u062e\u0631 \u0645\u0632\u0627\u0645\u0646\u0629 " + dtTime.format(new Date()), "on");
+    }, function(err){
+      fb.lastErr = String(err && err.message || err);
+      syncNote("\u0627\u0646\u0642\u0637\u0639\u062a \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629: " + fb.lastErr, "error");
+    });
+    syncNote("\u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629 \u062a\u0639\u0645\u0644. \u0631\u0645\u0632 \u0627\u0644\u0645\u0634\u0627\u0631\u0643\u0629 \u0623\u062f\u0646\u0627\u0647.", "on");
+    syncPush(true);
+  } catch(e){
+    fb.lastErr = String(e && e.message || e);
+    syncNote("\u062a\u0639\u0630\u0651\u0631 \u0627\u0644\u0648\u0635\u0648\u0644 \u0644\u0644\u0628\u064a\u0627\u0646\u0627\u062a: " + fb.lastErr, "error");
+  }
+  syncUI();
+}
+
+function detachHousehold(){
+  if(fb.unsub){ try { fb.unsub(); } catch(e){} fb.unsub = null; }
+  fb.doc = null;
+}
+
+var DEVICE_ID = (function(){
+  var k = "abuYara.device", v = null;
+  try { v = localStorage.getItem(k); } catch(e){}
+  if(!v){ v = uid(); try { localStorage.setItem(k, v); } catch(e){} }
+  return v;
+})();
+
+function syncPush(now){
+  if(!fb.doc || fb.applying) return;
+  clearTimeout(fb.pushTimer);
+  fb.pushTimer = setTimeout(async function(){
+    if(!fb.doc) return;
+    syncNote("\u062c\u0627\u0631\u064d \u0627\u0644\u062d\u0641\u0638\u2026", "saving");
+    try {
+      await fb.M.db.setDoc(fb.doc, {state:JSON.stringify(state), updatedAt:state.updatedAt,
+                                    device:DEVICE_ID, members:fb.M.db.arrayUnion(fb.user.uid)},
+                           {merge:true});
+      syncNote("\u0645\u062d\u0641\u0648\u0638\u0629 \u2014 \u0622\u062e\u0631 \u0645\u0632\u0627\u0645\u0646\u0629 " + dtTime.format(new Date()), "on");
+    } catch(e){
+      fb.lastErr = String(e && e.message || e);
+      syncNote("\u062a\u0639\u0630\u0651\u0631 \u0627\u0644\u062d\u0641\u0638 (\u0633\u062a\u064f\u0639\u0627\u062f \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629): " + fb.lastErr, "error");
+    }
+  }, now ? 200 : 1400);
+}
+
 /* ============ \u0627\u0644\u0625\u0642\u0644\u0627\u0639 ============ */
 state = load();
 if(!canStore) showStorageWarn("\u062a\u0646\u0628\u064a\u0647: \u0647\u0630\u0627 \u0627\u0644\u0645\u062a\u0635\u0641\u062d \u064a\u0645\u0646\u0639 \u0627\u0644\u062d\u0641\u0638 \u0627\u0644\u0645\u062d\u0644\u064a\u060c \u0641\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0633\u062a\u0636\u064a\u0639 \u0639\u0646\u062f \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u0635\u0641\u062d\u0629. \u0627\u0633\u062a\u062e\u062f\u0645 \u00ab\u062a\u0646\u0632\u064a\u0644 \u0646\u0633\u062e\u0629\u00bb \u0641\u064a \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0644\u0644\u0627\u062d\u062a\u0641\u0627\u0638 \u0628\u0647\u0627.");
@@ -1496,6 +1758,7 @@ var autoAdded = ensureAutoPosts();
 if(autoAdded || salaryAdded) save();
 setEntryMode("exp");
 render();
+syncInit();
 if(rolledOver) toast("\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u2014 \u0623\u064f\u0631\u0634\u0641\u062a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629" + (autoAdded ? " \u0648\u0633\u064f\u062c\u0651\u0644\u062a \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0627\u0644\u062b\u0627\u0628\u062a\u0629" : ""));
 else if(autoAdded) toast("\u0633\u064f\u062c\u0651\u0644\u062a \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0627\u0644\u062b\u0627\u0628\u062a\u0629 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b");
 })();
