@@ -1653,9 +1653,9 @@ async function syncInit(){
   }
   syncNote("\u062c\u0627\u0631\u064d \u062a\u062d\u0636\u064a\u0631 \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629\u2026", "loading");
   try {
-    var appMod = await import("https://cdn.jsdelivr.net/npm/firebase@11.1.0/app/+esm");
-    var authMod = await import("https://cdn.jsdelivr.net/npm/firebase@11.1.0/auth/+esm");
-    var dbMod = await import("https://cdn.jsdelivr.net/npm/firebase@11.1.0/firestore/+esm");
+    var appMod = await import("https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js");
+    var authMod = await import("https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js");
+    var dbMod = await import("https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js");
     var app = appMod.initializeApp(FB_CONFIG);
     fb.auth = authMod.getAuth(app);
     fb.db = dbMod.getFirestore(app);
