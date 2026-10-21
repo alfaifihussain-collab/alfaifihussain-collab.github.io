@@ -99,6 +99,7 @@ button,input,select,textarea{font:inherit; color:inherit}
   color:var(--on-navy-mute); font-size:11.5px; line-height:1.7}
 .alloc-plan b{font-weight:700; color:#fff}
 .alloc-plan b.pos{color:#6FDCA9} .alloc-plan b.neg{color:#FF8E7E}
+.alloc-proj{border-top-style:dotted}
 
 /* ---------- entry card ---------- */
 .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
@@ -188,6 +189,33 @@ input::placeholder{color:var(--mute)}
 .log-meta{font-size:11.5px; color:var(--mute)}
 .log-amt{font-weight:600; color:var(--dang)}
 .log-amt.in{color:var(--pos)}
+.log-item.ro{cursor:default}
+.cyc{border-bottom:1px solid var(--line)}
+.cyc:last-child{border-bottom:0}
+.cyc-top{display:grid; grid-template-columns:1fr auto 16px; gap:10px; align-items:center;
+  padding:11px 14px; cursor:pointer; background:var(--panel-2)}
+.cyc-top.now{cursor:default; background:transparent; border-bottom:1px solid var(--line)}
+.cyc-top:hover .cyc-name{color:var(--gold)}
+.cyc-top.now:hover .cyc-name{color:inherit}
+.cyc-head{min-width:0; display:flex; flex-direction:column; gap:2px}
+.cyc-name{font-weight:600; font-size:14px}
+.cyc-range{font-size:11px; color:var(--mute)}
+.cyc-fig{display:flex; flex-direction:column; align-items:flex-end; gap:2px; white-space:nowrap}
+.cyc-fig .num{font-weight:600; font-size:13.5px}
+.cyc-n{font-size:11px; color:var(--mute)}
+.cyc-top[aria-expanded="true"] .arch-chev{transform:rotate(180deg); color:var(--gold)}
+.tag.live{background:color-mix(in srgb, var(--pos) 16%, transparent); color:var(--pos)}
+.insight{padding:13px 14px; border-bottom:1px solid var(--line); background:var(--panel-2)}
+.ins-head{font-weight:700; font-size:14.5px; margin-bottom:9px}
+.ins-nums{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; text-align:center}
+.ins-nums span{display:flex; flex-direction:column; gap:3px}
+.ins-nums i{font-style:normal; font-size:11px; color:var(--mute)}
+.ins-nums b{font-size:15px; font-weight:700}
+.ins-delta{text-align:center; font-size:12px; margin-top:7px; color:var(--mute)}
+.ins-delta.up{color:var(--dang)} .ins-delta.down{color:var(--pos)}
+.ins-trend{height:82px; padding:12px 0 0}
+.ins-trend .bar{background:var(--rail)}
+.ins-trend .bar.now{background:var(--gold)}
 .log-item[data-edit]{cursor:pointer}
 .log-item[data-edit]:hover{background:var(--panel-2)}
 .icon-btn{background:transparent; border:1px solid var(--line); color:var(--mute); border-radius:8px; width:30px; height:30px; cursor:pointer; line-height:1}
@@ -280,6 +308,7 @@ input::placeholder{color:var(--mute)}
       <div class="alloc-rail"><i class="spent" id="alloc-spent"></i><i class="left" id="alloc-left"></i></div>
       <div class="alloc-note"><span id="alloc-txt"></span><span id="alloc-day"></span></div>
       <div class="alloc-plan" id="alloc-plan"></div>
+      <div class="alloc-plan alloc-proj" id="alloc-proj" hidden></div>
     </div>
   </header>
 
@@ -348,12 +377,13 @@ input::placeholder{color:var(--mute)}
   <section class="panel" id="p-log" hidden>
     <div class="list">
       <div class="list-head">
-        <h2>&#1587;&#1580;&#1604; &#1575;&#1604;&#1583;&#1608;&#1585;&#1577; <span class="eyebrow" id="log-count"></span></h2>
+        <h2>&#1575;&#1604;&#1587;&#1580;&#1604; <span class="eyebrow" id="log-count"></span></h2>
         <div style="display:flex; gap:6px; flex-wrap:wrap">
           <input type="search" id="log-search" placeholder="&#1576;&#1581;&#1579;&#8230;" style="width:auto; max-width:140px; padding:6px 10px; font-size:13px">
           <select id="log-filter" style="width:auto; padding:6px 10px; font-size:13px"></select>
         </div>
       </div>
+      <div id="cat-insight" hidden></div>
       <div id="log-body"></div>
     </div>
   </section>
@@ -886,7 +916,7 @@ function buildArchive(s, startTs, list, incList){
     range:cycleRange(startTs, cycleEndOf(new Date(startTs), s.payday)),
     entries:list.map(function(e){
       var c = s.cats[e.cat];
-      return {ts:e.ts, name:c ? c.name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641", icon:c ? c.icon : "",
+      return {ts:e.ts, cat:e.cat, name:c ? c.name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641", icon:c ? c.icon : "",
               amount:e.amount, note:e.note || "", auto:!!e.auto};
     }),
     incomeEntries:incList.map(function(e){
@@ -988,6 +1018,21 @@ function renderBand(){
       + (unplanned < 0 ? " \u2014 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u062a\u062a\u062c\u0627\u0648\u0632 \u062f\u062e\u0644\u0643" : "")
     : "\u0644\u0645 \u062a\u062d\u062f\u062f \u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0644\u0623\u064a \u0628\u0646\u062f \u0628\u0639\u062f.";
 
+  var cycLen = Math.max(1, Math.round((cEnd - state.cycleStart) / DAY_MS));
+  var elapsed = Math.min(cycLen, Math.max(1, Math.round((midnight() - state.cycleStart) / DAY_MS) + 1));
+  var fixedSpent = 0;
+  state.order.forEach(function(k){ if(state.cats[k].fixed) fixedSpent += spentOf(k); });
+  var variable = Math.max(0, spent - fixedSpent);
+  var projSpend = fixedSpent + (variable / elapsed) * cycLen;
+  var projEnd = income - projSpend;
+  var projBox = el("alloc-proj");
+  if(elapsed >= 3 && elapsed < cycLen && income > 0){
+    projBox.innerHTML = "\u0628\u0647\u0630\u0627 \u0627\u0644\u0645\u0639\u062f\u0644 \u062a\u0646\u0647\u064a \u0627\u0644\u062f\u0648\u0631\u0629 \u0628\u0640 <b class='num "
+      + (projEnd >= 0 ? "pos" : "neg") + "'>" + (projEnd < 0 ? "\u2212" : "") + money(Math.abs(projEnd))
+      + "</b> \u0631.\u0633" + (projEnd >= 0 ? " \u062a\u0636\u0627\u0641 \u0644\u0644\u0635\u0646\u062f\u0648\u0642" : " \u0639\u062c\u0632\u0627\u064b \u064a\u064f\u063a\u0637\u0651\u0649 \u0645\u0646 \u0627\u0644\u0635\u0646\u062f\u0648\u0642");
+    projBox.hidden = false;
+  } else { projBox.hidden = true; }
+
   var today = new Date(); today.setHours(0,0,0,0);
   var t0 = today.getTime(), sum = 0, n = 0;
   state.log.forEach(function(e){ if(e.ts && e.ts >= t0){ sum += e.amount; n++; } });
@@ -1060,37 +1105,182 @@ function renderCats(){
     + (over ? " \u2022 " + plural(over, "\u0648\u0627\u062d\u062f \u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u0627\u062b\u0646\u0627\u0646 \u062a\u062c\u0627\u0648\u0632\u0627 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629") : "");
 }
 
+var openCycles = {};
+
+function catKeyByName(name){
+  for(var i=0;i<state.order.length;i++){
+    if(state.cats[state.order[i]].name === name) return state.order[i];
+  }
+  return null;
+}
+
+// \u0643\u0644 \u0627\u0644\u062f\u0648\u0631\u0627\u062a \u0641\u064a \u0642\u0627\u0626\u0645\u0629 \u0648\u0627\u062d\u062f\u0629: \u0627\u0644\u062d\u0627\u0644\u064a\u0629 \u0623\u0648\u0644\u0627\u064b \u062b\u0645 \u0627\u0644\u0623\u0642\u062f\u0645 \u0641\u0627\u0644\u0623\u0642\u062f\u0645
+function timeline(){
+  var out = [], cEnd = cycleEndOf(new Date(), state.payday);
+  out.push({
+    key:"cur", label:cycleLabel(state.cycleStart), range:cycleRange(state.cycleStart, cEnd),
+    current:true, income:totalIncome(), spent:totalSpent(),
+    rows: state.log.map(function(e){
+      var c = state.cats[e.cat];
+      return {id:e.id, kind:"exp", cat:e.cat, name:c ? c.name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641",
+              icon:c ? c.icon : "", ts:e.ts, amount:e.amount, note:e.note,
+              auto:e.auto, editable:true};
+    }).concat(state.incomeLog.map(function(e){
+      return {id:e.id, kind:"inc", cat:null, name:e.note || "\u062f\u062e\u0644", icon:"\ud83d\udcb0",
+              ts:e.ts, amount:e.amount, note:e.note, auto:e.auto, editable:true};
+    }))
+  });
+  state.archives.slice().reverse().forEach(function(a){
+    var rows = (a.entries || []).map(function(en){
+      return {id:null, kind:"exp", cat:en.cat || catKeyByName(en.name), name:en.name,
+              icon:en.icon, ts:en.ts, amount:en.amount, note:en.note,
+              auto:en.auto, editable:false};
+    }).concat((a.incomeEntries || []).map(function(en){
+      return {id:null, kind:"inc", cat:null, name:en.note || "\u062f\u062e\u0644", icon:"\ud83d\udcb0",
+              ts:en.ts, amount:en.amount, note:en.note, auto:en.auto, editable:false};
+    }));
+    out.push({key:a.id, label:a.label, range:a.range || "", current:false,
+              income:a.income, spent:a.spent, surplus:a.surplus,
+              rows:rows, legacy:!a.entries});
+  });
+  return out;
+}
+
+function rowHtml(r){
+  var tag = r.auto ? '<span class="tag auto">\u062a\u0644\u0642\u0627\u0626\u064a</span> ' : '';
+  var when = r.ts ? dtDay.format(new Date(r.ts)) + " \u2022 " + dtTime.format(new Date(r.ts)) : "";
+  return '<div class="log-item'+(r.editable ? '' : ' ro')+'"'
+    + (r.editable ? ' data-edit="'+r.id+'" data-kind="'+(r.kind==="inc"?"inc":"exp")+'" role="button" tabindex="0"' : '')
+    + '>'
+    + '<span><span class="log-name">'+esc((r.icon ? r.icon+" " : "")+r.name)+'</span>'
+    + '<br><span class="log-meta">'+tag+esc(when)
+      + (r.note && !r.auto && r.kind !== "inc" ? " \u2014 "+esc(r.note) : "")+'</span></span>'
+    + '<span class="log-amt '+(r.kind==="inc" && r.amount > 0 ? "in" : "")+' num">'
+      + (r.kind==="inc" && r.amount > 0 ? "+" : "") + money(r.amount)+'</span>'
+    + (r.editable ? '<span class="cat-more" aria-hidden="true">&#8943;</span>' : '<span></span>')
+    + '</div>';
+}
+
 function renderLog(){
   var f = el("log-filter").value, q = (el("log-search").value || "").trim();
-  var rows = [];
-  state.log.forEach(function(e){ rows.push({e:e, income:false}); });
-  if(!f) state.incomeLog.forEach(function(e){ rows.push({e:e, income:true}); });
-  rows = rows.filter(function(r){
-    var e = r.e;
-    if(f && (r.income || e.cat !== f)) return false;
-    if(!q) return true;
-    var hay = (r.income ? "\u062f\u062e\u0644 " : ((state.cats[e.cat]||{}).name || "")) + " " + (e.note || "") + " " + e.amount;
-    return hay.indexOf(q) >= 0;
-  });
-  rows.sort(function(a,b){ return (b.e.ts || 0) - (a.e.ts || 0); });
+  var cycles = timeline();
+  var html = "", nRows = 0, sumExp = 0, sumInc = 0, shown = 0;
 
-  var html = rows.map(function(r){
-    var e = r.e, c = r.income ? null : state.cats[e.cat];
-    var title = r.income ? "\ud83d\udcb0 " + (e.note || "\u062f\u062e\u0644") : (c ? c.icon+" "+c.name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641");
-    return '<div class="log-item" data-edit="'+e.id+'" data-kind="'+(r.income?"inc":"exp")+'" role="button" tabindex="0">'
-      + '<span><span class="log-name">'+esc(title)+'</span>'
-      + '<br><span class="log-meta">'+(e.auto ? '<span class="tag auto">\u062a\u0644\u0642\u0627\u0626\u064a</span> ' : '')
-        + esc(stamp(e)) + (e.note && !e.auto && !r.income ? " \u2014 "+esc(e.note) : "")+'</span></span>'
-      + '<span class="log-amt '+(r.income ? (e.amount < 0 ? "" : "in") : "")+' num">'
-        + (r.income && e.amount > 0 ? "+" : "") + money(e.amount)+'</span>'
-      + '<span class="cat-more" aria-hidden="true">&#8943;</span>'
-      + '</div>';
-  }).join("");
+  cycles.forEach(function(cy){
+    var rows = cy.rows.filter(function(r){
+      if(f && (r.kind === "inc" || r.cat !== f)) return false;
+      if(!q) return true;
+      return ((r.name || "") + " " + (r.note || "") + " " + r.amount).indexOf(q) >= 0;
+    }).sort(function(a, b){ return (b.ts || 0) - (a.ts || 0); });
+
+    rows.forEach(function(r){
+      nRows++;
+      if(r.kind === "inc") sumInc += r.amount; else sumExp += r.amount;
+    });
+
+    if(!rows.length && !cy.current && !(f === "" && q === "")) return;   // \u062f\u0648\u0631\u0629 \u0628\u0644\u0627 \u0646\u062a\u0627\u0626\u062c \u062a\u064f\u0637\u0648\u0649 \u0639\u0646\u062f \u0627\u0644\u0628\u062d\u062b
+    shown++;
+
+    var exp = rows.reduce(function(a, r){ return a + (r.kind === "exp" ? r.amount : 0); }, 0);
+    var body = rows.length ? rows.map(rowHtml).join("")
+      : '<p class="empty">' + (cy.legacy
+          ? "\u0642\u064a\u0648\u062f \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 \u063a\u064a\u0631 \u0645\u062d\u0641\u0648\u0638\u0629 (\u0633\u064f\u062c\u0651\u0644\u062a \u0642\u0628\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b)."
+          : "\u0644\u0627 \u0639\u0645\u0644\u064a\u0627\u062a \u0645\u0637\u0627\u0628\u0642\u0629 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.") + '</p>';
+
+    if(cy.current){
+      html += '<div class="cyc cur">'
+        + '<div class="cyc-top now"><span class="cyc-head">'
+          + '<span class="cyc-name">' + esc(cy.label) + ' <span class="tag live">\u0627\u0644\u062d\u0627\u0644\u064a\u0629</span></span>'
+          + (cy.range ? '<span class="cyc-range">' + esc(cy.range) + '</span>' : '')
+        + '</span><span class="cyc-fig"><span class="num">' + money(exp) + ' \u0631.\u0633</span>'
+          + '<span class="cyc-n">' + ops(rows.length) + '</span></span></div>'
+        + '<div class="cyc-body">' + body + '</div></div>';
+    } else {
+      var open = !!openCycles[cy.key] || (f !== "" || q !== "");
+      html += '<div class="cyc">'
+        + '<div class="cyc-top" data-cyc="' + esc(cy.key) + '" role="button" tabindex="0" aria-expanded="' + open + '">'
+          + '<span class="cyc-head"><span class="cyc-name">' + esc(cy.label) + '</span>'
+          + (cy.range ? '<span class="cyc-range">' + esc(cy.range) + '</span>' : '')
+        + '</span><span class="cyc-fig"><span class="num">' + money(exp) + ' \u0631.\u0633</span>'
+          + '<span class="cyc-n">' + ops(rows.length) + '</span></span>'
+        + '<span class="arch-chev" aria-hidden="true">&#8964;</span></div>'
+        + '<div class="cyc-body"' + (open ? '' : ' hidden') + '>' + body + '</div></div>';
+    }
+  });
+
   el("log-body").innerHTML = html || '<p class="empty">\u0644\u0627 \u062a\u0648\u062c\u062f \u0639\u0645\u0644\u064a\u0627\u062a \u0645\u0637\u0627\u0628\u0642\u0629.</p>';
-  var spent = rows.reduce(function(a,r){ return a + (r.income ? 0 : r.e.amount); }, 0);
-  var inc = rows.reduce(function(a,r){ return a + (r.income ? r.e.amount : 0); }, 0);
-  el("log-count").textContent = ops(rows.length) + " \u2022 \u0645\u0635\u0631\u0648\u0641 " + money(spent) + " \u0631.\u0633"
-    + (inc ? " \u2022 \u062f\u062e\u0644 " + money(inc) + " \u0631.\u0633" : "");
+  el("log-count").textContent = ops(nRows) + " \u2022 \u0645\u0635\u0631\u0648\u0641 " + money(sumExp) + " \u0631.\u0633"
+    + (sumInc ? " \u2022 \u062f\u062e\u0644 " + money(sumInc) + " \u0631.\u0633" : "")
+    + (shown > 1 ? " \u2022 \u0639\u0628\u0631 " + plural(shown, "\u062f\u0648\u0631\u0629 \u0648\u0627\u062d\u062f\u0629", "\u062f\u0648\u0631\u062a\u064a\u0646", "\u062f\u0648\u0631\u0627\u062a", "\u062f\u0648\u0631\u0629") : "");
+
+  renderCatInsight(f, cycles);
+}
+
+// \u062a\u062d\u0644\u064a\u0644 \u0627\u0644\u0628\u0646\u062f \u0639\u0628\u0631 \u0627\u0644\u062f\u0648\u0631\u0627\u062a: \u0627\u0644\u0645\u062a\u0648\u0633\u0637\u060c \u0627\u0644\u0627\u062a\u062c\u0627\u0647\u060c \u0648\u0645\u062f\u0649 \u0648\u0627\u0642\u0639\u064a\u0629 \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0647
+function renderCatInsight(f, cycles){
+  var box = el("cat-insight");
+  if(!f || !state.cats[f]){ box.hidden = true; return; }
+  var c = state.cats[f];
+  var per = cycles.map(function(cy){
+    return {label:(cy.label || "").replace("\u0631\u0627\u062a\u0628 ", ""), current:!!cy.current, legacy:!!cy.legacy,
+            sum:cy.rows.reduce(function(a, r){
+              return a + (r.kind === "exp" && r.cat === f ? r.amount : 0); }, 0)};
+  }).filter(function(x){ return !x.legacy; });
+
+  var cur = per.filter(function(x){ return x.current; })[0] || {sum:0};
+  var past = per.filter(function(x){ return !x.current; });
+  var total = per.reduce(function(a, x){ return a + x.sum; }, 0);
+  var avg = past.length ? past.reduce(function(a, x){ return a + x.sum; }, 0) / past.length : cur.sum;
+  var sugg = Math.max(10, Math.round(avg / 10) * 10);
+
+  var verdict;
+  if(!past.length){
+    verdict = "\u0645\u0627 \u0632\u0627\u0644\u062a \u0623\u0648\u0644 \u062f\u0648\u0631\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f \u2014 \u0627\u0644\u0645\u062a\u0648\u0633\u0637 \u064a\u062a\u0643\u0648\u0651\u0646 \u0628\u0639\u062f \u0623\u0631\u0634\u0641\u0629 \u062f\u0648\u0631\u0629 \u0623\u0648 \u0623\u0643\u062b\u0631.";
+  } else if(c.open){
+    verdict = "\u0628\u0646\u062f \u0645\u0641\u062a\u0648\u062d \u0628\u0644\u0627 \u0633\u0642\u0641. \u0645\u062a\u0648\u0633\u0637 \u0635\u0631\u0641\u0647 <b class='num'>" + money(avg) + "</b> \u0631.\u0633 \u0641\u064a \u0627\u0644\u062f\u0648\u0631\u0629.";
+  } else if(avg > c.limit * 1.05){
+    verdict = "\u0645\u062a\u0648\u0633\u0637 \u0635\u0631\u0641\u0643 \u064a\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0628\u0640 <b class='num'>" + money(avg - c.limit)
+      + "</b> \u0631.\u0633. \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u063a\u064a\u0631 \u0648\u0627\u0642\u0639\u064a\u0629 \u2014 \u0627\u0631\u0641\u0639\u0647\u0627 \u0625\u0644\u0649 <b class='num'>" + money(sugg)
+      + "</b> \u0623\u0648 \u0627\u0636\u0628\u0637 \u0627\u0644\u0635\u0631\u0641.";
+  } else if(avg < c.limit * 0.7){
+    verdict = "\u0645\u062a\u0648\u0633\u0637 \u0635\u0631\u0641\u0643 \u0623\u0642\u0644 \u0645\u0646 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0628\u0640 <b class='num'>" + money(c.limit - avg)
+      + "</b> \u0631.\u0633. \u062a\u0642\u062f\u0631 \u062a\u062e\u0641\u0636\u0647\u0627 \u0625\u0644\u0649 <b class='num'>" + money(sugg)
+      + "</b> \u0648\u062a\u062d\u0631\u0651\u0631 \u0627\u0644\u0641\u0631\u0642 \u0644\u0628\u0646\u0648\u062f \u0623\u062e\u0631\u0649 \u0623\u0648 \u0644\u0644\u0635\u0646\u062f\u0648\u0642.";
+  } else {
+    verdict = "\u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0643 \u0644\u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f \u0648\u0627\u0642\u0639\u064a\u0629 \u2014 \u0627\u0644\u0641\u0631\u0642 \u0639\u0646 \u0645\u062a\u0648\u0633\u0637 \u0635\u0631\u0641\u0643 \u0623\u0642\u0644 \u0645\u0646 \u0627\u0644\u062b\u0644\u062b.";
+  }
+
+  var max = Math.max.apply(null, per.map(function(x){ return x.sum; }).concat([1]));
+  var bars = per.slice().reverse().map(function(x){
+    return '<span class="col"><span class="num" style="font-size:10.5px;color:var(--mute)">'
+      + money(x.sum) + '</span>'
+      + '<span class="bar' + (x.current ? ' now' : '') + '" style="height:'
+      + Math.max(4, Math.round((x.sum / max) * 52)) + 'px"></span>'
+      + '<span class="lbl">' + esc(x.label) + '</span></span>';
+  }).join("");
+
+  var diff = past.length && avg > 0 ? Math.round(((cur.sum - avg) / avg) * 100) : 0;
+  box.innerHTML = '<div class="insight">'
+    + '<div class="ins-head">' + esc((c.icon || "") + " " + c.name)
+      + (c.open ? ' <span class="tag open">\u0645\u0641\u062a\u0648\u062d</span>' : '')
+      + (c.fixed ? ' <span class="tag fixed">\u062b\u0627\u0628\u062a</span>' : '') + '</div>'
+    + '<div class="ins-nums">'
+      + '<span><i>\u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629</i><b class="num">' + money(cur.sum) + '</b></span>'
+      + '<span><i>\u0627\u0644\u0645\u062a\u0648\u0633\u0637</i><b class="num">' + money(avg) + '</b></span>'
+      + '<span><i>\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a</i><b class="num">' + money(total) + '</b></span>'
+    + '</div>'
+    + (past.length ? '<div class="ins-delta ' + (diff > 0 ? 'up' : (diff < 0 ? 'down' : '')) + '">'
+        + (diff > 0 ? "\u0623\u0639\u0644\u0649 \u0645\u0646 \u0645\u062a\u0648\u0633\u0637\u0643 \u0628\u0640 " + diff + "\u066a"
+           : diff < 0 ? "\u0623\u0642\u0644 \u0645\u0646 \u0645\u062a\u0648\u0633\u0637\u0643 \u0628\u0640 " + Math.abs(diff) + "\u066a"
+           : "\u0645\u0637\u0627\u0628\u0642 \u0644\u0645\u062a\u0648\u0633\u0637\u0643") + '</div>' : '')
+    + (per.length > 1 ? '<div class="trend ins-trend">' + bars + '</div>' : '')
+    + '<p class="note">' + verdict + '</p>'
+    + (!c.open && past.length && Math.abs(avg - c.limit) > c.limit * 0.05
+        ? '<button class="btn ghost sm block" type="button" id="apply-sugg" data-k="' + esc(f)
+          + '" data-v="' + sugg + '">\u0627\u0636\u0628\u0637 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0639\u0644\u0649 ' + money(sugg) + ' \u0631.\u0633</button>'
+        : '')
+    + '</div>';
+  box.hidden = false;
 }
 
 function renderFund(){
@@ -1184,9 +1374,7 @@ function renderArch(){
         + '<h4 class="arch-h">\u0627\u0644\u0628\u0646\u0648\u062f</h4>'
         + (catLines || '<span class="note">\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.</span>')
         + (a.entries
-            ? (entryLines
-                ? '<h4 class="arch-h">\u0627\u0644\u0642\u064a\u0648\u062f ('+a.entries.length+')</h4>' + entryLines
-                : '')
+            ? '<p class="note">\u0642\u064a\u0648\u062f \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 ('+a.entries.length+') \u0641\u064a \u062a\u0628\u0648\u064a\u0628 \u0627\u0644\u0633\u062c\u0644.</p>'
             : '<p class="note">\u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u0642\u064a\u0648\u062f \u063a\u064a\u0631 \u0645\u062d\u0641\u0648\u0638\u0629 \u0644\u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 (\u0633\u064f\u062c\u0651\u0644\u062a \u0642\u0628\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b).</p>')
       + '</div>'
       + '</div>';
@@ -1298,6 +1486,24 @@ el("log-body").addEventListener("keydown", function(ev){
   if(ev.key !== "Enter" && ev.key !== " ") return;
   var r = ev.target.closest("[data-edit]");
   if(r){ ev.preventDefault(); openEntryEditor(r.dataset.edit, r.dataset.kind); }
+});
+el("log-body").addEventListener("click", function(ev){
+  var t = ev.target.closest("[data-cyc]");
+  if(t){
+    var k = t.dataset.cyc;
+    openCycles[k] = !openCycles[k];
+    renderLog();
+    return;
+  }
+});
+el("cat-insight").addEventListener("click", function(ev){
+  var b = ev.target.closest("#apply-sugg");
+  if(!b) return;
+  var k = b.dataset.k, v = num(b.dataset.v);
+  if(!state.cats[k] || v <= 0) return;
+  if(!confirm("\u0636\u0628\u0637 \u0645\u064a\u0632\u0627\u0646\u064a\u0629 " + state.cats[k].name + " \u0639\u0644\u0649 " + money(v) + " \u0631.\u0633\u061f")) return;
+  state.cats[k].limit = v;
+  save(); render(); toast("\u062d\u064f\u062f\u0651\u062b\u062a \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629");
 });
 el("log-filter").addEventListener("change", renderLog);
 el("log-search").addEventListener("input", renderLog);
