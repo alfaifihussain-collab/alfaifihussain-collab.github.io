@@ -216,6 +216,9 @@ input::placeholder{color:var(--mute)}
 .ins-trend{height:82px; padding:12px 0 0}
 .ins-trend .bar{background:var(--rail)}
 .ins-trend .bar.now{background:var(--gold)}
+.ins-trend .bar.old{background:color-mix(in srgb, var(--rail) 70%, transparent)}
+.legacy-sum{padding:14px; font-size:13.5px; color:var(--ink-2); line-height:1.8}
+.legacy-sum .note{font-size:12px}
 .log-item[data-edit]{cursor:pointer}
 .log-item[data-edit]:hover{background:var(--panel-2)}
 .icon-btn{background:transparent; border:1px solid var(--line); color:var(--mute); border-radius:8px; width:30px; height:30px; cursor:pointer; line-height:1}
@@ -1119,7 +1122,7 @@ function timeline(){
   var out = [], cEnd = cycleEndOf(new Date(), state.payday);
   out.push({
     key:"cur", label:cycleLabel(state.cycleStart), range:cycleRange(state.cycleStart, cEnd),
-    current:true, income:totalIncome(), spent:totalSpent(),
+    current:true, income:totalIncome(), spent:totalSpent(), totals:null,
     rows: state.log.map(function(e){
       var c = state.cats[e.cat];
       return {id:e.id, kind:"exp", cat:e.cat, name:c ? c.name : "\u0628\u0646\u062f \u0645\u062d\u0630\u0648\u0641",
@@ -1139,9 +1142,11 @@ function timeline(){
       return {id:null, kind:"inc", cat:null, name:en.note || "\u062f\u062e\u0644", icon:"\ud83d\udcb0",
               ts:en.ts, amount:en.amount, note:en.note, auto:en.auto, editable:false};
     }));
+    var totals = {};
+    (a.cats || []).forEach(function(c){ if(c.spent) totals[c.key] = c.spent; });
     out.push({key:a.id, label:a.label, range:a.range || "", current:false,
-              income:a.income, spent:a.spent, surplus:a.surplus,
-              rows:rows, legacy:!a.entries});
+              income:a.income, spent:a.spent, surplus:a.surplus, count:a.count,
+              totals:totals, rows:rows, legacy:!a.entries});
   });
   return out;
 }
@@ -1178,14 +1183,28 @@ function renderLog(){
       if(r.kind === "inc") sumInc += r.amount; else sumExp += r.amount;
     });
 
-    if(!rows.length && !cy.current && !(f === "" && q === "")) return;   // \u062f\u0648\u0631\u0629 \u0628\u0644\u0627 \u0646\u062a\u0627\u0626\u062c \u062a\u064f\u0637\u0648\u0649 \u0639\u0646\u062f \u0627\u0644\u0628\u062d\u062b
+    var legacyTotal = (cy.legacy && f && cy.totals) ? (cy.totals[f] || 0) : 0;
+    if(!rows.length && !legacyTotal && !cy.current && !(f === "" && q === "")) return;
     shown++;
 
     var exp = rows.reduce(function(a, r){ return a + (r.kind === "exp" ? r.amount : 0); }, 0);
-    var body = rows.length ? rows.map(rowHtml).join("")
-      : '<p class="empty">' + (cy.legacy
-          ? "\u0642\u064a\u0648\u062f \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 \u063a\u064a\u0631 \u0645\u062d\u0641\u0648\u0638\u0629 (\u0633\u064f\u062c\u0651\u0644\u062a \u0642\u0628\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b)."
-          : "\u0644\u0627 \u0639\u0645\u0644\u064a\u0627\u062a \u0645\u0637\u0627\u0628\u0642\u0629 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.") + '</p>';
+    if(!rows.length && cy.legacy) exp = legacyTotal || cy.spent || 0;
+    var nLabel = rows.length ? ops(rows.length) : (cy.legacy ? "\u0625\u062c\u0645\u0627\u0644\u064a \u0645\u062d\u0641\u0648\u0638" : ops(0));
+    var body;
+    if(rows.length){
+      body = rows.map(rowHtml).join("");
+    } else if(legacyTotal){
+      body = '<div class="legacy-sum">\u0635\u064f\u0631\u0641 \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u0628\u0646\u062f <b class="num">' + money(legacyTotal)
+        + '</b> \u0631.\u0633 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.'
+        + '<br><span class="note">\u0627\u0644\u0642\u064a\u0648\u062f \u0627\u0644\u0645\u0641\u0631\u062f\u0629 \u063a\u064a\u0631 \u0645\u062d\u0641\u0648\u0638\u0629 \u2014 \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 \u0623\u064f\u0631\u0634\u0641\u062a \u0642\u0628\u0644 \u062a\u062d\u062f\u064a\u062b \u062d\u0641\u0638 \u0627\u0644\u0642\u064a\u0648\u062f.</span></div>';
+    } else if(cy.legacy){
+      body = '<div class="legacy-sum">\u0623\u064f\u0631\u0634\u0641\u062a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 \u0642\u0628\u0644 \u062a\u062d\u062f\u064a\u062b \u062d\u0641\u0638 \u0627\u0644\u0642\u064a\u0648\u062f\u060c \u0641\u0645\u062d\u0641\u0648\u0638 \u0645\u0646\u0647\u0627 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a\u0627\u062a \u0641\u0642\u0637:'
+        + ' <b class="num">' + money(cy.spent) + '</b> \u0631.\u0633'
+        + (cy.count ? ' \u0641\u064a ' + ops(cy.count) : '')
+        + '.<br><span class="note">\u062a\u0641\u0635\u064a\u0644\u0647\u0627 \u0644\u0643\u0644 \u0628\u0646\u062f \u0641\u064a \u062a\u0628\u0648\u064a\u0628 \u0627\u0644\u0623\u0631\u0634\u064a\u0641.</span></div>';
+    } else {
+      body = '<p class="empty">\u0644\u0627 \u0639\u0645\u0644\u064a\u0627\u062a \u0645\u0637\u0627\u0628\u0642\u0629 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629.</p>';
+    }
 
     if(cy.current){
       html += '<div class="cyc cur">'
@@ -1193,7 +1212,7 @@ function renderLog(){
           + '<span class="cyc-name">' + esc(cy.label) + ' <span class="tag live">\u0627\u0644\u062d\u0627\u0644\u064a\u0629</span></span>'
           + (cy.range ? '<span class="cyc-range">' + esc(cy.range) + '</span>' : '')
         + '</span><span class="cyc-fig"><span class="num">' + money(exp) + ' \u0631.\u0633</span>'
-          + '<span class="cyc-n">' + ops(rows.length) + '</span></span></div>'
+          + '<span class="cyc-n">' + nLabel + '</span></span></div>'
         + '<div class="cyc-body">' + body + '</div></div>';
     } else {
       var open = !!openCycles[cy.key] || (f !== "" || q !== "");
@@ -1202,7 +1221,7 @@ function renderLog(){
           + '<span class="cyc-head"><span class="cyc-name">' + esc(cy.label) + '</span>'
           + (cy.range ? '<span class="cyc-range">' + esc(cy.range) + '</span>' : '')
         + '</span><span class="cyc-fig"><span class="num">' + money(exp) + ' \u0631.\u0633</span>'
-          + '<span class="cyc-n">' + ops(rows.length) + '</span></span>'
+          + '<span class="cyc-n">' + nLabel + '</span></span>'
         + '<span class="arch-chev" aria-hidden="true">&#8964;</span></div>'
         + '<div class="cyc-body"' + (open ? '' : ' hidden') + '>' + body + '</div></div>';
     }
@@ -1222,10 +1241,13 @@ function renderCatInsight(f, cycles){
   if(!f || !state.cats[f]){ box.hidden = true; return; }
   var c = state.cats[f];
   var per = cycles.map(function(cy){
-    return {label:(cy.label || "").replace("\u0631\u0627\u062a\u0628 ", ""), current:!!cy.current, legacy:!!cy.legacy,
-            sum:cy.rows.reduce(function(a, r){
-              return a + (r.kind === "exp" && r.cat === f ? r.amount : 0); }, 0)};
-  }).filter(function(x){ return !x.legacy; });
+    var sum = cy.legacy && cy.totals
+      ? (cy.totals[f] || 0)                       // \u062f\u0648\u0631\u0629 \u0642\u062f\u064a\u0645\u0629: \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0645\u062d\u0641\u0648\u0638
+      : cy.rows.reduce(function(a, r){
+          return a + (r.kind === "exp" && r.cat === f ? r.amount : 0); }, 0);
+    return {label:(cy.label || "").replace("\u0631\u0627\u062a\u0628 ", ""), current:!!cy.current,
+            legacy:!!cy.legacy, sum:sum};
+  });
 
   var cur = per.filter(function(x){ return x.current; })[0] || {sum:0};
   var past = per.filter(function(x){ return !x.current; });
@@ -1254,7 +1276,7 @@ function renderCatInsight(f, cycles){
   var bars = per.slice().reverse().map(function(x){
     return '<span class="col"><span class="num" style="font-size:10.5px;color:var(--mute)">'
       + money(x.sum) + '</span>'
-      + '<span class="bar' + (x.current ? ' now' : '') + '" style="height:'
+      + '<span class="bar' + (x.current ? ' now' : (x.legacy ? ' old' : '')) + '" style="height:'
       + Math.max(4, Math.round((x.sum / max) * 52)) + 'px"></span>'
       + '<span class="lbl">' + esc(x.label) + '</span></span>';
   }).join("");
