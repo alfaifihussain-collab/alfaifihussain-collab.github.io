@@ -190,6 +190,13 @@ input::placeholder{color:var(--mute)}
 .cat:hover{background:var(--panel-2)}
 .cat-more{color:var(--mute); font-size:17px; line-height:1; letter-spacing:1px}
 .cat:hover .cat-more{color:var(--gold)}
+#cats-alert{padding:11px 14px; border-bottom:1px solid var(--line);
+  background:color-mix(in srgb, var(--warn) 9%, transparent)}
+.al-head{font-size:12.5px; font-weight:700; color:var(--warn); margin-bottom:6px}
+.al-row{display:flex; justify-content:space-between; gap:10px; font-size:12.5px;
+  color:var(--ink-2); padding:2px 0}
+.al-row .num{color:var(--warn); font-weight:600; white-space:nowrap}
+.al-row.over .num{color:var(--dang)}
 .hint{margin:0; padding:9px 14px; font-size:12px; color:var(--mute); background:var(--panel-2); border-bottom:1px solid var(--line)}
 .ico{width:38px; height:38px; border-radius:11px; display:grid; place-items:center; font-size:19px; background:var(--t2)}
 .cat-main{min-width:0; display:block}
@@ -333,7 +340,15 @@ input::placeholder{color:var(--mute)}
 .sheet{background:var(--panel); border:1px solid var(--line); border-radius:18px 18px 0 0; width:100%; max-width:780px; padding:16px; display:flex; flex-direction:column; gap:11px; max-height:88vh; overflow-y:auto; animation:up .22s ease}
 @keyframes up{from{transform:translateY(16px); opacity:.4} to{transform:none; opacity:1}}
 .sheet h2{font-size:16px}
-.toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(70px); background:var(--navy); color:#fff; padding:10px 18px; border-radius:99px; font-size:13.5px; font-weight:500; box-shadow:var(--shadow); z-index:80; opacity:0; transition:.25s; border:1px solid var(--gold)}
+.toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(70px);
+  background:var(--navy); color:#fff; padding:10px 18px; border-radius:99px; font-size:13.5px;
+  font-weight:500; box-shadow:var(--shadow); z-index:80; opacity:0; transition:.25s;
+  border:1px solid var(--gold); max-width:92vw; text-align:center}
+.toast.alert{border-radius:14px; padding:12px 18px; line-height:1.7; font-weight:600;
+  border-color:var(--warn); background:#3A2B0C}
+.toast.danger{border-radius:14px; padding:12px 18px; line-height:1.7; font-weight:600;
+  border-color:var(--dang); background:#3A1512}
+.toast b{color:var(--gold-lit)}
 .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
 
 @media (min-width:620px){
@@ -429,6 +444,7 @@ input::placeholder{color:var(--mute)}
           <button data-sort="risk" aria-pressed="false">&#1575;&#1604;&#1571;&#1602;&#1585;&#1576; &#1604;&#1604;&#1578;&#1580;&#1575;&#1608;&#1586;</button>
         </div>
       </div>
+      <div id="cats-alert" hidden></div>
       <p class="hint">&#1575;&#1590;&#1594;&#1591; &#1571;&#1610; &#1576;&#1606;&#1583; &#1604;&#1578;&#1593;&#1583;&#1610;&#1604; &#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1578;&#1607; &#1571;&#1608; &#1585;&#1605;&#1586;&#1607;&#1548; &#1571;&#1608; &#1604;&#1581;&#1584;&#1601;&#1607;.</p>
       <div id="cats-body"></div>
     </div>
@@ -514,6 +530,17 @@ input::placeholder{color:var(--mute)}
         </div>
         <p class="note" id="alloc-detail"></p>
         <p class="note" id="fixed-detail"></p>
+      </div>
+    </div>
+
+    <div class="list">
+      <div class="list-head"><h2>&#1581;&#1583;&#1617; &#1575;&#1604;&#1578;&#1606;&#1576;&#1610;&#1607;</h2></div>
+      <div class="set">
+        <div class="row2">
+          <select id="f-alert"></select>
+          <button class="btn" type="button" id="btn-alert">&#1581;&#1601;&#1592; &#1575;&#1604;&#1581;&#1583;&#1617;</button>
+        </div>
+        <p class="note">&#1610;&#1606;&#1576;&#1607;&#1603; &#1575;&#1604;&#1578;&#1591;&#1576;&#1610;&#1602; &#1604;&#1581;&#1592;&#1577; &#1576;&#1604;&#1608;&#1594; &#1571;&#1610; &#1576;&#1606;&#1583; &#1607;&#1584;&#1607; &#1575;&#1604;&#1606;&#1587;&#1576;&#1577; &#1605;&#1606; &#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1578;&#1607;&#1548; &#1608;&#1610;&#1593;&#1585;&#1590; &#1575;&#1604;&#1576;&#1606;&#1608;&#1583; &#1575;&#1604;&#1605;&#1602;&#1578;&#1585;&#1576;&#1577; &#1571;&#1593;&#1604;&#1609; &#1602;&#1575;&#1574;&#1605;&#1577; &#1575;&#1604;&#1576;&#1606;&#1608;&#1583;.</p>
       </div>
     </div>
 
@@ -675,7 +702,7 @@ var state = null, sortMode = "manual", editKey = null, editEntry = null, rolledO
 function freshState(){
   var s = {schema:SCHEMA, salary:DEFAULT_INCOME, payday:PAYDAY_DEFAULT, cats:{}, order:[],
            log:[], incomeLog:[], archives:[], autoPosted:[], salaryPosted:false,
-           fund:{balance:0, log:[]}, lastBackup:null, tomb:{}, updatedAt:Date.now(),
+           fund:{balance:0, log:[]}, lastBackup:null, alertPct:80, tomb:{}, updatedAt:Date.now(),
            startedAt:Date.now()};
   s.cycleStart = cycleStartOf(new Date(), s.payday);
   DEFAULT_CATS.forEach(function(c){
@@ -747,6 +774,7 @@ function migrate(s){
   }
   s.fund.balance = fundBalance(s);
   if(typeof s.lastBackup !== "number") s.lastBackup = null;
+  s.alertPct = (num(s.alertPct) >= 50 && num(s.alertPct) <= 100) ? num(s.alertPct) : 80;
   if(!s.tomb || typeof s.tomb !== "object") s.tomb = {};
   if(typeof s.updatedAt !== "number") s.updatedAt = Date.now();
   if(s.payday !== 0 && !(num(s.payday) >= 1 && num(s.payday) <= 28)) s.payday = PAYDAY_DEFAULT;
@@ -927,6 +955,22 @@ function ensureAutoPosts(){
 }
 
 // \u0645\u0627 \u0644\u0645 \u064a\u064f\u0635\u0631\u0641 \u0628\u0639\u062f \u0645\u0646 \u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u062b\u0627\u0628\u062a\u0629 \u2014 \u0645\u0628\u0644\u063a \u0645\u062d\u062c\u0648\u0632 \u0644\u0627 \u064a\u064f\u0639\u062f\u0651 \u0645\u062a\u0627\u062d\u0627\u064b
+// \u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u062a\u064a \u0628\u0644\u063a\u062a \u062d\u062f\u0651 \u0627\u0644\u062a\u0646\u0628\u064a\u0647 \u0623\u0648 \u062a\u062c\u0627\u0648\u0632\u062a \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0647\u0627
+function alertingCats(){
+  var th = (state.alertPct || 80) / 100, near = [], over = [];
+  state.order.forEach(function(k){
+    var c = state.cats[k];
+    // \u0627\u0644\u062b\u0627\u0628\u062a\u0629 \u062a\u064f\u062e\u0635\u0645 \u0643\u0627\u0645\u0644\u0629 \u0623\u0648\u0644 \u0627\u0644\u062f\u0648\u0631\u0629\u060c \u0641\u0628\u0644\u0648\u063a\u0647\u0627 100\u066a \u0644\u064a\u0633 \u062a\u0646\u0628\u064a\u0647\u0627\u064b
+    if(c.open || c.hidden || c.fixed || c.limit <= 0) return;
+    var sp = spentOf(k), r = sp / c.limit;
+    if(r > 1) over.push({k:k, c:c, sp:sp, r:r});
+    else if(r >= th) near.push({k:k, c:c, sp:sp, r:r});
+  });
+  near.sort(function(a, b){ return b.r - a.r; });
+  over.sort(function(a, b){ return b.r - a.r; });
+  return {near:near, over:over, th:th};
+}
+
 function committedLeft(){
   var t = 0;
   state.order.forEach(function(k){
@@ -1042,9 +1086,12 @@ function rollForward(s, curStart){
 }
 
 var toastTimer = null;
-function toast(msg){
-  var t = el("toast"); t.textContent = msg; t.classList.add("on");
-  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("on"); }, 2200);
+function toast(msg, kind){
+  var t = el("toast");
+  t.innerHTML = msg;
+  t.className = "toast on" + (kind ? " " + kind : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove("on"); }, kind ? 4200 : 2200);
 }
 function showStorageWarn(msg){
   var w = el("storage-warn"); w.textContent = msg; w.hidden = false;
@@ -1192,7 +1239,7 @@ function renderCats(){
     var c = state.cats[k], s = spentOf(k), remain = c.limit - s, r = ratio(k);
     var burn = burnWarn(k, s);
     var pct = c.limit > 0 ? Math.min(100, (s / c.limit) * 100) : (s > 0 ? 100 : 0);
-    var cls = r > 1 ? "over" : (r >= 0.85 ? "warn" : "");
+    var cls = r > 1 ? "over" : (r >= (state.alertPct || 80) / 100 ? "warn" : "");
     if(r > 1) over++;
     html += '<div class="cat'+(c.hidden?" off":"")+'" data-key="'+k+'" role="button" tabindex="0">'
       + '<span class="ico" style="background:var(--t'+c.tint+')">'+esc(c.icon)+'</span>'
@@ -1216,6 +1263,26 @@ function renderCats(){
       + '<span class="cat-more" aria-hidden="true">&#8943;</span></div>';
   });
   body.innerHTML = html || '<p class="empty">\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u0646\u0648\u062f. \u0623\u0636\u0641 \u0628\u0646\u062f\u0627\u064b \u0644\u0644\u0628\u062f\u0621.</p>';
+
+  var al = alertingCats(), box = el("cats-alert"), lines = [];
+  al.over.forEach(function(x){
+    lines.push('<div class="al-row over"><span>' + esc((x.c.icon || "") + " " + x.c.name) + '</span>'
+      + '<span class="num">\u062a\u062c\u0627\u0648\u0632 \u0628\u0640 ' + money(x.sp - x.c.limit) + '</span></div>');
+  });
+  al.near.forEach(function(x){
+    lines.push('<div class="al-row"><span>' + esc((x.c.icon || "") + " " + x.c.name) + '</span>'
+      + '<span class="num">' + Math.round(x.r * 100) + '\u066a \u00b7 \u0628\u0642\u064a ' + money(x.c.limit - x.sp) + '</span></div>');
+  });
+  if(lines.length){
+    box.innerHTML = '<div class="al-head">'
+      + (al.over.length ? plural(al.over.length, "\u0628\u0646\u062f \u0648\u0627\u062d\u062f \u062a\u062c\u0627\u0648\u0632 \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0647", "\u0628\u0646\u062f\u0627\u0646 \u062a\u062c\u0627\u0648\u0632\u0627 \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u064a\u0647\u0645\u0627",
+            "\u0628\u0646\u0648\u062f \u062a\u062c\u0627\u0648\u0632\u062a \u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a\u0647\u0627", "\u0628\u0646\u062f\u0627\u064b \u062a\u062c\u0627\u0648\u0632 \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0647") : "")
+      + (al.over.length && al.near.length ? "\u060c \u0648" : "")
+      + (al.near.length ? plural(al.near.length, "\u0628\u0646\u062f \u0648\u0627\u062d\u062f \u0627\u0642\u062a\u0631\u0628 \u0645\u0646 \u062d\u062f\u0651\u0647", "\u0628\u0646\u062f\u0627\u0646 \u0627\u0642\u062a\u0631\u0628\u0627 \u0645\u0646 \u062d\u062f\u0651\u064a\u0647\u0645\u0627",
+            "\u0628\u0646\u0648\u062f \u0627\u0642\u062a\u0631\u0628\u062a \u0645\u0646 \u062d\u062f\u0651\u0647\u0627", "\u0628\u0646\u062f\u0627\u064b \u0627\u0642\u062a\u0631\u0628 \u0645\u0646 \u062d\u062f\u0651\u0647") : "")
+      + '</div>' + lines.join("");
+    box.hidden = false;
+  } else { box.hidden = true; }
   el("cats-count").textContent = plural(keys.length, "\u0628\u0646\u062f \u0648\u0627\u062d\u062f", "\u0628\u0646\u062f\u0627\u0646", "\u0628\u0646\u0648\u062f", "\u0628\u0646\u062f\u0627\u064b")
     + (over ? " \u2022 " + plural(over, "\u0648\u0627\u062d\u062f \u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u0627\u062b\u0646\u0627\u0646 \u062a\u062c\u0627\u0648\u0632\u0627 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629", "\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629") : "");
 }
@@ -1520,6 +1587,16 @@ function cycleNotes(a, prev, live){
   if(live && surplus < 0){
     out.push({l:"bad", t:"\u062a\u062c\u0627\u0648\u0632\u062a \u062f\u062e\u0644 \u0627\u0644\u062f\u0648\u0631\u0629 \u0628\u0640 " + money(-surplus) + " \u0631.\u0633\u060c \u0648\u0644\u0645 \u062a\u0646\u062a\u0647\u0650 \u0628\u0639\u062f."});
   }
+  if(live){
+    var al = alertingCats();
+    if(al.near.length){
+      out.push({l:"warn", t:plural(al.near.length, "\u0628\u0646\u062f \u0648\u0627\u062d\u062f \u0628\u0644\u063a", "\u0628\u0646\u062f\u0627\u0646 \u0628\u0644\u063a\u0627", "\u0628\u0646\u0648\u062f \u0628\u0644\u063a\u062a", "\u0628\u0646\u062f\u0627\u064b \u0628\u0644\u063a")
+        + " " + state.alertPct + "\u066a \u0645\u0646 \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0647: "
+        + al.near.slice(0, 3).map(function(x){
+            return x.c.name + " (" + Math.round(x.r * 100) + "\u066a)"; }).join("\u060c ")
+        + (al.near.length > 3 ? " \u0648\u063a\u064a\u0631\u0647\u0627" : "")});
+    }
+  }
   var unused = live ? [] : (a.cats || []).filter(function(c){
     var cur = state.cats[c.key];
     return !c.open && c.limit > 0 && !c.spent && !(cur && cur.hidden);
@@ -1717,6 +1794,16 @@ function renderArch(){
 }
 
 function renderSet(){
+  var as = el("f-alert");
+  if(!as.options.length){
+    var ah = "";
+    [50, 60, 70, 75, 80, 85, 90, 95, 100].forEach(function(v){
+      ah += '<option value="' + v + '">' + v + '\u066a \u0645\u0646 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0629</option>';
+    });
+    as.innerHTML = ah;
+  }
+  as.value = String(state.alertPct || 80);
+
   var w = el("backup-warn");
   var age = state.lastBackup ? Date.now() - state.lastBackup : null;
   if(age === null || age > 45 * DAY_MS){
@@ -1809,7 +1896,20 @@ el("entry-form").addEventListener("submit", function(ev){
   save(); render();
   el("f-amt").value = ""; resetNote();
   var sp = spentOf(k), c = state.cats[k];
-  toast(!c.open && c.limit > 0 && sp > c.limit ? "\u0633\u064f\u062c\u0651\u0644 \u2014 \u062a\u062c\u0627\u0648\u0632\u062a \u0645\u064a\u0632\u0627\u0646\u064a\u0629 " + c.name : "\u0633\u064f\u062c\u0651\u0644 " + money(amt) + " \u0631.\u0633");
+  if(!c.open && c.limit > 0){
+    var th = (state.alertPct || 80) / 100;
+    var before = (sp - amt) / c.limit, after = sp / c.limit;
+    if(before <= 1 && after > 1){
+      return toast("\u062a\u062c\u0627\u0648\u0632\u062a \u0645\u064a\u0632\u0627\u0646\u064a\u0629 <b>" + esc(c.name) + "</b><br>"
+        + "\u0635\u0631\u0641\u062a " + money(sp) + " \u0645\u0646 " + money(c.limit) + " \u0631.\u0633 \u2014 \u0628\u0632\u064a\u0627\u062f\u0629 "
+        + money(sp - c.limit) + " \u0631.\u0633", "danger");
+    }
+    if(before < th && after >= th){
+      return toast("<b>" + esc(c.name) + "</b> \u0628\u0644\u063a " + Math.round(after * 100) + "\u066a \u0645\u0646 \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0647<br>"
+        + "\u0628\u0642\u064a " + money(c.limit - sp) + " \u0631.\u0633 \u0641\u0642\u0637 \u062d\u062a\u0649 \u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u062f\u0648\u0631\u0629", "alert");
+    }
+  }
+  toast("\u0633\u064f\u062c\u0651\u0644 " + money(amt) + " \u0631.\u0633");
 });
 
 document.querySelector(".chips").addEventListener("click", function(ev){
@@ -2031,6 +2131,14 @@ el("btn-income").addEventListener("click", function(){
   if(v <= 0) return toast("\u0623\u062f\u062e\u0644 \u0645\u0628\u0644\u063a\u0627\u064b \u0635\u062d\u064a\u062d\u0627\u064b");
   state.salary = v; el("f-income").value = "";
   save(); render(); toast("\u062d\u064f\u062f\u0651\u062b \u0627\u0644\u062f\u062e\u0644");
+});
+
+el("btn-alert").addEventListener("click", function(){
+  var v = parseInt(el("f-alert").value, 10);
+  if(isNaN(v) || v < 50 || v > 100) return toast("\u0627\u062e\u062a\u0631 \u0646\u0633\u0628\u0629 \u0635\u062d\u064a\u062d\u0629");
+  state.alertPct = v;
+  save(); render();
+  toast("\u062d\u062f\u0651 \u0627\u0644\u062a\u0646\u0628\u064a\u0647: " + v + "\u066a");
 });
 
 el("btn-payday").addEventListener("click", function(){
