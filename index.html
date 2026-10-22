@@ -297,6 +297,24 @@ input::placeholder{color:var(--mute)}
 .tp-rail{height:5px; border-radius:99px; background:var(--rail); overflow:hidden; margin-top:4px}
 .tp-rail i{display:block; height:100%; background:var(--gold)}
 .tp-rail i.over{background:var(--dang)}
+.cmp-pick{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center;
+  padding:11px 14px; border-bottom:1px solid var(--line)}
+.cmp-pick select{padding:8px 9px; font-size:12.5px}
+.cmp-vs{font-size:11.5px; color:var(--mute); white-space:nowrap}
+.cmp-head{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; text-align:center;
+  padding:10px 14px 6px; font-size:11.5px; color:var(--mute)}
+.cmp-head i{font-style:normal; color:var(--gold)}
+.cmp-row{display:grid; grid-template-columns:1fr auto; gap:4px 10px; padding:8px 14px;
+  border-bottom:1px solid var(--line); font-size:13px; align-items:center}
+.cmp-row:last-of-type{border-bottom:0}
+.cmp-row.top{background:var(--panel-2)}
+.cmp-name{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600}
+.cmp-nums{display:flex; align-items:baseline; gap:7px; white-space:nowrap; justify-self:end}
+.cmp-nums i{font-style:normal; color:var(--gold); font-size:11px}
+.cmp-nums b{font-weight:600}
+.dl{grid-column:1/-1; justify-self:end; font-size:11.5px; font-weight:600; color:var(--mute);
+  direction:ltr; unicode-bidi:isolate}   /* &#1603;&#1610; &#1604;&#1575; &#1578;&#1602;&#1601;&#1586; &#1593;&#1604;&#1575;&#1605;&#1577; &#1575;&#1604;&#1587;&#1575;&#1604;&#1576; &#1604;&#1570;&#1582;&#1585; &#1575;&#1604;&#1585;&#1602;&#1605; */
+.dl.good{color:var(--pos)} .dl.bad{color:var(--dang)}
 .ov{padding:13px 14px}
 .ov-rate{margin-top:11px}
 .ov-bar{height:7px; border-radius:99px; background:var(--rail); overflow:hidden; margin-bottom:6px}
@@ -512,6 +530,16 @@ input::placeholder{color:var(--mute)}
       <div class="list-head"><h2>&#1573;&#1580;&#1605;&#1575;&#1604;&#1610; &#1575;&#1604;&#1589;&#1585;&#1601; &#1604;&#1603;&#1604; &#1583;&#1608;&#1585;&#1577;</h2></div>
       <div class="trend" id="trend"></div>
     </div>
+    <div class="list" id="cmp-card" hidden>
+      <div class="list-head"><h2>&#1605;&#1602;&#1575;&#1585;&#1606;&#1577; &#1583;&#1608;&#1585;&#1578;&#1610;&#1606;</h2></div>
+      <div class="cmp-pick">
+        <select id="cmp-a" aria-label="&#1575;&#1604;&#1583;&#1608;&#1585;&#1577; &#1575;&#1604;&#1571;&#1608;&#1604;&#1609;"></select>
+        <span class="cmp-vs">&#1605;&#1602;&#1575;&#1576;&#1604;</span>
+        <select id="cmp-b" aria-label="&#1575;&#1604;&#1583;&#1608;&#1585;&#1577; &#1575;&#1604;&#1579;&#1575;&#1606;&#1610;&#1577;"></select>
+      </div>
+      <div id="cmp-body"></div>
+    </div>
+
     <div class="list">
       <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1608;&#1585;&#1575;&#1578; &#1575;&#1604;&#1605;&#1572;&#1585;&#1588;&#1601;&#1577;</h2></div>
       <p class="hint">&#1575;&#1590;&#1594;&#1591; &#1571;&#1610; &#1583;&#1608;&#1585;&#1577; &#1604;&#1593;&#1585;&#1590; &#1578;&#1601;&#1575;&#1589;&#1610;&#1604;&#1607;&#1575; &#1603;&#1575;&#1605;&#1604;&#1577;.</p>
@@ -896,7 +924,9 @@ function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
 function money(n){
   var r = Math.round(n * 100) / 100;
   var frac = Math.abs(r - Math.round(r)) >= 0.005;
-  return r.toLocaleString("en-US", {minimumFractionDigits:frac?2:0, maximumFractionDigits:frac?2:0});
+  // \u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u0633\u0627\u0644\u0628 \u0627\u0644\u0637\u0628\u0627\u0639\u064a\u0629 \u0644\u0627 \u0627\u0644\u0648\u0627\u0635\u0644\u0629\u060c \u0627\u062a\u0633\u0627\u0642\u0627\u064b \u0645\u0639 \u0628\u0642\u064a\u0629 \u0627\u0644\u0648\u0627\u062c\u0647\u0629
+  return r.toLocaleString("en-US", {minimumFractionDigits:frac?2:0, maximumFractionDigits:frac?2:0})
+          .replace("-", "\u2212");
 }
 function dateInputValue(ts){
   var d = new Date(ts);
@@ -1708,8 +1738,90 @@ function renderLiveNotes(){
   card.hidden = false;
 }
 
+// \u0627\u0644\u062f\u0648\u0631\u0627\u062a \u0627\u0644\u0642\u0627\u0628\u0644\u0629 \u0644\u0644\u0645\u0642\u0627\u0631\u0646\u0629: \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u062b\u0645 \u0627\u0644\u0645\u0624\u0631\u0634\u0641\u0629 \u0645\u0646 \u0627\u0644\u0623\u062d\u062f\u062b
+function comparable(){
+  var out = [currentAsArchive()];
+  out[0].live = true;
+  out[0].label = cycleLabel(state.cycleStart) + " (\u062c\u0627\u0631\u064a\u0629)";
+  state.archives.slice().reverse().forEach(function(a){ out.push(a); });
+  return out;
+}
+
+function cmpDelta(now, then, goodWhenUp){
+  var d = now - then;
+  if(Math.abs(d) < 0.5) return '<span class="dl">\u0628\u0644\u0627 \u062a\u063a\u064a\u064a\u0631</span>';
+  var pctTxt = then > 0 ? " (" + (d > 0 ? "+" : "\u2212") + Math.round(Math.abs(d) / then * 100) + "\u066a)" : "";
+  var good = goodWhenUp ? d > 0 : d < 0;
+  return '<span class="dl ' + (good ? "good" : "bad") + '">'
+    + (d > 0 ? "+" : "\u2212") + money(Math.abs(d)) + pctTxt + '</span>';
+}
+
+function renderCmp(){
+  var list = comparable(), card = el("cmp-card");
+  if(list.length < 2){ card.hidden = true; return; }
+  card.hidden = false;
+
+  var sa = el("cmp-a"), sb = el("cmp-b");
+  var opts = list.map(function(c, i){
+    return '<option value="' + i + '">' + esc(c.label) + '</option>'; }).join("");
+  var va = sa.value, vb = sb.value;
+  if(sa.innerHTML !== opts){ sa.innerHTML = opts; sb.innerHTML = opts; }
+  sa.value = (va !== "" && list[va]) ? va : "0";          // \u0627\u0644\u0627\u0641\u062a\u0631\u0627\u0636\u064a: \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u0645\u0642\u0627\u0628\u0644 \u0623\u062d\u062f\u062b \u0645\u0624\u0631\u0634\u0641\u0629
+  sb.value = (vb !== "" && list[vb] && vb !== sa.value) ? vb : "1";
+
+  var A = list[+sa.value], B = list[+sb.value];
+  if(!A || !B || A === B){
+    el("cmp-body").innerHTML = '<p class="empty">\u0627\u062e\u062a\u0631 \u062f\u0648\u0631\u062a\u064a\u0646 \u0645\u062e\u062a\u0644\u0641\u062a\u064a\u0646.</p>';
+    return;
+  }
+
+  var sA = (A.surplus === undefined) ? (A.income - A.spent) : A.surplus;
+  var sB = (B.surplus === undefined) ? (B.income - B.spent) : B.surplus;
+  var rA = A.income > 0 ? Math.round(sA / A.income * 100) : 0;
+  var rB = B.income > 0 ? Math.round(sB / B.income * 100) : 0;
+
+  var mA = {}, mB = {}, names = {}, keys = [];
+  (A.cats || []).forEach(function(c){ if(c.spent){ mA[c.key] = c.spent; names[c.key] = (c.icon || "") + " " + c.name; } });
+  (B.cats || []).forEach(function(c){ if(c.spent){ mB[c.key] = c.spent; names[c.key] = names[c.key] || (c.icon || "") + " " + c.name; } });
+  Object.keys(names).forEach(function(k){ keys.push(k); });
+  keys.sort(function(x, y){
+    return Math.abs((mA[y] || 0) - (mB[y] || 0)) - Math.abs((mA[x] || 0) - (mB[x] || 0));
+  });
+
+  var rows = keys.map(function(k){
+    var a = mA[k] || 0, b = mB[k] || 0;
+    return '<div class="cmp-row"><span class="cmp-name">' + esc(names[k]) + '</span>'
+      + '<span class="cmp-nums"><b class="num">' + money(b) + '</b>'
+      + '<i>\u2190</i><b class="num">' + money(a) + '</b></span>'
+      + cmpDelta(a, b, false) + '</div>';
+  }).join("");
+
+  var dSpent = A.spent - B.spent;
+  el("cmp-body").innerHTML =
+    '<div class="cmp-head"><span>' + esc(B.label) + '</span><i>\u2190</i><span>' + esc(A.label) + '</span></div>'
+    + '<div class="cmp-row top"><span class="cmp-name">\u0627\u0644\u062f\u062e\u0644</span>'
+      + '<span class="cmp-nums"><b class="num">' + money(B.income) + '</b><i>\u2190</i><b class="num">' + money(A.income) + '</b></span>'
+      + cmpDelta(A.income, B.income, true) + '</div>'
+    + '<div class="cmp-row top"><span class="cmp-name">\u0627\u0644\u0645\u0635\u0631\u0648\u0641</span>'
+      + '<span class="cmp-nums"><b class="num">' + money(B.spent) + '</b><i>\u2190</i><b class="num">' + money(A.spent) + '</b></span>'
+      + cmpDelta(A.spent, B.spent, false) + '</div>'
+    + '<div class="cmp-row top"><span class="cmp-name">\u0627\u0644\u0641\u0627\u0626\u0636</span>'
+      + '<span class="cmp-nums"><b class="num">' + money(sB) + '</b><i>\u2190</i><b class="num">' + money(sA) + '</b></span>'
+      + cmpDelta(sA, sB, true) + '</div>'
+    + '<div class="cmp-row top"><span class="cmp-name">\u0645\u0639\u062f\u0644 \u0627\u0644\u0627\u062f\u062e\u0627\u0631</span>'
+      + '<span class="cmp-nums"><b class="num">' + rB + '\u066a</b><i>\u2190</i><b class="num">' + rA + '\u066a</b></span>'
+      + '<span class="dl ' + (rA >= rB ? "good" : "bad") + '">' + (rA - rB >= 0 ? "+" : "\u2212") + Math.abs(rA - rB) + ' \u0646\u0642\u0637\u0629</span></div>'
+    + (A.live ? '<p class="note">\u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u0644\u0645 \u062a\u0646\u062a\u0647\u0650 \u0628\u0639\u062f\u060c \u0641\u0623\u0631\u0642\u0627\u0645\u0647\u0627 \u062c\u0632\u0626\u064a\u0629.</p>' : '')
+    + (rows ? '<h4 class="arch-h">\u0627\u0644\u0641\u0631\u0648\u0642 \u0644\u0643\u0644 \u0628\u0646\u062f</h4>' + rows
+            : '<p class="empty">\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0641\u064a \u0627\u0644\u062f\u0648\u0631\u062a\u064a\u0646.</p>')
+    + '<p class="note">' + (Math.abs(dSpent) < 1 ? "\u0645\u0635\u0631\u0648\u0641 \u0627\u0644\u062f\u0648\u0631\u062a\u064a\u0646 \u0645\u062a\u0637\u0627\u0628\u0642 \u062a\u0642\u0631\u064a\u0628\u0627\u064b."
+        : dSpent < 0 ? "\u0635\u0631\u0641\u062a \u0641\u064a " + esc(A.label) + " \u0623\u0642\u0644 \u0628\u0640 <b class='num'>" + money(-dSpent) + "</b> \u0631.\u0633."
+        : "\u0635\u0631\u0641\u062a \u0641\u064a " + esc(A.label) + " \u0623\u0643\u062b\u0631 \u0628\u0640 <b class='num'>" + money(dSpent) + "</b> \u0631.\u0633.") + '</p>';
+}
+
 function renderArch(){
   renderLiveNotes();
+  renderCmp();
   renderArchOverview();
   var body = el("arch-body");
   if(!state.archives.length){
@@ -2004,6 +2116,9 @@ el("e-del").addEventListener("click", function(){
   list.splice(i, 1);
   save(); render(); closeEntryEditor(); toast("\u062d\u064f\u0630\u0641 \u0627\u0644\u0642\u064a\u062f");
 });
+
+el("cmp-a").addEventListener("change", renderCmp);
+el("cmp-b").addEventListener("change", renderCmp);
 
 el("arch-body").addEventListener("keydown", function(ev){
   if(ev.key !== "Enter" && ev.key !== " ") return;
