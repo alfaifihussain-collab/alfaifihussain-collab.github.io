@@ -83,6 +83,32 @@ button,input,select,textarea{font:inherit; color:inherit}
 .countdown.today{background:#6FDCA9}
 .cycle-line{display:flex; gap:5px 10px; flex-wrap:wrap; padding:0 16px 12px; font-size:12px; color:var(--on-navy-mute)}
 .cycle-line span:first-child{color:#fff; font-weight:600}
+.hero{display:flex; align-items:center; gap:16px; padding:14px 16px 12px;
+  border-top:1px solid rgba(212,175,55,.22)}
+.gauge{position:relative; width:88px; height:88px; flex:none}
+.gauge svg{width:88px; height:88px; transform:rotate(-90deg)}
+.rg-track{fill:none; stroke:rgba(255,255,255,.12); stroke-width:7}
+.rg-arc{fill:none; stroke:var(--gold-lit); stroke-width:7; stroke-linecap:round;
+  stroke-dasharray:226.2; stroke-dashoffset:226.2; transition:stroke-dashoffset .6s ease, stroke .3s}
+.rg-arc.ok{stroke:#6FDCA9} .rg-arc.over{stroke:#FF8E7E}
+.rg-tick{stroke:#fff; stroke-width:2.5; stroke-linecap:round; opacity:.85;
+  transform-origin:44px 44px; transition:transform .6s ease}
+.rg-val{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif; font-size:21px; font-weight:600;
+  color:#fff; margin-top:-7px}
+.rg-cap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:10px; color:var(--on-navy-mute); margin-top:22px; letter-spacing:.06em}
+.hero-main{min-width:0; display:flex; flex-direction:column; gap:1px}
+.hero-k{font-size:11.5px; color:var(--on-navy-mute); letter-spacing:.05em}
+.hero-v{font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif; font-size:34px; font-weight:700;
+  color:#6FDCA9; line-height:1.15}
+.hero-v.bad{color:#FF8E7E}
+.hero-sub{font-size:12px; color:var(--on-navy-mute)}
+.hero-sub b{color:#fff; font-weight:600}
+.pace{display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--on-navy-mute); line-height:1.7}
+.pace b{color:#fff; font-weight:700}
+.pace .dot{width:7px; height:7px; border-radius:50%; background:var(--gold-lit); flex:none}
+.pace.ok .dot{background:#6FDCA9} .pace.over .dot{background:#FF8E7E}
 .stats{display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(212,175,55,.22)}
 .stat{padding:12px 16px 14px; text-align:center; border-inline-start:1px solid rgba(255,255,255,.08)}
 .stat:first-child{border-inline-start:0}
@@ -106,7 +132,10 @@ button,input,select,textarea{font:inherit; color:inherit}
 .card-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:13px 16px 0}
 .card-head h2{font-size:15.5px}
 .eyebrow{color:var(--mute); font-size:11.5px; letter-spacing:.07em}
-.entry{padding:13px 16px 16px; display:flex; flex-direction:column; gap:10px}
+.entry{padding:12px 14px 14px; display:flex; flex-direction:column; gap:9px}
+.entry-row{display:grid; grid-template-columns:1fr auto; gap:9px}
+.entry-row .btn{padding-inline:26px; white-space:nowrap}
+.chip.note-tg[aria-pressed="true"]{border-color:var(--gold); color:var(--ink); background:var(--gold-soft)}
 .field{display:flex; flex-direction:column; gap:5px}
 .field label{font-size:12px; color:var(--mute); font-weight:500}
 input,select,textarea{
@@ -169,6 +198,7 @@ input::placeholder{color:var(--mute)}
 .cat-rail i{display:block; height:100%; border-radius:99px; background:var(--pos); transition:width .45s ease}
 .cat-rail i.warn{background:var(--warn)} .cat-rail i.over{background:var(--dang)}
 .cat-sub{font-size:12px; color:var(--mute); display:flex; gap:8px; flex-wrap:wrap}
+.cat-sub .burn{color:var(--warn); font-weight:600}
 .cat-right{text-align:end; white-space:nowrap}
 .cat-remain{display:block; font-weight:600; font-size:14.5px; color:var(--pos)}
 .cat-remain.zero{color:var(--warn)}
@@ -281,6 +311,10 @@ input::placeholder{color:var(--mute)}
 .fund-amt{font-weight:600}
 .fund-amt.in{color:var(--pos)} .fund-amt.out{color:var(--dang)}
 .fund-lock{color:var(--mute); text-align:center}
+.goal-bar{height:9px; border-radius:99px; background:var(--rail); overflow:hidden; margin:2px 14px 8px}
+.goal-bar i{display:block; height:100%; background:var(--pos); border-radius:99px; transition:width .5s ease}
+.goal-bar i.done{background:var(--gold)}
+#goal-note{padding:0 14px; margin:0 0 6px}
 .trend{display:flex; align-items:flex-end; gap:8px; height:96px; padding:16px 14px 10px}
 .trend .col{flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:5px}
 .trend .bar{width:100%; max-width:38px; border-radius:6px 6px 0 0; background:var(--gold); min-height:3px}
@@ -303,8 +337,8 @@ input::placeholder{color:var(--mute)}
 .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
 
 @media (min-width:620px){
-  .entry{display:grid; grid-template-columns:1.4fr 1fr 1fr auto; align-items:end; gap:10px}
-  .entry .chips, .entry .seg{grid-column:1/-1}
+  .entry{display:grid; grid-template-columns:1.4fr 1fr; align-items:center; gap:10px}
+  .entry .chips, .entry .seg, .entry #f-note{grid-column:1/-1}
   .entry .btn{height:44px}
   .modal{place-items:center; padding:20px}
   .sheet{border-radius:16px; max-width:480px}
@@ -322,15 +356,25 @@ input::placeholder{color:var(--mute)}
       <span class="countdown" id="countdown"></span>
     </div>
     <div class="cycle-line"><span id="cycle-label"></span><span id="cycle-range"></span><span id="cycle-fund"></span></div>
-    <div class="stats">
-      <div class="stat"><span class="k">&#1575;&#1604;&#1583;&#1582;&#1604;</span><span class="v num" id="s-income">0</span></div>
-      <div class="stat"><span class="k">&#1575;&#1604;&#1605;&#1589;&#1585;&#1608;&#1601;</span><span class="v num" id="s-spent">0</span></div>
-      <div class="stat good" id="s-left-box"><span class="k">&#1575;&#1604;&#1605;&#1578;&#1576;&#1602;&#1610;</span><span class="v num" id="s-left">0</span></div>
+    <div class="hero">
+      <div class="gauge">
+        <svg viewBox="0 0 88 88" aria-hidden="true">
+          <circle class="rg-track" cx="44" cy="44" r="36"></circle>
+          <circle class="rg-arc" id="ring-arc" cx="44" cy="44" r="36"></circle>
+          <line class="rg-tick" id="ring-tick" x1="44" y1="2.5" x2="44" y2="13.5"></line>
+        </svg>
+        <span class="rg-val num" id="ring-pct">0&#1642;</span>
+        <span class="rg-cap">&#1589;&#1615;&#1585;&#1601;</span>
+      </div>
+      <div class="hero-main">
+        <span class="hero-k" id="hero-k">&#1575;&#1604;&#1605;&#1578;&#1576;&#1602;&#1610; &#1605;&#1606; &#1575;&#1604;&#1583;&#1582;&#1604;</span>
+        <span class="hero-v num" id="s-left">0</span>
+        <span class="hero-sub">&#1605;&#1606; <b class="num" id="s-income">0</b> &#1585;.&#1587; &#183; &#1589;&#1615;&#1585;&#1601; <b class="num" id="s-spent">0</b></span>
+      </div>
     </div>
     <div class="alloc">
-      <div class="alloc-rail"><i class="spent" id="alloc-spent"></i><i class="left" id="alloc-left"></i></div>
-      <div class="alloc-note"><span id="alloc-txt"></span><span id="alloc-day"></span></div>
-      <div class="alloc-plan" id="alloc-plan"></div>
+      <div class="pace" id="pace"></div>
+      <div class="alloc-plan" id="alloc-today"></div>
       <div class="alloc-plan alloc-proj" id="alloc-proj" hidden></div>
     </div>
   </header>
@@ -345,19 +389,13 @@ input::placeholder{color:var(--mute)}
         <button type="button" class="seg-btn" data-mode="exp" aria-pressed="true">&#1605;&#1589;&#1585;&#1608;&#1601;</button>
         <button type="button" class="seg-btn" data-mode="inc" aria-pressed="false">&#1583;&#1582;&#1604;</button>
       </div>
-      <div class="field" id="field-cat">
-        <label for="f-cat">&#1575;&#1604;&#1576;&#1606;&#1583;</label>
-        <select id="f-cat"></select>
+      <div id="field-cat"><select id="f-cat" aria-label="&#1575;&#1604;&#1576;&#1606;&#1583;"></select></div>
+      <div class="entry-row">
+        <input type="number" id="f-amt" inputmode="decimal" step="0.01" min="0.01"
+               placeholder="&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;" aria-label="&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;" required>
+        <button class="btn gold" type="submit" id="f-submit">&#1578;&#1587;&#1580;&#1610;&#1604;</button>
       </div>
-      <div class="field">
-        <label for="f-amt">&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;</label>
-        <input type="number" id="f-amt" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00" required>
-      </div>
-      <div class="field">
-        <label for="f-note">&#1605;&#1604;&#1575;&#1581;&#1592;&#1577; (&#1575;&#1582;&#1578;&#1610;&#1575;&#1585;&#1610;)</label>
-        <input type="text" id="f-note" maxlength="60" placeholder="&#1605;&#1579;&#1575;&#1604;: &#1576;&#1606;&#1583;&#1607;">
-      </div>
-      <button class="btn gold" type="submit" id="f-submit">&#1578;&#1587;&#1580;&#1610;&#1604;</button>
+      <input type="text" id="f-note" maxlength="60" placeholder="&#1605;&#1604;&#1575;&#1581;&#1592;&#1577;" aria-label="&#1605;&#1604;&#1575;&#1581;&#1592;&#1577;" hidden>
       <div class="chips">
         <button class="chip" type="button" data-add="20">+20</button>
         <button class="chip" type="button" data-add="50">+50</button>
@@ -365,6 +403,7 @@ input::placeholder{color:var(--mute)}
         <button class="chip" type="button" data-add="200">+200</button>
         <button class="chip" type="button" data-add="500">+500</button>
         <button class="chip" type="button" data-add="clear">&#1605;&#1587;&#1581;</button>
+        <button class="chip note-tg" type="button" id="note-toggle" aria-pressed="false">&#1605;&#1604;&#1575;&#1581;&#1592;&#1577; &#65291;</button>
       </div>
     </form>
   </section>
@@ -416,6 +455,10 @@ input::placeholder{color:var(--mute)}
     <div class="list">
       <div class="list-head"><h2>&#1589;&#1606;&#1583;&#1608;&#1602; &#1575;&#1604;&#1591;&#1608;&#1575;&#1585;&#1574;</h2><span class="eyebrow" id="fund-sub"></span></div>
       <div class="fund-hero"><span class="fund-bal num" id="fund-balance">0</span><span class="fund-cur">&#1585;.&#1587;</span></div>
+      <div id="goal-wrap" hidden>
+        <div class="goal-bar"><i id="goal-fill"></i></div>
+        <p class="note" id="goal-note"></p>
+      </div>
       <p class="hint">&#1610;&#1615;&#1581;&#1608;&#1614;&#1617;&#1604; &#1601;&#1575;&#1574;&#1590; &#1603;&#1604; &#1583;&#1608;&#1585;&#1577; &#1573;&#1604;&#1609; &#1575;&#1604;&#1589;&#1606;&#1583;&#1608;&#1602; &#1578;&#1604;&#1602;&#1575;&#1574;&#1610;&#1575;&#1611; &#1593;&#1606;&#1583; &#1606;&#1586;&#1608;&#1604; &#1575;&#1604;&#1585;&#1575;&#1578;&#1576;&#1548; &#1608;&#1610;&#1615;&#1594;&#1591;&#1614;&#1617;&#1609; &#1605;&#1606;&#1607; &#1571;&#1610; &#1593;&#1580;&#1586;.</p>
       <div class="set">
         <div class="row2">
@@ -427,6 +470,10 @@ input::placeholder{color:var(--mute)}
           <button class="btn ghost" type="button" id="fund-out">&#1587;&#1581;&#1576; &#1605;&#1606;&#1607;</button>
         </div>
         <p class="note">&#1575;&#1604;&#1573;&#1610;&#1583;&#1575;&#1593; &#1610;&#1582;&#1589;&#1605; &#1575;&#1604;&#1605;&#1576;&#1604;&#1594; &#1605;&#1606; &#1605;&#1578;&#1575;&#1581; &#1575;&#1604;&#1583;&#1608;&#1585;&#1577;&#1548; &#1608;&#1575;&#1604;&#1587;&#1581;&#1576; &#1610;&#1590;&#1610;&#1601;&#1607; &#1573;&#1604;&#1610;&#1607;&#1575;.</p>
+        <div class="row2" style="margin-top:4px">
+          <input type="number" id="goal-amt" inputmode="decimal" min="0" placeholder="&#1607;&#1583;&#1601; &#1575;&#1604;&#1589;&#1606;&#1583;&#1608;&#1602; (&#1575;&#1582;&#1578;&#1610;&#1575;&#1585;&#1610;)">
+          <button class="btn ghost" type="button" id="goal-save">&#1581;&#1601;&#1592; &#1575;&#1604;&#1607;&#1583;&#1601;</button>
+        </div>
       </div>
     </div>
     <div class="list">
@@ -685,6 +732,7 @@ function migrate(s){
   s.incomeLog = Array.isArray(s.incomeLog) ? s.incomeLog : [];
   if(typeof s.salaryPosted !== "boolean") s.salaryPosted = false;
   if(!s.fund || typeof s.fund !== "object") s.fund = {balance:0, log:[]};
+  s.fund.goal = Math.max(0, num(s.fund.goal));
   if(!Array.isArray(s.fund.log)) s.fund.log = [];
   s.fund.log = s.fund.log.map(function(m){
     if(!m.id) m.id = uid();
@@ -1018,36 +1066,33 @@ function renderBand(){
   el("s-income").textContent = money(income);
   el("s-spent").textContent = money(spent);
   el("s-left").textContent = (left < 0 ? "\u2212" : "") + money(Math.abs(left));
-  var box = el("s-left-box");
-  box.classList.toggle("good", left >= 0);
-  box.classList.toggle("bad", left < 0);
+  el("s-left").classList.toggle("bad", left < 0);
+  el("hero-k").textContent = left < 0 ? "\u062a\u062c\u0627\u0648\u0632\u062a \u0627\u0644\u062f\u062e\u0644 \u0628\u0640" : "\u0627\u0644\u0645\u062a\u0628\u0642\u064a \u0645\u0646 \u0627\u0644\u062f\u062e\u0644";
 
   var pct = income > 0 ? Math.min(100, (spent / income) * 100) : (spent > 0 ? 100 : 0);
-  el("alloc-spent").style.width = pct + "%";
-  el("alloc-left").style.width = (100 - pct) + "%";
-  el("alloc-txt").textContent = "\u0635\u064f\u0631\u0641 " + Math.round(pct) + "\u066a \u0645\u0646 \u0627\u0644\u062f\u062e\u0644";
+
+  // \u0627\u0644\u062d\u0644\u0642\u0629: \u0642\u0648\u0633 \u0627\u0644\u0635\u0631\u0641 \u0648\u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u0632\u0645\u0646 \u0627\u0644\u0645\u0646\u0642\u0636\u064a\u060c \u0648\u0627\u0644\u0641\u062c\u0648\u0629 \u0628\u064a\u0646\u0647\u0645\u0627 \u0647\u064a \u0627\u0644\u062d\u0643\u0645
+  var cycLen0 = Math.max(1, Math.round((cEnd - state.cycleStart) / DAY_MS));
+  var elapsed0 = Math.min(cycLen0, Math.max(1, Math.round((midnight() - state.cycleStart) / DAY_MS) + 1));
+  var timePct = (elapsed0 / cycLen0) * 100;
+  var gap = timePct - pct;
+  var C = 2 * Math.PI * 36;
+  var arc = el("ring-arc");
+  arc.style.strokeDashoffset = (C * (1 - Math.min(1, pct / 100))).toFixed(1);
+  arc.classList.toggle("ok", gap > 5);
+  arc.classList.toggle("over", gap < -5);
+  el("ring-tick").style.transform = "rotate(" + (timePct * 3.6) + "deg)";
+  el("ring-pct").textContent = Math.round(pct) + "\u066a";
+
+  var paceBox = el("pace");
+  paceBox.classList.toggle("ok", gap > 5);
+  paceBox.classList.toggle("over", gap < -5);
+  paceBox.innerHTML = '<span class="dot"></span><span>\u0627\u0644\u064a\u0648\u0645 <b>' + elapsed0 + '</b> \u0645\u0646 <b>' + cycLen0 + '</b>'
+    + ' \u00b7 ' + (gap > 5 ? "\u0635\u0631\u0641\u0643 \u0623\u0628\u0637\u0623 \u0645\u0646 \u0627\u0644\u0632\u0645\u0646 \u0628\u0640 <b>" + Math.round(gap) + "\u066a</b> \u2014 \u0623\u0646\u062a \u0645\u0631\u062a\u0627\u062d"
+             : gap < -5 ? "\u0635\u0631\u0641\u0643 \u0623\u0633\u0631\u0639 \u0645\u0646 \u0627\u0644\u0632\u0645\u0646 \u0628\u0640 <b>" + Math.round(-gap) + "\u066a</b> \u2014 \u0627\u0646\u062a\u0628\u0647"
+             : "\u0635\u0631\u0641\u0643 \u064a\u0645\u0627\u0634\u064a \u0627\u0644\u0632\u0645\u0646 \u062a\u0645\u0627\u0645\u0627\u064b") + '</span>';
 
   var committed = committedLeft(), freeLeft = left - committed;
-  el("alloc-day").textContent = left < 0
-    ? money(-left) + " \u0631\u064a\u0627\u0644 \u0641\u0648\u0642 \u0627\u0644\u062f\u062e\u0644"
-    : (freeLeft <= 0
-        ? "0 \u0631\u064a\u0627\u0644 \u064a\u0648\u0645\u064a\u0627\u064b \u2014 " + money(committed) + " \u0631\u064a\u0627\u0644 \u0645\u062d\u062c\u0648\u0632 \u0644\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u062b\u0627\u0628\u062a\u0629"
-        : money(Math.round(freeLeft / Math.max(1, dLeft))) + " \u0631\u064a\u0627\u0644 \u064a\u0648\u0645\u064a\u0627\u064b \u062d\u062a\u0649 \u0627\u0644\u0631\u0627\u062a\u0628");
-
-  var planned = 0, plannedCount = 0;
-  state.order.forEach(function(k){
-    var c = state.cats[k];
-    if(c.open || c.hidden || c.limit <= 0) return;
-    planned += c.limit; plannedCount++;
-  });
-  var unplanned = income - planned;
-  el("alloc-plan").innerHTML = plannedCount
-    ? "\u0628\u0639\u062f \u062e\u0635\u0645 " + plural(plannedCount, "\u0628\u0646\u062f \u0648\u0627\u062d\u062f \u0645\u062d\u062f\u062f", "\u0628\u0646\u062f\u064a\u0646 \u0645\u062d\u062f\u062f\u064a\u0646", "\u0628\u0646\u0648\u062f \u0645\u062d\u062f\u062f\u0629", "\u0628\u0646\u062f\u0627\u064b \u0645\u062d\u062f\u062f\u0627\u064b")
-      + " (<b class='num'>" + money(planned) + "</b> \u0631.\u0633) \u064a\u0628\u0642\u0649 \u0645\u0646 \u0627\u0644\u062f\u062e\u0644 "
-      + "<b class='num " + (unplanned >= 0 ? "pos" : "neg") + "'>"
-      + (unplanned < 0 ? "\u2212" : "") + money(Math.abs(unplanned)) + "</b> \u0631.\u0633"
-      + (unplanned < 0 ? " \u2014 \u0627\u0644\u0645\u064a\u0632\u0627\u0646\u064a\u0627\u062a \u062a\u062a\u062c\u0627\u0648\u0632 \u062f\u062e\u0644\u0643" : "")
-    : "\u0644\u0645 \u062a\u062d\u062f\u062f \u0645\u064a\u0632\u0627\u0646\u064a\u0629 \u0644\u0623\u064a \u0628\u0646\u062f \u0628\u0639\u062f.";
 
   var cycLen = Math.max(1, Math.round((cEnd - state.cycleStart) / DAY_MS));
   var elapsed = Math.min(cycLen, Math.max(1, Math.round((midnight() - state.cycleStart) / DAY_MS) + 1));
@@ -1059,7 +1104,7 @@ function renderBand(){
   var projBox = el("alloc-proj");
   if(elapsed >= 3 && elapsed < cycLen && income > 0){
     projBox.innerHTML = "\u0628\u0647\u0630\u0627 \u0627\u0644\u0645\u0639\u062f\u0644 \u062a\u0646\u0647\u064a \u0627\u0644\u062f\u0648\u0631\u0629 \u0628\u0640 <b class='num "
-      + (projEnd >= 0 ? "pos" : "neg") + "'>" + (projEnd < 0 ? "\u2212" : "") + money(Math.abs(projEnd))
+      + (projEnd >= 0 ? "pos" : "neg") + "'>" + (projEnd < 0 ? "\u2212" : "") + money(Math.round(Math.abs(projEnd)))
       + "</b> \u0631.\u0633" + (projEnd >= 0 ? " \u062a\u0636\u0627\u0641 \u0644\u0644\u0635\u0646\u062f\u0648\u0642" : " \u0639\u062c\u0632\u0627\u064b \u064a\u064f\u063a\u0637\u0651\u0649 \u0645\u0646 \u0627\u0644\u0635\u0646\u062f\u0648\u0642");
     projBox.hidden = false;
   } else { projBox.hidden = true; }
@@ -1068,14 +1113,37 @@ function renderBand(){
   var t0 = today.getTime(), sum = 0, n = 0;
   state.log.forEach(function(e){ if(e.ts && e.ts >= t0){ sum += e.amount; n++; } });
   el("today-total").textContent = n ? "\u0627\u0644\u064a\u0648\u0645: " + money(sum) + " \u0631.\u0633 \u0641\u064a " + opsIn(n) : "\u0644\u0627 \u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0627\u0644\u064a\u0648\u0645";
+
+  // \u0645\u062a\u0627\u062d \u0627\u0644\u064a\u0648\u0645: \u0645\u0627 \u064a\u062e\u0635 \u0627\u0644\u064a\u0648\u0645 \u0645\u0646 \u0627\u0644\u0645\u062a\u0627\u062d \u0627\u0644\u062d\u0631\u060c \u0648\u0645\u0627 \u0628\u0642\u064a \u0645\u0646\u0647
+  var perDay = Math.max(0, Math.round(freeLeft / Math.max(1, dLeft)));
+  var leftToday = perDay - sum;
+  el("alloc-today").innerHTML = left < 0
+    ? "\u062a\u062c\u0627\u0648\u0632\u062a \u062f\u062e\u0644 \u0627\u0644\u062f\u0648\u0631\u0629 \u0628\u0640 <b class='num neg'>" + money(-left) + "</b> \u0631.\u0633"
+    : freeLeft <= 0
+    ? "\u0644\u0627 \u0645\u062a\u0627\u062d \u0644\u0644\u0635\u0631\u0641 \u0627\u0644\u062d\u0631 \u2014 <b class='num'>" + money(committed) + "</b> \u0631.\u0633 \u0645\u062d\u062c\u0648\u0632\u0629 \u0644\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u062b\u0627\u0628\u062a\u0629"
+    : (leftToday >= 0
+        ? "\u0645\u062a\u0627\u062d \u0627\u0644\u064a\u0648\u0645 <b class='num pos'>" + money(leftToday) + "</b> \u0631.\u0633"
+          + (sum > 0 ? " \u00b7 \u0635\u0631\u0641\u062a <b class='num'>" + money(sum) + "</b> \u0645\u0646 <b class='num'>" + money(perDay) + "</b>" : "")
+        : "\u062a\u062c\u0627\u0648\u0632\u062a \u0645\u062a\u0627\u062d \u0627\u0644\u064a\u0648\u0645 \u0628\u0640 <b class='num neg'>" + money(-leftToday) + "</b> \u0631.\u0633"
+          + " \u00b7 \u0627\u0644\u0645\u062a\u0627\u062d \u0643\u0627\u0646 <b class='num'>" + money(perDay) + "</b>");
 }
 
 function renderCatOptions(){
   var sel = el("f-cat"), cur = sel.value;
   var html = '<option value="" disabled selected>\u0627\u062e\u062a\u0631 \u0627\u0644\u0628\u0646\u062f\u2026</option>';
-  state.order.forEach(function(k){
-    if(!state.cats[k].hidden) html += '<option value="'+k+'">'+esc(state.cats[k].name)+'</option>';
-  });
+  // \u0627\u0644\u0628\u0646\u0648\u062f \u0627\u0644\u0623\u0643\u062b\u0631 \u0627\u0633\u062a\u062e\u062f\u0627\u0645\u0627\u064b \u0647\u0630\u0647 \u0627\u0644\u062f\u0648\u0631\u0629 \u062a\u064f\u0631\u0641\u0639 \u0644\u0644\u0623\u0639\u0644\u0649\u060c \u0641\u062a\u0642\u0644\u0651 \u0627\u0644\u0646\u0642\u0631\u0627\u062a \u0627\u0644\u064a\u0648\u0645\u064a\u0629
+  var use = {};
+  state.log.forEach(function(e){ if(!e.auto) use[e.cat] = (use[e.cat] || 0) + 1; });
+  var avail = state.order.filter(function(k){ return !state.cats[k].hidden; });
+  var top = avail.filter(function(k){ return use[k]; })
+    .sort(function(a, b){ return use[b] - use[a]; }).slice(0, 3);
+  if(top.length >= 2){
+    html += '<optgroup label="\u0627\u0644\u0623\u0643\u062b\u0631 \u0627\u0633\u062a\u062e\u062f\u0627\u0645\u0627\u064b">'
+      + top.map(function(k){ return '<option value="'+k+'">'+esc(state.cats[k].name)+'</option>'; }).join("")
+      + '</optgroup><optgroup label="\u0643\u0644 \u0627\u0644\u0628\u0646\u0648\u062f">';
+  }
+  avail.forEach(function(k){ html += '<option value="'+k+'">'+esc(state.cats[k].name)+'</option>'; });
+  if(top.length >= 2) html += '</optgroup>';
   sel.innerHTML = html;
   if(cur && state.cats[cur]) sel.value = cur;
   var ec = el("e-cat"), ecv = ec.value;
@@ -1104,10 +1172,25 @@ function ratio(k){
   return s / c.limit;
 }
 
+// \u0645\u062a\u0649 \u064a\u0646\u0641\u062f \u0633\u0642\u0641 \u0627\u0644\u0628\u0646\u062f \u0628\u0645\u0639\u062f\u0651\u0644 \u0635\u0631\u0641\u0647 \u0627\u0644\u062d\u0627\u0644\u064a\u061f \u064a\u064f\u0631\u062c\u0639 \u0646\u0635\u0627\u064b \u062a\u062d\u0630\u064a\u0631\u064a\u0627\u064b \u0623\u0648 ""
+function burnWarn(k, spentNow){
+  var c = state.cats[k];
+  if(c.open || c.fixed || c.hidden || c.limit <= 0 || spentNow <= 0) return "";
+  var cEnd = cycleEndOf(new Date(), state.payday);
+  var cycLen = Math.max(1, Math.round((cEnd - state.cycleStart) / DAY_MS));
+  var elapsed = Math.min(cycLen, Math.max(1, Math.round((midnight() - state.cycleStart) / DAY_MS) + 1));
+  if(elapsed < 4 || spentNow > c.limit) return "";       // \u0645\u0628\u0643\u0651\u0631 \u062c\u062f\u0627\u064b\u060c \u0623\u0648 \u062a\u062c\u0627\u0648\u0632 \u0641\u0639\u0644\u0627\u064b
+  var days = c.limit / (spentNow / elapsed);             // \u0627\u0644\u064a\u0648\u0645 \u0627\u0644\u0630\u064a \u064a\u064f\u0633\u062a\u0647\u0644\u0643 \u0641\u064a\u0647 \u0627\u0644\u0633\u0642\u0641
+  if(days >= cycLen - 0.5) return "";                    // \u064a\u0643\u0641\u064a \u062d\u062a\u0649 \u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u062f\u0648\u0631\u0629
+  var before = Math.max(1, Math.round(cycLen - days));
+  return "\u064a\u0646\u0641\u062f \u0642\u0628\u0644 " + plural(before, "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f", "\u064a\u0648\u0645\u064a\u0646", "\u0623\u064a\u0627\u0645", "\u064a\u0648\u0645\u0627\u064b") + " \u0645\u0646 \u0627\u0644\u0631\u0627\u062a\u0628";
+}
+
 function renderCats(){
   var body = el("cats-body"), keys = sortedKeys(), over = 0, html = "";
   keys.forEach(function(k){
     var c = state.cats[k], s = spentOf(k), remain = c.limit - s, r = ratio(k);
+    var burn = burnWarn(k, s);
     var pct = c.limit > 0 ? Math.min(100, (s / c.limit) * 100) : (s > 0 ? 100 : 0);
     var cls = r > 1 ? "over" : (r >= 0.85 ? "warn" : "");
     if(r > 1) over++;
@@ -1121,7 +1204,8 @@ function renderCats(){
           + (r>1 ? ' <span class="tag">\u062a\u062c\u0627\u0648\u0632</span>' : '') +'</span>'
         + (c.open ? '' : '<span class="cat-rail"><i class="'+cls+'" style="width:'+pct+'%"></i></span>')
         + '<span class="cat-sub"><span>\u0635\u064f\u0631\u0641 <b class="num">'+money(s)+'</b> \u0631.\u0633</span>'
-          + (c.open ? '<span>\u0628\u0644\u0627 \u0633\u0642\u0641</span>' : '<span>'+Math.round(s/c.limit*100)+'\u066a</span>') + '</span>'
+          + (c.open ? '<span>\u0628\u0644\u0627 \u0633\u0642\u0641</span>' : '<span>'+Math.round(s/c.limit*100)+'\u066a</span>')
+          + (burn ? '<span class="burn">'+esc(burn)+'</span>' : '') + '</span>'
       + '</span>'
       + '<span class="cat-right">'
         + (c.open
@@ -1338,6 +1422,21 @@ function renderFund(){
   var elb = el("fund-balance");
   elb.textContent = money(b);
   elb.classList.toggle("neg", b < 0);
+  var goal = num(state.fund.goal);
+  var gw = el("goal-wrap");
+  if(goal > 0){
+    var pg = Math.max(0, Math.min(100, (b / goal) * 100));
+    var fill = el("goal-fill");
+    fill.style.width = pg + "%";
+    fill.classList.toggle("done", b >= goal);
+    el("goal-note").innerHTML = b >= goal
+      ? "\u0628\u0644\u063a\u062a \u0647\u062f\u0641\u0643 <b class='num'>" + money(goal) + "</b> \u0631.\u0633 \u2014 \u0648\u0642\u062a \u062a\u062d\u062f\u064a\u062f\u0647 \u0645\u0646 \u062c\u062f\u064a\u062f."
+      : "\u0628\u0642\u064a <b class='num'>" + money(goal - b) + "</b> \u0631.\u0633 \u0644\u0628\u0644\u0648\u063a \u0647\u062f\u0641 <b class='num'>"
+        + money(goal) + "</b> \u0631.\u0633 (" + Math.round(pg) + "\u066a)";
+    gw.hidden = false;
+  } else { gw.hidden = true; }
+  el("goal-amt").value = goal > 0 ? goal : "";
+
   var carries = state.fund.log.filter(function(m){ return m.carry; }).length;
   el("fund-sub").textContent = carries
     ? "\u0645\u0646 " + plural(carries, "\u062f\u0648\u0631\u0629 \u0648\u0627\u062d\u062f\u0629", "\u062f\u0648\u0631\u062a\u064a\u0646", "\u062f\u0648\u0631\u0627\u062a", "\u062f\u0648\u0631\u0629")
@@ -1668,8 +1767,26 @@ function setEntryMode(m){
   });
   el("field-cat").hidden = (m === "inc");
   el("f-submit").textContent = (m === "inc") ? "\u062a\u0633\u062c\u064a\u0644 \u062f\u062e\u0644" : "\u062a\u0633\u062c\u064a\u0644";
-  el("f-note").placeholder = (m === "inc") ? "\u0645\u062b\u0627\u0644: \u0645\u0643\u0627\u0641\u0623\u0629" : "\u0645\u062b\u0627\u0644: \u0628\u0646\u062f\u0647";
+  el("f-note").placeholder = (m === "inc") ? "\u0645\u0635\u062f\u0631 \u0627\u0644\u062f\u062e\u0644 (\u0645\u062b\u0627\u0644: \u0645\u0643\u0627\u0641\u0623\u0629)" : "\u0645\u0644\u0627\u062d\u0638\u0629";
+  if(m === "inc" && el("f-note").hidden){
+    el("note-toggle").click();          // \u0645\u0635\u062f\u0631 \u0627\u0644\u062f\u062e\u0644 \u064a\u0633\u062a\u062d\u0642 \u0627\u0644\u0638\u0647\u0648\u0631 \u0645\u0628\u0627\u0634\u0631\u0629
+  }
 }
+el("note-toggle").addEventListener("click", function(){
+  var n = el("f-note");
+  n.hidden = !n.hidden;
+  this.setAttribute("aria-pressed", String(!n.hidden));
+  this.textContent = n.hidden ? "\u0645\u0644\u0627\u062d\u0638\u0629 \uff0b" : "\u0645\u0644\u0627\u062d\u0638\u0629 \u2212";
+  if(!n.hidden) n.focus();
+});
+function resetNote(){
+  var n = el("f-note");
+  n.value = ""; n.hidden = true;
+  var t = el("note-toggle");
+  t.setAttribute("aria-pressed", "false");
+  t.textContent = "\u0645\u0644\u0627\u062d\u0638\u0629 \uff0b";
+}
+
 el("entry-mode").addEventListener("click", function(ev){
   var b = ev.target.closest("[data-mode]");
   if(b) setEntryMode(b.dataset.mode);
@@ -1682,7 +1799,7 @@ el("entry-form").addEventListener("submit", function(ev){
   if(entryMode === "inc"){
     state.incomeLog.push({id:uid(), ts:Date.now(), mts:Date.now(), amount:amt, note:note || "\u062f\u062e\u0644 \u0625\u0636\u0627\u0641\u064a"});
     save(); render();
-    el("f-amt").value = ""; el("f-note").value = "";
+    el("f-amt").value = ""; resetNote();
     setEntryMode("exp");      // \u062d\u062a\u0649 \u0644\u0627 \u064a\u064f\u0633\u062c\u064e\u0651\u0644 \u0627\u0644\u0645\u0635\u0631\u0648\u0641 \u0627\u0644\u062a\u0627\u0644\u064a \u062f\u062e\u0644\u0627\u064b \u0628\u0627\u0644\u062e\u0637\u0623
     return toast("\u0633\u064f\u062c\u0651\u0644 \u062f\u062e\u0644 " + money(amt) + " \u0631.\u0633");
   }
@@ -1690,7 +1807,7 @@ el("entry-form").addEventListener("submit", function(ev){
   if(!k || !state.cats[k]) return toast("\u0627\u062e\u062a\u0631 \u0627\u0644\u0628\u0646\u062f \u0623\u0648\u0644\u0627\u064b");
   state.log.push({id:uid(), ts:Date.now(), mts:Date.now(), cat:k, amount:amt, note:note});
   save(); render();
-  el("f-amt").value = ""; el("f-note").value = "";
+  el("f-amt").value = ""; resetNote();
   var sp = spentOf(k), c = state.cats[k];
   toast(!c.open && c.limit > 0 && sp > c.limit ? "\u0633\u064f\u062c\u0651\u0644 \u2014 \u062a\u062c\u0627\u0648\u0632\u062a \u0645\u064a\u0632\u0627\u0646\u064a\u0629 " + c.name : "\u0633\u064f\u062c\u0651\u0644 " + money(amt) + " \u0631.\u0633");
 });
@@ -1939,6 +2056,13 @@ function fundAction(sign){
 el("fund-body").addEventListener("click", function(ev){
   var b = ev.target.closest("[data-fund-del]");
   if(b) fundDelete(b.dataset.fundDel);
+});
+el("goal-save").addEventListener("click", function(){
+  var v = num(el("goal-amt").value);
+  if(v < 0) return toast("\u0623\u062f\u062e\u0644 \u0645\u0628\u0644\u063a\u0627\u064b \u0635\u062d\u064a\u062d\u0627\u064b");
+  state.fund.goal = v;
+  save(); render();
+  toast(v > 0 ? "\u0647\u062f\u0641 \u0627\u0644\u0635\u0646\u062f\u0648\u0642: " + money(v) + " \u0631.\u0633" : "\u0623\u064f\u0644\u063a\u064a \u0627\u0644\u0647\u062f\u0641");
 });
 el("fund-in").addEventListener("click", function(){ fundAction(1); });
 el("fund-out").addEventListener("click", function(){ fundAction(-1); });
