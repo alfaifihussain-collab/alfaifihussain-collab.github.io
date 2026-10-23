@@ -358,6 +358,44 @@ input::placeholder{color:var(--mute)}
 .sheet{background:var(--panel); border:1px solid var(--line); border-radius:18px 18px 0 0; width:100%; max-width:780px; padding:16px; display:flex; flex-direction:column; gap:11px; max-height:88vh; overflow-y:auto; animation:up .22s ease}
 @keyframes up{from{transform:translateY(16px); opacity:.4} to{transform:none; opacity:1}}
 .sheet h2{font-size:16px}
+.report{position:fixed; inset:0; z-index:70; background:var(--bg); display:flex; flex-direction:column}
+.report[hidden]{display:none}
+.rep-bar{display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
+  padding:calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+  background:var(--panel); border-bottom:1px solid var(--line)}
+.rep-bar select{padding:7px 10px; font-size:13px}
+.rep-scroll{flex:1; overflow-y:auto; padding:14px 14px calc(30px + env(safe-area-inset-bottom, 0px))}
+.rep-page{max-width:780px; margin:0 auto; display:flex; flex-direction:column; gap:14px}
+.rep-sec{background:var(--panel); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); overflow:hidden}
+.rep-h{margin:0; padding:11px 14px; font-size:14px; font-weight:700; color:var(--ink);
+  border-bottom:1px solid var(--line); background:var(--panel-2)}
+.rep-in{padding:13px 14px}
+.rep-hero{text-align:center; padding:18px 14px 14px}
+.rep-y{font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif; font-size:30px; font-weight:700; color:var(--gold)}
+.rep-sub{font-size:12.5px; color:var(--mute); margin-top:2px}
+.split{display:flex; height:13px; border-radius:99px; overflow:hidden; margin:10px 0 9px}
+.split i{display:block; height:100%}
+.split i.fx{background:var(--dang)} .split i.vr{background:var(--gold)} .split i.sv{background:var(--pos)}
+.lgnd{display:flex; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--ink-2)}
+.lgnd span{display:flex; align-items:center; gap:5px}
+.lgnd b{width:9px; height:9px; border-radius:3px; display:inline-block}
+.lgnd b.fx{background:var(--dang)} .lgnd b.vr{background:var(--gold)} .lgnd b.sv{background:var(--pos)}
+.ybars{display:flex; align-items:flex-end; gap:5px; height:112px; padding:14px 14px 8px; overflow-x:auto}
+.ybars .yc{flex:1; min-width:22px; display:flex; flex-direction:column; justify-content:flex-end;
+  align-items:center; gap:4px; height:100%}
+.ybars .pair{display:flex; align-items:flex-end; gap:2px; width:100%; justify-content:center; height:100%}
+.ybars .pair i{display:block; width:9px; border-radius:3px 3px 0 0; min-height:3px}
+.ybars .pair i.inc{background:var(--gold)} .ybars .pair i.sp{background:var(--ink-2)}
+.ybars .pair i.sp.bad{background:var(--dang)}
+.ybars .yl{font-size:10px; color:var(--mute); white-space:nowrap}
+@media print{
+  body > *:not(.report){display:none !important}
+  .report{position:static; background:#fff; color:#000}
+  .rep-bar{display:none}
+  .rep-scroll{overflow:visible; padding:0}
+  .rep-sec{box-shadow:none; border-color:#ccc; break-inside:avoid}
+}
 .toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(70px);
   background:var(--navy); color:#fff; padding:10px 18px; border-radius:99px; font-size:13.5px;
   font-weight:500; box-shadow:var(--shadow); z-index:80; opacity:0; transition:.25s;
@@ -525,6 +563,9 @@ input::placeholder{color:var(--mute)}
     <div class="list" id="arch-ov-card" hidden>
       <div class="list-head"><h2>&#1575;&#1604;&#1605;&#1604;&#1582;&#1589; &#1575;&#1604;&#1593;&#1575;&#1605;</h2><span class="eyebrow" id="ov-sub"></span></div>
       <div id="arch-ov"></div>
+      <div style="padding:0 14px 13px">
+        <button class="btn ghost block" type="button" id="btn-report">&#1575;&#1604;&#1578;&#1602;&#1585;&#1610;&#1585; &#1575;&#1604;&#1587;&#1606;&#1608;&#1610;</button>
+      </div>
     </div>
     <div class="list" id="trend-card" hidden>
       <div class="list-head"><h2>&#1573;&#1580;&#1605;&#1575;&#1604;&#1610; &#1575;&#1604;&#1589;&#1585;&#1601; &#1604;&#1603;&#1604; &#1583;&#1608;&#1585;&#1577;</h2></div>
@@ -683,6 +724,16 @@ input::placeholder{color:var(--mute)}
     </div>
     <button class="btn danger sm block" type="button" id="e-del">&#1581;&#1584;&#1601; &#1575;&#1604;&#1602;&#1610;&#1583;</button>
   </div>
+</div>
+
+<!-- ======= &#1575;&#1604;&#1578;&#1602;&#1585;&#1610;&#1585; &#1575;&#1604;&#1587;&#1606;&#1608;&#1610; ======= -->
+<div class="report" id="report" hidden>
+  <div class="rep-bar">
+    <button class="icon-btn" type="button" id="rep-close" aria-label="&#1573;&#1594;&#1604;&#1575;&#1602;">&#10005;</button>
+    <select id="rep-year" aria-label="&#1575;&#1604;&#1587;&#1606;&#1577;"></select>
+    <button class="btn ghost sm" type="button" id="rep-print">&#1581;&#1601;&#1592; PDF</button>
+  </div>
+  <div class="rep-scroll"><div class="rep-page" id="rep-body"></div></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1832,6 +1883,148 @@ function renderCmp(){
         : "\u0635\u0631\u0641\u062a \u0641\u064a " + esc(A.label) + " \u0623\u0643\u062b\u0631 \u0628\u0640 <b class='num'>" + money(dSpent) + "</b> \u0631.\u0633.") + '</p>';
 }
 
+function repYears(){
+  var ys = {};
+  state.archives.forEach(function(a){
+    if(a.startedAt) ys[new Date(a.startedAt).getFullYear()] = true;
+  });
+  return Object.keys(ys).sort(function(x, y){ return y - x; });
+}
+
+function renderReport(){
+  var year = el("rep-year").value;
+  var list = state.archives.filter(function(a){
+    return a.startedAt && String(new Date(a.startedAt).getFullYear()) === String(year);
+  });
+  var body = el("rep-body");
+  if(!list.length){
+    body.innerHTML = '<div class="rep-sec"><p class="empty">\u0644\u0627 \u062f\u0648\u0631\u0627\u062a \u0645\u0624\u0631\u0634\u0641\u0629 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u0633\u0646\u0629.</p></div>';
+    return;
+  }
+
+  var inc = 0, sp = 0, fx = 0, cat = {}, names = {}, plain = {};
+  list.forEach(function(a){
+    inc += a.income || 0;
+    sp += a.spent || 0;
+    fx += archFixedSpend(a);
+    (a.cats || []).forEach(function(c){
+      if(!c.spent) return;
+      cat[c.key] = (cat[c.key] || 0) + c.spent;
+      names[c.key] = (c.icon || "") + " " + c.name;
+      plain[c.key] = c.name;
+    });
+  });
+  var sav = inc - sp, rate = inc > 0 ? (sav / inc) * 100 : 0;
+  var vr = Math.max(0, sp - fx);
+  var n = list.length;
+
+  // \u0623\u064a\u0646 \u0630\u0647\u0628 \u0627\u0644\u062f\u062e\u0644
+  var keys = Object.keys(cat).sort(function(x, y){ return cat[y] - cat[x]; });
+  var maxCat = cat[keys[0]] || 1;
+  var catRows = keys.map(function(k){
+    return '<div class="tp"><div class="tp-row"><span class="tp-name">' + esc(names[k]) + '</span>'
+      + '<span class="tp-val"><b class="num">' + money(cat[k]) + '</b>'
+      + '<i class="num">' + (inc > 0 ? Math.round(cat[k] / inc * 100) : 0) + '\u066a</i></span></div>'
+      + '<div class="tp-rail"><i style="width:' + Math.max(2, Math.round(cat[k] / maxCat * 100)) + '%"></i></div>'
+      + '<div class="note" style="margin:3px 0 0">\u0628\u0645\u062a\u0648\u0633\u0637 <b class="num">' + money(cat[k] / n) + '</b> \u0631.\u0633 \u0644\u0643\u0644 \u062f\u0648\u0631\u0629</div>'
+      + '</div>';
+  }).join("");
+
+  // \u0634\u0643\u0644 \u0627\u0644\u0634\u0647\u0648\u0631
+  var mx = 1;
+  list.forEach(function(a){ mx = Math.max(mx, a.income || 0, a.spent || 0); });
+  var bars = list.map(function(a){
+    var su = (a.surplus === undefined) ? (a.income - a.spent) : a.surplus;
+    return '<span class="yc"><span class="pair">'
+      + '<i class="inc" style="height:' + Math.max(3, Math.round((a.income || 0) / mx * 100)) + '%"></i>'
+      + '<i class="sp' + (su < 0 ? " bad" : "") + '" style="height:'
+      + Math.max(3, Math.round((a.spent || 0) / mx * 100)) + '%"></i>'
+      + '</span><span class="yl">' + esc(a.short || "") + '</span></span>';
+  }).join("");
+
+  var best = null, worst = null;
+  list.forEach(function(a){
+    var su = (a.surplus === undefined) ? (a.income - a.spent) : a.surplus;
+    if(!best || su > best.s) best = {a:a, s:su};
+    if(!worst || su < worst.s) worst = {a:a, s:su};
+  });
+  var saved = list.filter(function(a){
+    return ((a.surplus === undefined) ? (a.income - a.spent) : a.surplus) > 0; }).length;
+
+  // \u0645\u0644\u0627\u062d\u0638\u0627\u062a \u0627\u0644\u0633\u0646\u0629
+  var notes = [];
+  if(inc > 0){
+    notes.push({l:rate >= 20 ? "good" : (rate >= 10 ? "info" : "warn"),
+      t:"\u0627\u062f\u0651\u062e\u0631\u062a <b class='num'>" + money(sav) + "</b> \u0631.\u0633 \u0645\u0646 <b class='num'>" + money(inc)
+        + "</b> \u2014 \u0645\u0639\u062f\u0644 <b>" + Math.round(rate) + "\u066a</b>"
+        + (rate >= 20 ? " \u0648\u0647\u0648 \u0645\u0645\u062a\u0627\u0632." : rate >= 10 ? "\u060c \u0648\u0627\u0644\u0645\u0633\u062a\u0647\u062f\u0641 20\u066a." : "\u060c \u0648\u062f\u0648\u0646 \u0627\u0644\u0645\u0633\u062a\u0647\u062f\u0641 \u0628\u0643\u062b\u064a\u0631.")});
+    notes.push({l:fx / inc > 0.5 ? "bad" : (fx / inc > 0.4 ? "warn" : "info"),
+      t:"\u0627\u0644\u0627\u0644\u062a\u0632\u0627\u0645\u0627\u062a \u0627\u0644\u062b\u0627\u0628\u062a\u0629 <b class='num'>" + money(fx) + "</b> \u0631.\u0633 \u0623\u064a <b>"
+        + Math.round(fx / inc * 100) + "\u066a</b> \u0645\u0646 \u062f\u062e\u0644 \u0627\u0644\u0633\u0646\u0629."});
+  }
+  notes.push({l:saved === n ? "good" : (saved >= n / 2 ? "info" : "warn"),
+    t:"\u0627\u062f\u0651\u062e\u0631\u062a \u0641\u064a <b>" + saved + "</b> \u0645\u0646 <b>" + n + "</b> "
+      + (n === 2 ? "\u062f\u0648\u0631\u062a\u064a\u0646" : (n % 100 >= 3 && n % 100 <= 10) ? "\u062f\u0648\u0631\u0627\u062a" : "\u062f\u0648\u0631\u0629") + "."});
+  if(keys.length){
+    notes.push({l:"info", t:"\u0623\u0643\u0628\u0631 \u0628\u0646\u062f: \u00ab" + esc(plain[keys[0]] || "") + "\u00bb \u0628\u0640 <b class='num'>"
+      + money(cat[keys[0]]) + "</b> \u0631.\u0633\u060c \u0623\u064a <b>" + Math.round(cat[keys[0]] / sp * 100) + "\u066a</b> \u0645\u0646 \u0645\u0635\u0631\u0648\u0641 \u0627\u0644\u0633\u0646\u0629."});
+  }
+
+  body.innerHTML =
+    '<div class="rep-sec"><div class="rep-hero">'
+      + '<div class="rep-y">' + esc(year) + '</div>'
+      + '<div class="rep-sub">' + plural(n, "\u062f\u0648\u0631\u0629 \u0648\u0627\u062d\u062f\u0629", "\u062f\u0648\u0631\u062a\u0627\u0646", "\u062f\u0648\u0631\u0627\u062a", "\u062f\u0648\u0631\u0629") + ' \u0645\u0624\u0631\u0634\u0641\u0629</div>'
+      + '<div class="arch-sum" style="margin-top:12px">'
+        + '<span><i>\u0627\u0644\u062f\u062e\u0644</i><b class="num">' + money(inc) + '</b></span>'
+        + '<span><i>\u0627\u0644\u0645\u0635\u0631\u0648\u0641</i><b class="num">' + money(sp) + '</b></span>'
+        + '<span><i>\u0627\u0644\u0627\u062f\u062e\u0627\u0631</i><b class="num ' + (sav >= 0 ? "pos" : "neg") + '">' + money(sav) + '</b></span>'
+      + '</div></div></div>'
+
+    + '<div class="rep-sec"><h3 class="rep-h">\u0628\u0646\u064a\u0629 \u062f\u062e\u0644\u0643</h3><div class="rep-in">'
+      + '<div class="split">'
+        + '<i class="fx" style="width:' + (inc > 0 ? fx / inc * 100 : 0) + '%"></i>'
+        + '<i class="vr" style="width:' + (inc > 0 ? vr / inc * 100 : 0) + '%"></i>'
+        + '<i class="sv" style="width:' + (inc > 0 ? Math.max(0, sav) / inc * 100 : 0) + '%"></i>'
+      + '</div>'
+      + '<div class="lgnd">'
+        + '<span><b class="fx"></b>\u062b\u0627\u0628\u062a ' + money(fx) + ' (' + (inc > 0 ? Math.round(fx / inc * 100) : 0) + '\u066a)</span>'
+        + '<span><b class="vr"></b>\u0645\u062a\u063a\u064a\u0651\u0631 ' + money(vr) + ' (' + (inc > 0 ? Math.round(vr / inc * 100) : 0) + '\u066a)</span>'
+        + '<span><b class="sv"></b>\u0627\u062f\u062e\u0627\u0631 ' + money(Math.max(0, sav)) + ' (' + (inc > 0 ? Math.round(Math.max(0, sav) / inc * 100) : 0) + '\u066a)</span>'
+      + '</div></div></div>'
+
+    + '<div class="rep-sec"><h3 class="rep-h">\u0634\u0643\u0644 \u0627\u0644\u0634\u0647\u0648\u0631</h3>'
+      + '<div class="ybars">' + bars + '</div>'
+      + '<div class="rep-in" style="padding-top:0">'
+        + '<div class="lgnd" style="margin-bottom:8px"><span><b class="vr"></b>\u0627\u0644\u062f\u062e\u0644</span>'
+          + '<span><b style="background:var(--ink-2)"></b>\u0627\u0644\u0645\u0635\u0631\u0648\u0641</span></div>'
+        + (best ? '<p class="note">\u0623\u0641\u0636\u0644 \u062f\u0648\u0631\u0629: <b>' + esc(best.a.label) + '</b> \u0628\u0641\u0627\u0626\u0636 <b class="num">'
+            + money(best.s) + '</b> \u0631.\u0633.</p>' : '')
+        + (worst && worst.a !== best.a ? '<p class="note">\u0623\u0635\u0639\u0628 \u062f\u0648\u0631\u0629: <b>' + esc(worst.a.label) + '</b> \u0628'
+            + (worst.s < 0 ? '\u0639\u062c\u0632 <b class="num">' + money(-worst.s) + '</b>' : '\u0641\u0627\u0626\u0636 <b class="num">' + money(worst.s) + '</b>')
+            + ' \u0631.\u0633.</p>' : '')
+      + '</div></div>'
+
+    + '<div class="rep-sec"><h3 class="rep-h">\u0623\u064a\u0646 \u0630\u0647\u0628 \u062f\u062e\u0644\u0643</h3><div class="rep-in">' + catRows + '</div></div>'
+
+    + '<div class="rep-sec"><h3 class="rep-h">\u0645\u0644\u0627\u062d\u0638\u0627\u062a \u0627\u0644\u0633\u0646\u0629</h3><div class="rep-in">'
+      + '<div class="nts">' + notes.map(function(x){
+          return '<div class="nt ' + x.l + '">' + x.t + '</div>'; }).join("") + '</div></div></div>';
+}
+
+function openReport(){
+  var ys = repYears();
+  if(!ys.length) return toast("\u0644\u0627 \u062f\u0648\u0631\u0627\u062a \u0645\u0624\u0631\u0634\u0641\u0629 \u0628\u0639\u062f");
+  var sel = el("rep-year");
+  sel.innerHTML = ys.map(function(y){ return '<option value="' + y + '">\u0633\u0646\u0629 ' + y + '</option>'; }).join("");
+  renderReport();
+  el("report").hidden = false;
+  document.body.style.overflow = "hidden";
+}
+function closeReport(){
+  el("report").hidden = true;
+  document.body.style.overflow = "";
+}
+
 function renderArch(){
   renderLiveNotes();
   renderCmp();
@@ -2142,6 +2335,14 @@ el("e-del").addEventListener("click", function(){
   save(); render(); closeEntryEditor(); toast("\u062d\u064f\u0630\u0641 \u0627\u0644\u0642\u064a\u062f");
 });
 
+el("btn-report").addEventListener("click", openReport);
+el("rep-close").addEventListener("click", closeReport);
+el("rep-year").addEventListener("change", renderReport);
+el("rep-print").addEventListener("click", function(){
+  try { window.print(); }
+  catch(e){ toast("\u0627\u0644\u0637\u0628\u0627\u0639\u0629 \u063a\u064a\u0631 \u0645\u062a\u0627\u062d\u0629 \u0647\u0646\u0627 \u2014 \u0627\u0641\u062a\u062d \u0627\u0644\u0631\u0627\u0628\u0637 \u0641\u064a Safari"); }
+});
+
 el("cmp-a").addEventListener("change", renderCmp);
 el("cmp-b").addEventListener("change", renderCmp);
 
@@ -2214,6 +2415,7 @@ el("m-cancel").addEventListener("click", closeEditor);
 el("modal").addEventListener("click", function(ev){ if(ev.target === this) closeEditor(); });
 document.addEventListener("keydown", function(ev){
   if(ev.key !== "Escape") return;
+  if(!el("report").hidden) closeReport();
   if(!el("modal").hidden) closeEditor();
   if(!el("emodal").hidden) closeEntryEditor();
 });
