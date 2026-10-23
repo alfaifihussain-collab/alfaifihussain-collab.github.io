@@ -424,7 +424,7 @@ input::placeholder{color:var(--mute)}
       </div>
       <div id="field-cat"><select id="f-cat" aria-label="&#1575;&#1604;&#1576;&#1606;&#1583;"></select></div>
       <div class="entry-row">
-        <input type="number" id="f-amt" inputmode="decimal" step="0.01" min="0.01"
+        <input type="text" class="numin" id="f-amt" inputmode="decimal" step="0.01" min="0.01"
                placeholder="&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;" aria-label="&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;" required>
         <button class="btn gold" type="submit" id="f-submit">&#1578;&#1587;&#1580;&#1610;&#1604;</button>
       </div>
@@ -496,7 +496,7 @@ input::placeholder{color:var(--mute)}
       <p class="hint">&#1610;&#1615;&#1581;&#1608;&#1614;&#1617;&#1604; &#1601;&#1575;&#1574;&#1590; &#1603;&#1604; &#1583;&#1608;&#1585;&#1577; &#1573;&#1604;&#1609; &#1575;&#1604;&#1589;&#1606;&#1583;&#1608;&#1602; &#1578;&#1604;&#1602;&#1575;&#1574;&#1610;&#1575;&#1611; &#1593;&#1606;&#1583; &#1606;&#1586;&#1608;&#1604; &#1575;&#1604;&#1585;&#1575;&#1578;&#1576;&#1548; &#1608;&#1610;&#1615;&#1594;&#1591;&#1614;&#1617;&#1609; &#1605;&#1606;&#1607; &#1571;&#1610; &#1593;&#1580;&#1586;.</p>
       <div class="set">
         <div class="row2">
-          <input type="number" id="fund-amt" inputmode="decimal" min="0" step="0.01" placeholder="&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;">
+          <input type="text" class="numin" id="fund-amt" inputmode="decimal" min="0" step="0.01" placeholder="&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;">
           <input type="text" id="fund-note" maxlength="40" placeholder="&#1575;&#1604;&#1587;&#1576;&#1576; (&#1575;&#1582;&#1578;&#1610;&#1575;&#1585;&#1610;)">
         </div>
         <div class="row2">
@@ -505,7 +505,7 @@ input::placeholder{color:var(--mute)}
         </div>
         <p class="note">&#1575;&#1604;&#1573;&#1610;&#1583;&#1575;&#1593; &#1610;&#1582;&#1589;&#1605; &#1575;&#1604;&#1605;&#1576;&#1604;&#1594; &#1605;&#1606; &#1605;&#1578;&#1575;&#1581; &#1575;&#1604;&#1583;&#1608;&#1585;&#1577;&#1548; &#1608;&#1575;&#1604;&#1587;&#1581;&#1576; &#1610;&#1590;&#1610;&#1601;&#1607; &#1573;&#1604;&#1610;&#1607;&#1575;.</p>
         <div class="row2" style="margin-top:4px">
-          <input type="number" id="goal-amt" inputmode="decimal" min="0" placeholder="&#1607;&#1583;&#1601; &#1575;&#1604;&#1589;&#1606;&#1583;&#1608;&#1602; (&#1575;&#1582;&#1578;&#1610;&#1575;&#1585;&#1610;)">
+          <input type="text" class="numin" id="goal-amt" inputmode="decimal" min="0" placeholder="&#1607;&#1583;&#1601; &#1575;&#1604;&#1589;&#1606;&#1583;&#1608;&#1602; (&#1575;&#1582;&#1578;&#1610;&#1575;&#1585;&#1610;)">
           <button class="btn ghost" type="button" id="goal-save">&#1581;&#1601;&#1592; &#1575;&#1604;&#1607;&#1583;&#1601;</button>
         </div>
       </div>
@@ -553,7 +553,7 @@ input::placeholder{color:var(--mute)}
       <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1582;&#1604; &#1604;&#1603;&#1604; &#1583;&#1608;&#1585;&#1577;</h2></div>
       <div class="set">
         <div class="row2">
-          <input type="number" id="f-income" inputmode="decimal" min="0" placeholder="&#1575;&#1604;&#1583;&#1582;&#1604; &#1576;&#1575;&#1604;&#1585;&#1610;&#1575;&#1604;">
+          <input type="text" class="numin" id="f-income" inputmode="decimal" min="0" placeholder="&#1575;&#1604;&#1583;&#1582;&#1604; &#1576;&#1575;&#1604;&#1585;&#1610;&#1575;&#1604;">
           <button class="btn" type="button" id="btn-income">&#1581;&#1601;&#1592; &#1575;&#1604;&#1583;&#1582;&#1604;</button>
         </div>
         <p class="note" id="alloc-detail"></p>
@@ -638,7 +638,7 @@ input::placeholder{color:var(--mute)}
     <h2 id="m-title">&#1578;&#1593;&#1583;&#1610;&#1604; &#1575;&#1604;&#1576;&#1606;&#1583;</h2>
     <div class="field"><label for="m-name">&#1575;&#1604;&#1575;&#1587;&#1605;</label><input type="text" id="m-name" maxlength="40"></div>
     <div class="row2">
-      <div class="field"><label for="m-limit">&#1575;&#1604;&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577; &#1575;&#1604;&#1588;&#1607;&#1585;&#1610;&#1577;</label><input type="number" id="m-limit" inputmode="decimal" min="0" step="1"></div>
+      <div class="field"><label for="m-limit">&#1575;&#1604;&#1605;&#1610;&#1586;&#1575;&#1606;&#1610;&#1577; &#1575;&#1604;&#1588;&#1607;&#1585;&#1610;&#1577;</label><input type="text" class="numin" id="m-limit" inputmode="decimal" min="0" step="1"></div>
       <div class="field"><label for="m-icon">&#1575;&#1604;&#1585;&#1605;&#1586;</label><input type="text" id="m-icon" maxlength="4" placeholder="&#128221;"></div>
     </div>
     <div class="field"><label for="m-tint">&#1575;&#1604;&#1604;&#1608;&#1606;</label><select id="m-tint">
@@ -671,7 +671,7 @@ input::placeholder{color:var(--mute)}
     <div class="field" id="e-cat-field"><label for="e-cat">&#1575;&#1604;&#1576;&#1606;&#1583;</label><select id="e-cat"></select></div>
     <div class="row2">
       <div class="field"><label for="e-amt">&#1575;&#1604;&#1605;&#1576;&#1604;&#1594;</label>
-        <input type="number" id="e-amt" inputmode="decimal" step="0.01"></div>
+        <input type="text" class="numin" id="e-amt" inputmode="decimal" step="0.01"></div>
       <div class="field"><label for="e-date">&#1575;&#1604;&#1578;&#1575;&#1585;&#1610;&#1582;</label>
         <input type="date" id="e-date"></div>
     </div>
@@ -879,7 +879,19 @@ function daysToPayday(){
 }
 function isPayday(){ return cycleStartOf(new Date(), state.payday) === midnight(); }
 
-function num(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
+// \u0660-\u0669 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0648\u06f0-\u06f9 \u0627\u0644\u0641\u0627\u0631\u0633\u064a\u0629\u060c \u0648\u0627\u0644\u0641\u0627\u0635\u0644\u0629 \u0627\u0644\u0639\u0634\u0631\u064a\u0629 \u0648\u0641\u0627\u0635\u0644 \u0627\u0644\u0622\u0644\u0627\u0641 \u0627\u0644\u0639\u0631\u0628\u064a\u0627\u0646
+var AR_DIGITS = /[\u0660-\u0669\u06F0-\u06F9]/g;
+function toLatinDigits(v){
+  return String(v == null ? "" : v)
+    .replace(AR_DIGITS, function(d){
+      var c = d.charCodeAt(0);
+      return String(c >= 0x06F0 ? c - 0x06F0 : c - 0x0660);
+    })
+    .replace(/\u066B/g, ".")                    // \u0627\u0644\u0641\u0627\u0635\u0644\u0629 \u0627\u0644\u0639\u0634\u0631\u064a\u0629 \u0627\u0644\u0639\u0631\u0628\u064a\u0629
+    .replace(/[\u066C\u060C\u202F\u00A0]/g, ""); // \u0641\u0648\u0627\u0635\u0644 \u0627\u0644\u0622\u0644\u0627\u0641 \u0648\u0627\u0644\u0645\u0633\u0627\u0641\u0627\u062a \u063a\u064a\u0631 \u0627\u0644\u0641\u0627\u0635\u0644\u0629
+}
+
+function num(v){ var n = parseFloat(toLatinDigits(v)); return isFinite(n) ? n : 0; }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
 /* ---- \u0627\u0644\u0645\u0632\u0627\u0645\u0646\u0629: \u0634\u0648\u0627\u0647\u062f \u0627\u0644\u062d\u0630\u0641 \u062a\u0645\u0646\u0639 \u0639\u0648\u062f\u0629 \u0627\u0644\u0645\u062d\u0630\u0648\u0641 \u0639\u0646\u062f \u0627\u0644\u062f\u0645\u062c ---- */
@@ -1384,7 +1396,8 @@ function renderLog(){
     var rows = cy.rows.filter(function(r){
       if(f && (r.kind === "inc" || r.cat !== f)) return false;
       if(!q) return true;
-      return ((r.name || "") + " " + (r.note || "") + " " + r.amount).indexOf(q) >= 0;
+      var hay = (r.name || "") + " " + (r.note || "") + " " + r.amount;
+      return hay.indexOf(q) >= 0 || hay.indexOf(toLatinDigits(q)) >= 0;
     }).sort(function(a, b){ return (b.ts || 0) - (a.ts || 0); });
 
     rows.forEach(function(r){
@@ -1958,6 +1971,18 @@ function renderSet(){
 }
 
 /* ============ \u0627\u0644\u0639\u0645\u0644\u064a\u0627\u062a ============ */
+
+// \u0623\u064a \u062d\u0642\u0644 \u0631\u0642\u0645\u064a: \u062a\u064f\u062d\u0648\u064e\u0651\u0644 \u0623\u0631\u0642\u0627\u0645\u0647 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0641\u0648\u0631 \u0643\u062a\u0627\u0628\u062a\u0647\u0627 \u0648\u064a\u064f\u0646\u0638\u064e\u0651\u0641 \u0645\u0645\u0627 \u0644\u064a\u0633 \u0631\u0642\u0645\u0627\u064b
+document.addEventListener("input", function(ev){
+  var t = ev.target;
+  if(!t || !t.classList || !t.classList.contains("numin")) return;
+  var before = t.value;
+  var after = toLatinDigits(before).replace(/[^0-9.\-]/g, "");
+  if(after === before) return;
+  var pos = t.selectionStart;
+  t.value = after;
+  try { t.setSelectionRange(pos, pos); } catch(e){}
+});
 var entryMode = "exp";
 function setEntryMode(m){
   entryMode = m;
