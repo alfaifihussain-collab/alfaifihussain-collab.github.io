@@ -628,6 +628,10 @@ input::placeholder{color:var(--mute)}
           <select id="f-payday"></select>
           <button class="btn" type="button" id="btn-payday">&#1581;&#1601;&#1592; &#1575;&#1604;&#1610;&#1608;&#1605;</button>
         </div>
+        <div class="row2" style="margin-top:4px">
+          <select id="f-weekend"></select>
+          <button class="btn ghost" type="button" id="btn-weekend">&#1581;&#1601;&#1592; &#1575;&#1604;&#1602;&#1575;&#1593;&#1583;&#1577;</button>
+        </div>
         <p class="note" id="payday-note"></p>
       </div>
     </div>
@@ -751,7 +755,7 @@ input::placeholder{color:var(--mute)}
 "use strict";
 
 /* ============ \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0627\u0644\u0623\u0635\u0644\u064a\u0629 ============ */
-var APP_BUILD = "2026-11-26 \u00b7 7b5a630";
+var APP_BUILD = "2026-11-26 \u00b7 601d063";
 var SCHEMA = 4;
 var DEFAULT_INCOME = 11731;
 var DEFAULT_CATS = [
@@ -790,7 +794,7 @@ var state = null, sortMode = "manual", editKey = null, editEntry = null, rolledO
 function freshState(){
   var s = {schema:SCHEMA, salary:DEFAULT_INCOME, payday:PAYDAY_DEFAULT, cats:{}, order:[],
            log:[], incomeLog:[], archives:[], autoPosted:[], salaryPosted:false,
-           fund:{balance:0, log:[]}, lastBackup:null, alertPct:80, tomb:{}, updatedAt:Date.now(),
+           fund:{balance:0, log:[]}, lastBackup:null, alertPct:80, weekendRule:"near", tomb:{}, updatedAt:Date.now(),
            startedAt:Date.now()};
   s.cycleStart = cycleStartOf(new Date(), s.payday);
   DEFAULT_CATS.forEach(function(c){
@@ -863,6 +867,7 @@ function migrate(s){
   s.fund.balance = fundBalance(s);
   if(typeof s.lastBackup !== "number") s.lastBackup = null;
   s.alertPct = (num(s.alertPct) >= 50 && num(s.alertPct) <= 100) ? num(s.alertPct) : 80;
+  if(["near", "before", "off"].indexOf(s.weekendRule) < 0) s.weekendRule = "near";
   if(!s.tomb || typeof s.tomb !== "object") s.tomb = {};
   if(typeof s.updatedAt !== "number") s.updatedAt = Date.now();
   if(s.payday !== 0 && !(num(s.payday) >= 1 && num(s.payday) <= 28)) s.payday = PAYDAY_DEFAULT;
@@ -954,12 +959,25 @@ function save(){
 function lastDayOf(y, m){ return new Date(y, m + 1, 0).getDate(); }
 function paydayOf(y, m, p){ var last = lastDayOf(y, m); return p === 0 ? last : Math.min(p, last); }
 
+// \u0645\u0648\u0639\u062f \u0627\u0644\u0646\u0632\u0648\u0644 \u0627\u0644\u0641\u0639\u0644\u064a: \u0639\u0637\u0644\u0629 \u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u0623\u0633\u0628\u0648\u0639 \u0639\u0646\u062f\u0646\u0627 \u0627\u0644\u062c\u0645\u0639\u0629 \u0648\u0627\u0644\u0633\u0628\u062a\u060c \u0641\u0625\u0646 \u0648\u0627\u0641\u0642\u0647\u0627
+// \u0627\u0644\u0645\u0648\u0639\u062f \u0627\u0646\u062a\u0642\u0644 \u0625\u0644\u0649 \u0623\u0642\u0631\u0628 \u064a\u0648\u0645 \u0639\u0645\u0644 \u2014 \u0627\u0644\u062c\u0645\u0639\u0629 \u0625\u0644\u0649 \u0627\u0644\u062e\u0645\u064a\u0633\u060c \u0648\u0627\u0644\u0633\u0628\u062a \u0625\u0644\u0649 \u0627\u0644\u0623\u062d\u062f.
+function paydayTs(y, m, p){
+  var d = new Date(y, m, paydayOf(y, m, p));
+  var rule = state && state.weekendRule ? state.weekendRule : "near";
+  if(rule === "off") return d.getTime();
+  var w = d.getDay();                       // 5 = \u0627\u0644\u062c\u0645\u0639\u0629\u060c 6 = \u0627\u0644\u0633\u0628\u062a
+  if(w === 5) d.setDate(d.getDate() - 1);
+  else if(w === 6) d.setDate(d.getDate() + (rule === "before" ? -2 : 1));
+  return d.getTime();
+}
+
 function cycleStartOf(d, p){
   var y = d.getFullYear(), m = d.getMonth();
-  if(d.getDate() >= paydayOf(y, m, p)) return new Date(y, m, paydayOf(y, m, p)).getTime();
+  var t = paydayTs(y, m, p);
+  if(d.getTime() >= t) return t;
   var pm = m - 1, py = y;
   if(pm < 0){ pm = 11; py--; }
-  return new Date(py, pm, paydayOf(py, pm, p)).getTime();
+  return paydayTs(py, pm, p);
 }
 function startOfDay(ts){ var d = new Date(ts); d.setHours(0,0,0,0); return d.getTime(); }
 
@@ -971,7 +989,7 @@ function nextBoundary(startTs, p){
   for(var i = 0; i <= 3; i++){
     var mm = m + i, yy = y;
     while(mm > 11){ mm -= 12; yy++; }
-    var cand = new Date(yy, mm, paydayOf(yy, mm, p)).getTime();
+    var cand = paydayTs(yy, mm, p);
     if(cand - startTs >= 20 * DAY_MS) return cand;
   }
   return startTs + 30 * DAY_MS;
@@ -1075,6 +1093,7 @@ function el(id){ return document.getElementById(id); }
 var dtDay = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long"});
 var dtTime = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{hour:"numeric",minute:"2-digit"});
 var dtMonth = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{month:"long",year:"numeric"});
+var dtFull = new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{weekday:"long",day:"numeric",month:"long"});
 function stamp(e){
   if(!e.ts) return e.dateText || "";
   var d = new Date(e.ts);
@@ -2205,7 +2224,18 @@ function renderSet(){
     sel.innerHTML = h;
   }
   sel.value = String(state.payday);
-  el("payday-note").textContent = "\u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629: " + cycleRange(state.cycleStart, cycleEnd())
+
+  var ws = el("f-weekend");
+  if(!ws.options.length){
+    ws.innerHTML = '<option value="near">\u0625\u0630\u0627 \u0648\u0627\u0641\u0642 \u0639\u0637\u0644\u0629: \u0623\u0642\u0631\u0628 \u064a\u0648\u0645 \u0639\u0645\u0644</option>'
+      + '<option value="before">\u0625\u0630\u0627 \u0648\u0627\u0641\u0642 \u0639\u0637\u0644\u0629: \u0642\u0628\u0644\u0647\u0627 \u062f\u0627\u0626\u0645\u0627\u064b</option>'
+      + '<option value="off">\u0628\u0644\u0627 \u062a\u0639\u062f\u064a\u0644 \u0644\u0644\u0639\u0637\u0644\u0629</option>';
+  }
+  ws.value = state.weekendRule || "near";
+
+  var nb = cycleEnd();
+  el("payday-note").textContent = "\u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u0642\u0627\u062f\u0645: " + dtFull.format(new Date(nb)) + ". "
+    + "\u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629: " + cycleRange(state.cycleStart, cycleEnd())
     + " \u2014 " + (isPayday() ? "\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u064a\u0648\u0645"
       : "\u0628\u0627\u0642\u064a " + plural(daysToPayday(), "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f", "\u064a\u0648\u0645\u064a\u0646", "\u0623\u064a\u0627\u0645", "\u064a\u0648\u0645\u0627\u064b"));
   var alloc = state.order.reduce(function(a,k){
@@ -2547,6 +2577,14 @@ el("btn-alert").addEventListener("click", function(){
   state.alertPct = v;
   save(); render();
   toast("\u062d\u062f\u0651 \u0627\u0644\u062a\u0646\u0628\u064a\u0647: " + v + "\u066a");
+});
+
+el("btn-weekend").addEventListener("click", function(){
+  var v = el("f-weekend").value;
+  if(["near", "before", "off"].indexOf(v) < 0) return;
+  state.weekendRule = v;
+  save(); render();
+  toast("\u062d\u064f\u0641\u0638\u062a \u0642\u0627\u0639\u062f\u0629 \u0627\u0644\u0639\u0637\u0644\u0629");
 });
 
 el("btn-payday").addEventListener("click", function(){
