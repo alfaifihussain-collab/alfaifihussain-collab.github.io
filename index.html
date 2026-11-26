@@ -591,12 +591,13 @@ input::placeholder{color:var(--mute)}
   <!-- ---- &#1575;&#1604;&#1573;&#1593;&#1583;&#1575;&#1583;&#1575;&#1578; ---- -->
   <section class="panel" id="p-set" hidden>
     <div class="list">
-      <div class="list-head"><h2>&#1575;&#1604;&#1583;&#1582;&#1604; &#1604;&#1603;&#1604; &#1583;&#1608;&#1585;&#1577;</h2></div>
+      <div class="list-head"><h2>&#1575;&#1604;&#1585;&#1575;&#1578;&#1576; &#1575;&#1604;&#1571;&#1587;&#1575;&#1587;&#1610;</h2></div>
       <div class="set">
         <div class="row2">
-          <input type="text" class="numin" id="f-income" inputmode="decimal" min="0" placeholder="&#1575;&#1604;&#1583;&#1582;&#1604; &#1576;&#1575;&#1604;&#1585;&#1610;&#1575;&#1604;">
-          <button class="btn" type="button" id="btn-income">&#1581;&#1601;&#1592; &#1575;&#1604;&#1583;&#1582;&#1604;</button>
+          <input type="text" class="numin" id="f-income" inputmode="decimal" min="0" placeholder="&#1575;&#1604;&#1585;&#1575;&#1578;&#1576; &#1576;&#1575;&#1604;&#1585;&#1610;&#1575;&#1604;">
+          <button class="btn" type="button" id="btn-income">&#1581;&#1601;&#1592; &#1575;&#1604;&#1585;&#1575;&#1578;&#1576;</button>
         </div>
+        <p class="note" id="salary-detail"></p>
         <p class="note" id="alloc-detail"></p>
         <p class="note" id="fixed-detail"></p>
       </div>
@@ -755,7 +756,7 @@ input::placeholder{color:var(--mute)}
 "use strict";
 
 /* ============ \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0627\u0644\u0623\u0635\u0644\u064a\u0629 ============ */
-var APP_BUILD = "2026-11-26 \u00b7 601d063";
+var APP_BUILD = "2026-11-26 \u00b7 13a1d4a";
 var SCHEMA = 4;
 var DEFAULT_INCOME = 11731;
 var DEFAULT_CATS = [
@@ -2238,6 +2239,15 @@ function renderSet(){
     + "\u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062d\u0627\u0644\u064a\u0629: " + cycleRange(state.cycleStart, cycleEnd())
     + " \u2014 " + (isPayday() ? "\u0646\u0632\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u064a\u0648\u0645"
       : "\u0628\u0627\u0642\u064a " + plural(daysToPayday(), "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f", "\u064a\u0648\u0645\u064a\u0646", "\u0623\u064a\u0627\u0645", "\u064a\u0648\u0645\u0627\u064b"));
+  var curInc = totalIncome();
+  var sEntry = state.incomeLog.filter(function(e){ return e.auto && !e.fund; })[0];
+  el("salary-detail").innerHTML = "\u064a\u064f\u0642\u064a\u064e\u0651\u062f <b class='num'>" + money(state.salary)
+    + "</b> \u0631.\u0633 \u062f\u062e\u0644\u0627\u064b \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b \u0645\u0639 \u0628\u062f\u0627\u064a\u0629 \u0643\u0644 \u062f\u0648\u0631\u0629."
+    + (sEntry && Math.abs(sEntry.amount - state.salary) > 0.005
+        ? " \u0631\u0627\u062a\u0628 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u0645\u0642\u064a\u064e\u0651\u062f \u0628\u0640 <b class='num'>" + money(sEntry.amount) + "</b> \u0631.\u0633."
+        : "")
+    + " \u0648\u062f\u062e\u0644 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u0643\u0627\u0645\u0644\u0627\u064b <b class='num'>" + money(curInc) + "</b> \u0631.\u0633.";
+
   var alloc = state.order.reduce(function(a,k){
     var c = state.cats[k];
     return a + (c.open || c.hidden ? 0 : c.limit);
@@ -2567,8 +2577,25 @@ el("m-del").addEventListener("click", function(){
 el("btn-income").addEventListener("click", function(){
   var v = num(el("f-income").value);
   if(v <= 0) return toast("\u0623\u062f\u062e\u0644 \u0645\u0628\u0644\u063a\u0627\u064b \u0635\u062d\u064a\u062d\u0627\u064b");
-  state.salary = v; el("f-income").value = "";
-  save(); render(); toast("\u062d\u064f\u062f\u0651\u062b \u0627\u0644\u062f\u062e\u0644");
+  var old = state.salary;
+  state.salary = v;
+  el("f-income").value = "";
+
+  // \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u0642\u064f\u064a\u0651\u062f \u0631\u0627\u062a\u0628\u0647\u0627 \u0633\u0644\u0641\u0627\u064b\u060c \u0641\u0644\u0627 \u064a\u063a\u064a\u0651\u0631\u0647\u0627 \u0627\u0644\u0625\u0639\u062f\u0627\u062f \u0645\u0627 \u0644\u0645 \u064a\u0637\u0644\u0628 \u0630\u0644\u0643
+  var sEntry = state.incomeLog.filter(function(e){ return e.auto && !e.fund; })[0];
+  if(sEntry && Math.abs(sEntry.amount - v) > 0.005){
+    if(confirm("\u062d\u064f\u0641\u0638 \u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u0623\u0633\u0627\u0633\u064a " + money(v) + " \u0631.\u0633.\n\n"
+             + "\u0631\u0627\u062a\u0628 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u0645\u0642\u064a\u064e\u0651\u062f \u0628\u0640 " + money(sEntry.amount) + " \u0631.\u0633. "
+             + "\u0647\u0644 \u062a\u062d\u062f\u0651\u062b\u0647 \u0625\u0644\u0649 " + money(v) + " \u0623\u064a\u0636\u0627\u064b\u061f\n\n"
+             + "\u00ab\u0625\u0644\u063a\u0627\u0621\u00bb \u064a\u0628\u0642\u064a \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u0627\u0631\u064a\u0629 \u0643\u0645\u0627 \u0647\u064a\u060c \u0648\u064a\u0633\u0631\u064a \u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u062c\u062f\u064a\u062f \u0645\u0646 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u0642\u0627\u062f\u0645\u0629.")){
+      sEntry.amount = v;
+      sEntry.mts = Date.now();
+      save(); render();
+      return toast("\u062d\u064f\u062f\u0651\u062b \u0627\u0644\u0631\u0627\u062a\u0628 \u0648\u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u062c\u0627\u0631\u064a\u0629");
+    }
+  }
+  save(); render();
+  toast(old !== v ? "\u062d\u064f\u0641\u0638 \u0627\u0644\u0631\u0627\u062a\u0628 \u2014 \u064a\u0633\u0631\u064a \u0645\u0646 \u0627\u0644\u062f\u0648\u0631\u0629 \u0627\u0644\u0642\u0627\u062f\u0645\u0629" : "\u062d\u064f\u0641\u0638 \u0627\u0644\u0631\u0627\u062a\u0628");
 });
 
 el("btn-alert").addEventListener("click", function(){
